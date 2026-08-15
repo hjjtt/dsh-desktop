@@ -116,7 +116,7 @@ index 3017292382..bd3c554e17 100644
        "entry": [
          "tests/**/*.spec.ts"
 diff --git a/packages/api/remotes/src/client/index.ts b/packages/api/remotes/src/client/index.ts
-index 210ec0bf80..dacd1e3883 100644
+index 210ec0bf80..0759ae6b85 100644
 --- a/packages/api/remotes/src/client/index.ts
 +++ b/packages/api/remotes/src/client/index.ts
 @@ -34,7 +34,7 @@ export type {} from '@deepseek-ai/dsh-settings/types'
@@ -124,7 +124,7 @@ index 210ec0bf80..dacd1e3883 100644
  export type {
    ClientResponse, ConfigurableProviderView, ConnectionHandle, ConnectionSinks, ContentBlock,
 -  CredentialView, DirectoryListing, DiscoveredModelView, HistoryEntry, HostFrame, IApiClient,
-+  CredentialView, DirectoryListing, DiscoveredModelView, FileTreeEntry, FileTreeListing, HistoryEntry, HostFrame, IApiClient,
++  CredentialView, DirectoryListing, DiscoveredModelView, FileContent, FileTreeEntry, FileTreeListing, HistoryEntry, HostFrame, IApiClient,
    MessageId, ModelCatalogFailure, ModelProviderGroup, ModelReasoningEffort, ModelSelection,
    MuxFrame, PromptContentPart, QuestionResponsePayload, QueueAction, RpcError, RpcId, RpcReceipt,
    RpcRequest, RpcResponse, RpcResult, SessionId, SessionModels, SessionSearchItem,
@@ -177,7 +177,7 @@ index ca4709a2a9..6272efc150 100644
      "@deepseek-ai/dsh-host-webserver": "workspace:^",
      "@deepseek-ai/dsh-message-feedback": "workspace:^",
 diff --git a/packages/client/connection/src/client/api.ts b/packages/client/connection/src/client/api.ts
-index 1b7627b293..5eddca7fb1 100644
+index 1b7627b293..8f4a98b3b2 100644
 --- a/packages/client/connection/src/client/api.ts
 +++ b/packages/client/connection/src/client/api.ts
 @@ -8,7 +8,7 @@
@@ -185,15 +185,15 @@ index 1b7627b293..5eddca7fb1 100644
    ApiProxy, SessionsApi, SessionSearchItem, SessionSummary, PromptContentPart, HostApi, EventsApi, MuxFrame, HostFrame,
    ApprovalResponsePayload, QuestionResponsePayload, HistoryEntry, ToolEventView,
 -  DirectoryEntry, DirectoryListing,
-+  DirectoryEntry, DirectoryListing, FileTreeEntry, FileTreeListing,
++  DirectoryEntry, DirectoryListing, FileContent, FileTreeEntry, FileTreeListing,
    ResponseValue, WorkspaceApi, WorkspaceId, WorkspaceView,
    SkillsApi, SkillEntry,
    ModelCatalogFailure, ModelCatalogModel, ModelProviderGroup, ModelReasoning,
 diff --git a/packages/client/connection/src/client/fixture.ts b/packages/client/connection/src/client/fixture.ts
-index dd0566486e..5be39acfa1 100644
+index dd0566486e..186b39aac3 100644
 --- a/packages/client/connection/src/client/fixture.ts
 +++ b/packages/client/connection/src/client/fixture.ts
-@@ -2545,6 +2545,22 @@ function createFixtureWorld(options: FixtureOptions): FixtureWorld {
+@@ -2545,6 +2545,28 @@ function createFixtureWorld(options: FixtureOptions): FixtureWorld {
            truncated: false,
          })
        },
@@ -213,19 +213,26 @@ index dd0566486e..5be39acfa1 100644
 +          truncated: false,
 +        })
 +      },
++      // Read fixture: the fixture tree carries no file rows, so every read
++      // answers the not-found failure a real host reports for a missing file.
++      readFile: (request) => {
++        const target = request.payload.path
++        return err(request, { code: 'file-unreadable', message: `cannot read ${target}: not in the fixture tree`, details: { path: target } })
++      },
        createDirectory: (request) => {
          const parent = request.payload.path
          const children = childrenOf(parent)
-@@ -3096,6 +3112,7 @@ export class FixtureApiClient extends AbstractApiClient {
+@@ -3096,6 +3118,8 @@ export class FixtureApiClient extends AbstractApiClient {
        case 'host.describe': return this.api.host.describe(request)
        case 'host.pickDirectory': return this.api.host.pickDirectory(request, new AbortController().signal)
        case 'host.listDirectory': return this.api.host.listDirectory(request, new AbortController().signal)
 +      case 'host.listFiles': return this.api.host.listFiles(request, new AbortController().signal)
++      case 'host.readFile': return this.api.host.readFile(request, new AbortController().signal)
        case 'host.createDirectory': return this.api.host.createDirectory(request)
        case 'host.openPath': return this.api.host.openPath(request, new AbortController().signal)
        case 'workspace.list': return this.api.workspace.list(request)
 diff --git a/packages/client/connection/src/client/index.ts b/packages/client/connection/src/client/index.ts
-index c4470b13aa..86d8cdc523 100644
+index c4470b13aa..37bffc8406 100644
 --- a/packages/client/connection/src/client/index.ts
 +++ b/packages/client/connection/src/client/index.ts
 @@ -16,7 +16,7 @@ import type { ClientConnectionRpc } from '../rpc.ts'
@@ -233,24 +240,25 @@ index c4470b13aa..86d8cdc523 100644
    ApiProxy, SessionsApi, SessionSearchItem, SessionSummary, PromptContentPart, HostApi, EventsApi, MuxFrame, HostFrame,
    ApprovalResponsePayload, QuestionResponsePayload, HistoryEntry, ToolEventView,
 -  DirectoryEntry, DirectoryListing,
-+  DirectoryEntry, DirectoryListing, FileTreeEntry, FileTreeListing,
++  DirectoryEntry, DirectoryListing, FileContent, FileTreeEntry, FileTreeListing,
    ToolCallView, ToolResultView, WorkspaceApi, WorkspaceId, WorkspaceView,
    SkillsApi, SkillEntry,
    ModelCatalogFailure, ModelCatalogModel, ModelProviderGroup, ModelReasoning,
 diff --git a/packages/client/connection/tests/fake-api.client.ts b/packages/client/connection/tests/fake-api.client.ts
-index bee4fc0ce0..d0029870f5 100644
+index bee4fc0ce0..cae9da9bf1 100644
 --- a/packages/client/connection/tests/fake-api.client.ts
 +++ b/packages/client/connection/tests/fake-api.client.ts
-@@ -144,6 +144,7 @@ export class FakeApiClient implements IApiClient {
+@@ -144,6 +144,8 @@ export class FakeApiClient implements IApiClient {
      describe: payload => this.record('host.describe', payload, this.onDescribe(payload)),
      pickDirectory: payload => this.record('host.pickDirectory', payload, this.onPickDirectory(payload)),
      listDirectory: payload => this.record('host.listDirectory', payload, this.onListDirectory(payload)),
 +    listFiles: payload => this.record('host.listFiles', payload, Promise.resolve(ok({ path: '/f', entries: [], truncated: false }))),
++    readFile: payload => this.record('host.readFile', payload, Promise.resolve(ok({ path: '/f/file.txt', kind: 'text', content: '', bytes: 0, truncated: false }))),
      createDirectory: payload => this.record('host.createDirectory', payload, this.onCreateDirectory(payload)),
      openPath: payload => this.record('host.openPath', payload, this.onOpenPath(payload)),
    }
 diff --git a/packages/client/runtime/src/client/contract/workspaces.ts b/packages/client/runtime/src/client/contract/workspaces.ts
-index 4012086c3d..9c86d1e8a4 100644
+index 4012086c3d..913273f106 100644
 --- a/packages/client/runtime/src/client/contract/workspaces.ts
 +++ b/packages/client/runtime/src/client/contract/workspaces.ts
 @@ -6,7 +6,7 @@
@@ -258,11 +266,11 @@ index 4012086c3d..9c86d1e8a4 100644
   * widening what features may do to the workspaces domain.
   */
 -import type { DirectoryListing, SessionId, WorkspaceId, WorkspaceView } from '@deepseek-ai/dsh-api-remotes/client'
-+import type { DirectoryListing, FileTreeListing, SessionId, WorkspaceId, WorkspaceView } from '@deepseek-ai/dsh-api-remotes/client'
++import type { DirectoryListing, FileContent, FileTreeListing, SessionId, WorkspaceId, WorkspaceView } from '@deepseek-ai/dsh-api-remotes/client'
  import type { WorkspaceListState } from '../workspaces/service.ts'
  import type { ObservableSnapshot } from './store.ts'
  
-@@ -46,6 +46,14 @@ export interface IWorkspaces {
+@@ -46,6 +46,23 @@ export interface IWorkspaces {
     * @returns the level's listing with breadcrumb ancestry.
     */
    listDirectory(path?: string, signal?: AbortSignal): Promise<DirectoryListing>
@@ -274,11 +282,20 @@ index 4012086c3d..9c86d1e8a4 100644
 +   * @returns the level's file and directory rows.
 +   */
 +  listFiles(path: string, signal?: AbortSignal): Promise<FileTreeListing>
++  /**
++   * Read one file's content through the Host's file-tree service for
++   * in-app viewing: text cut at the Host's complete-result bound, or a
++   * `'binary'` marker with empty content.
++   * @param path - absolute file to read.
++   * @param signal - aborts the wire request (and the Host's read) when the caller supersedes it.
++   * @returns the file's bounded content.
++   */
++  readFile(path: string, signal?: AbortSignal): Promise<FileContent>
    /**
     * Create one child directory through the Host's `browse` capability.
     * @param path - absolute existing parent directory.
 diff --git a/packages/client/runtime/src/client/index.ts b/packages/client/runtime/src/client/index.ts
-index b5433bb573..8bbea2f285 100644
+index b5433bb573..cb06ad11e0 100644
 --- a/packages/client/runtime/src/client/index.ts
 +++ b/packages/client/runtime/src/client/index.ts
 @@ -64,7 +64,7 @@ export type { SubagentAddress, JobView } from '@deepseek-ai/dsh-client-connectio
@@ -286,12 +303,12 @@ index b5433bb573..8bbea2f285 100644
  export type { WorkspaceListState } from './workspaces/service.ts'
  export type {
 -  DirectoryEntry, DirectoryListing, WorkspaceId, WorkspaceView,
-+  DirectoryEntry, DirectoryListing, FileTreeEntry, FileTreeListing, WorkspaceId, WorkspaceView,
++  DirectoryEntry, DirectoryListing, FileContent, FileTreeEntry, FileTreeListing, WorkspaceId, WorkspaceView,
  } from '@deepseek-ai/dsh-client-connection/client'
  // Runtime owns the snapshot store; web-react only binds it to React.
  export { createSnapshotStore, defineStore, shallowEqual } from './contract/store.ts'
 diff --git a/packages/client/runtime/src/client/workspaces/service.ts b/packages/client/runtime/src/client/workspaces/service.ts
-index c23e3b3a6c..74a2eb3f05 100644
+index c23e3b3a6c..f9449c8762 100644
 --- a/packages/client/runtime/src/client/workspaces/service.ts
 +++ b/packages/client/runtime/src/client/workspaces/service.ts
 @@ -2,7 +2,7 @@
@@ -299,11 +316,11 @@ index c23e3b3a6c..74a2eb3f05 100644
  import type { Context } from '@deepseek-ai/cordis'
  import type {
 -  DirectoryListing, IApiClient, RpcError,
-+  DirectoryListing, FileTreeListing, IApiClient, RpcError,
++  DirectoryListing, FileContent, FileTreeListing, IApiClient, RpcError,
    SessionId, WorkspaceId, WorkspaceView,
  } from '@deepseek-ai/dsh-api-remotes/client'
  import type { SnapshotStore } from '../contract/store.ts'
-@@ -226,6 +226,19 @@ export class WorkspaceRuntime implements IWorkspaces {
+@@ -226,6 +226,32 @@ export class WorkspaceRuntime implements IWorkspaces {
      return response.result.value
    }
  
@@ -320,14 +337,27 @@ index c23e3b3a6c..74a2eb3f05 100644
 +    return response.result.value
 +  }
 +
++  /**
++   * Read one file's content for in-app viewing, bounded by the Host's
++   * complete-result bound; a `'binary'` file answers empty content.
++   * @param path - absolute file to read.
++   * @param signal - aborts the wire request (and the Host's read) when the caller supersedes it.
++   * @returns the file's bounded content.
++   */
++  async readFile(path: string, signal?: AbortSignal): Promise<FileContent> {
++    const response = await this.api.host.readFile({ path }, signal)
++    if (!response.result.ok) throw new DirectoryBrowseError(response.result.error)
++    return response.result.value
++  }
++
    /**
     * Create one child directory through the Host's `browse` capability.
     * @param path - absolute existing parent directory.
 diff --git a/packages/client/runtime/tests/fake-api.client.ts b/packages/client/runtime/tests/fake-api.client.ts
-index 33a0efbbfd..dd86d4bb2e 100644
+index 33a0efbbfd..971bffaabc 100644
 --- a/packages/client/runtime/tests/fake-api.client.ts
 +++ b/packages/client/runtime/tests/fake-api.client.ts
-@@ -130,6 +130,13 @@ export class FakeApiClient implements IApiClient {
+@@ -130,6 +130,22 @@ export class FakeApiClient implements IApiClient {
    onCreateDirectory: (payload: unknown) => Promise<RpcResponse<{ path: string }>> =
      () => Promise.resolve(ok({ path: '/home/fake/new' }))
  
@@ -338,22 +368,32 @@ index 33a0efbbfd..dd86d4bb2e 100644
 +  }>> =
 +    () => Promise.resolve(ok({ path: '/home/fake', entries: [], truncated: false }))
 +
++  onReadFile: (payload: unknown) => Promise<RpcResponse<{
++    path: string
++    kind: 'text' | 'binary'
++    content: string
++    bytes: number
++    truncated: boolean
++  }>> =
++    () => Promise.resolve(ok({ path: '/home/fake/file.txt', kind: 'text', content: '', bytes: 0, truncated: false }))
++
    private readonly muxConns: StreamConn<MuxFrame>[] = []
    private readonly hostConns: StreamConn<HostFrame>[] = []
    lastSearchSignal: AbortSignal | undefined
-@@ -178,6 +185,7 @@ export class FakeApiClient implements IApiClient {
+@@ -178,6 +194,8 @@ export class FakeApiClient implements IApiClient {
      describe: (payload: unknown) => this.record('host.describe', payload, this.onDescribe(payload)),
      pickDirectory: (payload: unknown) => this.record('host.pickDirectory', payload, this.onPickDirectory(payload)),
      listDirectory: (payload: unknown) => this.record('host.listDirectory', payload, this.onListDirectory(payload)),
 +    listFiles: (payload: unknown) => this.record('host.listFiles', payload, this.onListFiles(payload)),
++    readFile: (payload: unknown) => this.record('host.readFile', payload, this.onReadFile(payload)),
      createDirectory: (payload: unknown) => this.record('host.createDirectory', payload, this.onCreateDirectory(payload)),
      openPath: (payload: unknown) => this.record('host.openPath', payload, this.onOpenPath(payload)),
    }
 diff --git a/packages/client/runtime/tests/workspaces-service.client.spec.ts b/packages/client/runtime/tests/workspaces-service.client.spec.ts
-index cfdfa98e9b..eea0065bcf 100644
+index cfdfa98e9b..43be4f5e8d 100644
 --- a/packages/client/runtime/tests/workspaces-service.client.spec.ts
 +++ b/packages/client/runtime/tests/workspaces-service.client.spec.ts
-@@ -328,6 +328,21 @@ describe('WorkspaceRuntime', () => {
+@@ -328,6 +328,33 @@ describe('WorkspaceRuntime', () => {
      await expect(workspaces.pickDirectory()).rejects.toThrow(/no chooser/)
    })
  
@@ -370,6 +410,18 @@ index cfdfa98e9b..eea0065bcf 100644
 +    expect(api.callsOf('host.listFiles')).toEqual([{ path: '/w' }])
 +    api.onListFiles = () => Promise.resolve(err({ code: 'directory-unreadable', message: 'cannot list /w', details: { path: '/w' } }))
 +    await expect(workspaces.listFiles('/w')).rejects.toThrow(/directory-unreadable: cannot list/)
++  })
++
++  it('reads one file through the read wire, wrapping business failures', async () => {
++    const ctx = new Context()
++    const api = new FakeApiClient()
++    const workspaces = new WorkspaceRuntime(ctx, api, new SessionRuntime(ctx, api, fakeRemote()))
++    const content = { path: '/w/a.ts', kind: 'text' as const, content: 'export {}\n', bytes: 11, truncated: false }
++    api.onReadFile = () => Promise.resolve(ok(content))
++    await expect(workspaces.readFile('/w/a.ts')).resolves.toEqual(content)
++    expect(api.callsOf('host.readFile')).toEqual([{ path: '/w/a.ts' }])
++    api.onReadFile = () => Promise.resolve(err({ code: 'file-unreadable', message: 'cannot read /w/a.ts', details: { path: '/w/a.ts' } }))
++    await expect(workspaces.readFile('/w/a.ts')).rejects.toThrow(/file-unreadable: cannot read/)
 +  })
 +
    it('passes listings and creation through the browse wire, wrapping business failures', async () => {
@@ -550,6 +602,467 @@ index 94354bd316..a5a3406ea8 100644
    it('pre-checks projected limits at intake: whole-batch refusal with product copy, none added', () => {
      const limits = {
        maxImageBytes: 1024 * 1024,
+diff --git a/packages/client/ui-deliverables/README.i18n.yaml b/packages/client/ui-deliverables/README.i18n.yaml
+index 70b3f889bf..bd1c5bf5cf 100644
+--- a/packages/client/ui-deliverables/README.i18n.yaml
++++ b/packages/client/ui-deliverables/README.i18n.yaml
+@@ -2,5 +2,5 @@
+ # side as of the last confirmed-consistent state. Both languages carry equal authority;
+ # after editing either side, bring the other along and re-record with:
+ #   pnpm run verify-translation-pairing --write packages/client/ui-deliverables/README.md
+-README.md: e7118eac75f31b3ffc3f2434371dba06f029d241
+-README.zh.md: 0c41170ef38331166f6ad87df0c3e5976200eaf9
++README.md: d8b6c0bebe47ed099734242e667bf3e29441f693
++README.zh.md: 1f8411974e17995d34bcc17b967cbecc09bbe823
+diff --git a/packages/client/ui-deliverables/README.md b/packages/client/ui-deliverables/README.md
+index e7118eac75..d8b6c0bebe 100644
+--- a/packages/client/ui-deliverables/README.md
++++ b/packages/client/ui-deliverables/README.md
+@@ -6,7 +6,7 @@ Produced-files and clickable-reference feature owner. The Node half registers fi
+ 
+ `deliverablesDefinition` folds each Turn's successful mutation calls into engine-published `DeliverablesTurnData`; `producedForClosing` reads that data with the closing Assistant seq. The vocabulary is the mutation tools' own follow-along `locations`, never the closing prose: a produced file is listed whether or not the model remembered to name it. A mutation is recognized by render intent, not tool name — a diff card, or a generic card whose `kind` is `edit` (the shape `str_replace_editor`'s insert presents) — so a new mutation tool joins by declaring what it does. Reads, deletes, and failed calls contribute nothing; a path appears once per Turn in first-seen order. The Conversation Location index owns Turn membership, so a Turn that mutates and then ends without content text cannot spill into the next Turn's row.
+ 
+-`ProducedFiles` renders the row between the closing message's body and its IconActions footer: a quiet label and one measured file lane. It shows the largest leading prefix that fits (up to six chips; basename text, full path as the `title`) while reserving the exact localized `+ N files` width, so the remainder stays visible without wrapping or horizontal scrolling. Each chip opens through the owner-supplied `openFile` — the same Host opener the tool rows use, with the chat view resolving relative paths against the session cwd. When files are hidden, a second-line **Show in folder** action opens the session workspace through that same owner path only while the page is loopback and the current Host handshake reports `canOpenPath`; direct remote Web and headless/container Linux Hosts omit the action by default. Design rationale: the [workspace file links Agent Note](../../../.agents/notes/implemented/feature/2026-07-31-web-workspace-file-links.md).
++`ProducedFiles` renders the row between the closing message's body and its IconActions footer: a quiet label and one measured file lane. It shows the largest leading prefix that fits (up to six chips; basename text, full path as the `title`) while reserving the exact localized `+ N files` width, so the remainder stays visible without wrapping or horizontal scrolling. Each chip opens the in-app `FileViewer`: the file's content loads through the workspaces `readFile` wire (the Host's complete-result bound cuts oversized files, binary files answer a marker) into a modal code surface with an extension-derived grammar hint, copy, retry, and truncation notice. The Host opener survives as the viewer's **Open with system app** footer action, gated by the same loopback + `canOpenPath` handshake; when files are hidden, a second-line **Show in folder** action opens the session workspace through that same owner path. Direct remote Web and headless/container Linux Hosts omit both host-opener affordances by default. Design rationale: the [workspace file links Agent Note](../../../.agents/notes/implemented/feature/2026-07-31-web-workspace-file-links.md).
+ 
+ The closing prose carries the same vocabulary. This plugin provides the `chatFileMentions` service the chat view consults per closing message: `producedFileMentions` resolves an inline-code token by exact path, or by being exactly the basename of exactly one produced path — a basename two paths share stays inert rather than guessing, so a mention link can never open the wrong file or 404. A resolved mention keeps its code chip and takes the markdown sheet's link language — link-blue at rest, underlined on hover, exactly like URL-promoted inline code — with the full path as its `title`; mentions never render inside anchors or streaming text. Decision record: the [inline file mentions Agent Note](../../../.agents/notes/implemented/feature/2026-08-07-web-inline-file-mentions.md).
+ 
+diff --git a/packages/client/ui-deliverables/README.zh.md b/packages/client/ui-deliverables/README.zh.md
+index 0c41170ef3..1f8411974e 100644
+--- a/packages/client/ui-deliverables/README.zh.md
++++ b/packages/client/ui-deliverables/README.zh.md
+@@ -6,7 +6,7 @@
+ 
+ `deliverablesDefinition` 把每个轮次中成功的修改调用折叠进引擎发布的 `DeliverablesTurnData`；`producedForClosing` 结合收尾 Assistant 的 seq 读取这份数据。依据的是修改工具自身附带的 `locations`，而不是收尾正文：无论模型是否记得点名，产出文件都会被列出。修改操作按渲染意图而非工具名识别：diff 卡片，或 `kind` 为 `edit` 的通用卡片（即 `str_replace_editor` 的 insert 操作所呈现的形态）；因此新的修改工具只需声明自身行为即可加入。读取、删除和失败的调用不贡献任何条目；同一路径在一个轮次内按首见顺序只出现一次。Conversation Location 索引负责维护轮次归属关系，因此一个轮次即使先修改文件、随后没有正文内容就结束，也不会溢进下一个轮次的行里。
+ 
+-`ProducedFiles` 在收尾消息正文与其 IconActions 之间渲染该行：一个低调的标签和一条经过测量的单行文件 lane。它展示能够放下的最大前缀（至多六个标签项；文本为文件名，完整路径作为 `title`），并为本地化后的精确 `+ N 个文件` 宽度预留空间，因此剩余计数始终可见，既不换行也不横向滚动。每个标签项经由属主提供的 `openFile` 打开——与工具行相同的 Host 打开器，chat 视图会把相对路径按会话 cwd 解析。存在隐藏文件时，第二行的**在文件夹中显示**也经由同一属主路径打开会话 workspace；它只在页面使用 loopback 且当前 Host 握手报告 `canOpenPath` 时出现，直接远程 Web 与 headless／容器 Linux Host 默认均省略该操作。设计原理：[workspace 文件链接 Agent Note](../../../.agents/notes/implemented/feature/2026-07-31-web-workspace-file-links.md)。
++`ProducedFiles` 在收尾消息正文与其 IconActions 之间渲染该行：一个低调的标签和一条经过测量的单行文件 lane。它展示能够放下的最大前缀（至多六个标签项；文本为文件名，完整路径作为 `title`），并为本地化后的精确 `+ N 个文件` 宽度预留空间，因此剩余计数始终可见，既不换行也不横向滚动。每个标签项打开应用内 `FileViewer`：文件内容经由 workspaces 的 `readFile` wire 加载（Host 的完整结果上限会截断超大文件，二进制文件以标记应答），在模态代码面板中展示，带按扩展名推断的语法高亮提示、复制、重试与截断提示。Host 打开器保留为查看器的**用系统程序打开**底部操作，受同一 loopback + `canOpenPath` 握手门控；存在隐藏文件时，第二行的**在文件夹中显示**也经由同一属主路径打开会话 workspace。直接远程 Web 与 headless／容器 Linux Host 默认均省略这两个 Host 打开操作。设计原理：[workspace 文件链接 Agent Note](../../../.agents/notes/implemented/feature/2026-07-31-web-workspace-file-links.md)。
+ 
+ 收尾正文承载同一份词表。本插件提供供 chat 视图按收尾消息查询的 `chatFileMentions` 服务：`producedFileMentions` 按精确路径解析行内代码 token，或当 token 恰好等于某条产出路径的 basename，且这样的路径仅有一条时解析——两条路径共享同一 basename 时，文本保持不可点击而不作猜测，因此提及链接永远不会打开错误的文件，也不会导致 404。解析成功的提及保留代码标签，并采用 Markdown 样式表的链接样式：静止时为链接蓝色，悬停时显示下划线，与 URL 提升的行内代码完全一致——完整路径作为其 `title`；提及绝不会渲染在链接内部或流式文本中。决策记录：[行内文件提及 Agent Note](../../../.agents/notes/implemented/feature/2026-08-07-web-inline-file-mentions.md)。
+ 
+diff --git a/packages/client/ui-deliverables/package.json b/packages/client/ui-deliverables/package.json
+index f7b20a8a11..fa9283404b 100644
+--- a/packages/client/ui-deliverables/package.json
++++ b/packages/client/ui-deliverables/package.json
+@@ -53,6 +53,7 @@
+     "@deepseek-ai/dsh-client-locale": "workspace:^",
+     "@deepseek-ai/dsh-client-runtime": "workspace:^",
+     "@deepseek-ai/dsh-client-ui-conversation": "workspace:^",
++    "@deepseek-ai/dsh-client-ui-primitives": "workspace:^",
+     "@deepseek-ai/dsh-client-ui-slots": "workspace:^",
+     "@deepseek-ai/dsh-invariants": "workspace:^",
+     "@deepseek-ai/dsh-system-prompt": "workspace:^",
+diff --git a/packages/client/ui-deliverables/src/client/FileViewer.module.css b/packages/client/ui-deliverables/src/client/FileViewer.module.css
+new file mode 100644
+index 0000000000..6675d16828
+--- /dev/null
++++ b/packages/client/ui-deliverables/src/client/FileViewer.module.css
+@@ -0,0 +1,49 @@
++/* The viewer modal's body: the code surface scrolls, status rows center,
++   and the footer's system-open action sits under it. Semantic aliases over
++   --dsw-* tokens only (docs/web-styling.md). */
++
++.body {
++  display: flex;
++  flex-direction: column;
++  gap: 8px;
++  min-height: 0;
++  max-height: min(70vh, 720px);
++}
++
++.status {
++  display: flex;
++  align-items: center;
++  gap: 8px;
++  padding: 12px 0;
++  font-size: 12px;
++  color: var(--dsw-alias-label-tertiary);
++}
++
++.retry {
++  border: none;
++  background: transparent;
++  padding: 0;
++  font-size: 12px;
++  color: var(--dsw-alias-state-business-primary);
++  cursor: pointer;
++}
++
++.footer {
++  display: flex;
++  justify-content: flex-end;
++}
++
++.openExternal {
++  border: none;
++  background: transparent;
++  padding: 4px 8px;
++  border-radius: 6px;
++  font-size: 12px;
++  color: var(--dsw-alias-label-secondary);
++  cursor: pointer;
++}
++
++.openExternal:hover {
++  color: var(--dsw-alias-label-primary);
++  background: var(--dsw-alias-interactive-bg-hover);
++}
+diff --git a/packages/client/ui-deliverables/src/client/FileViewer.tsx b/packages/client/ui-deliverables/src/client/FileViewer.tsx
+new file mode 100644
+index 0000000000..6ba0c317c1
+--- /dev/null
++++ b/packages/client/ui-deliverables/src/client/FileViewer.tsx
+@@ -0,0 +1,112 @@
++// FileViewer: the in-app reading surface for one produced file. A chip click
++// opens this modal instead of handing the path to the host's opener; the
++// content arrives through the workspaces readFile wire (the host's
++// complete-result bound cuts oversized files, binary files answer a marker),
++// and the host opener survives as the footer's system-open action.
++
++import { useCallback, useEffect, useRef, useState } from 'react'
++import type { FileContent } from '@deepseek-ai/dsh-client-runtime/client'
++import { CodeBlock, Modal } from '@deepseek-ai/dsh-client-ui-primitives'
++import type { DeliverablesKey } from './locales.ts'
++import css from './FileViewer.module.css'
++
++/** The read face the viewer drives; the same workspaces service the file tree uses. */
++export type ReadFileFace = (path: string, signal?: AbortSignal) => Promise<FileContent>
++
++/** Props: the file under view, the read face, the surviving host opener, and the locale seat. */
++export interface FileViewerProps {
++  /** Absolute path of the file to show; undefined renders nothing. */
++  viewing: string | undefined
++  /** Close the viewer. */
++  onClose: () => void
++  /** The workspaces readFile face. */
++  readFile: ReadFileFace
++  /** The host's native opener, offered as the footer's secondary action. */
++  openFile: (path: string) => void
++  /** Whether the host can hand a path to a native desktop application. */
++  canOpenPath: boolean
++  /** Locale seat. */
++  t: (key: DeliverablesKey, params?: Record<string, string>) => string
++}
++
++/** Extension → CodeBlock grammar hint; unknown extensions render plain. */
++const LANG_BY_EXT: Readonly<Record<string, string>> = {
++  ts: 'ts', tsx: 'tsx', mts: 'ts', cts: 'ts', js: 'js', mjs: 'js', cjs: 'js', jsx: 'jsx',
++  json: 'json', css: 'css', scss: 'scss', html: 'html', md: 'md', py: 'python', rs: 'rust',
++  go: 'go', sh: 'sh', bash: 'sh', yml: 'yaml', yaml: 'yaml', toml: 'toml', sql: 'sql',
++}
++
++/** One load's settled shape. */
++interface LoadState {
++  status: 'loading' | 'ready' | 'error'
++  content?: FileContent
++}
++
++/**
++ * Render the produced-file viewer modal.
++ * @param props - the file under view, the read face, and the locale seat.
++ * @returns null when nothing is under view; otherwise the modal.
++ */
++export function FileViewer({ viewing, onClose, readFile, openFile, canOpenPath, t }: FileViewerProps) {
++  const [load, setLoad] = useState<LoadState>({ status: 'loading' })
++  // One abort controller per in-flight load; closing or superseding the view
++  // cancels it so a departed viewer stops the host read.
++  const controller = useRef<AbortController | undefined>(undefined)
++  useEffect(() => () => { controller.current?.abort() }, [])
++
++  const loadFile = useCallback((path: string): void => {
++    controller.current?.abort()
++    const own = new AbortController()
++    controller.current = own
++    setLoad({ status: 'loading' })
++    readFile(path, own.signal).then(
++      (content) => {
++        if (!own.signal.aborted) setLoad({ status: 'ready', content })
++      },
++      () => {
++        if (!own.signal.aborted) setLoad({ status: 'error' })
++      },
++    )
++  }, [readFile])
++
++  useEffect(() => {
++    if (viewing !== undefined) loadFile(viewing)
++    return () => { controller.current?.abort() }
++  }, [viewing, loadFile])
++
++  if (viewing === undefined) return null
++  const name = viewing.split(/[\\/]/).at(-1) ?? viewing
++  const content = load.status === 'ready' ? load.content : undefined
++  return (
++    <Modal open onClose={onClose} title={name} closeLabel={t('viewer.close')} description={viewing} contentClassName={css.body ?? ''}>
++      {load.status === 'loading' && <div className={css.status}>{t('viewer.loading')}</div>}
++      {load.status === 'error' && (
++        <div className={css.status}>
++          {t('viewer.error')}
++          <button type="button" className={css.retry} onClick={() => { loadFile(viewing) }}>{t('viewer.retry')}</button>
++        </div>
++      )}
++      {content !== undefined && content.kind === 'binary' && (
++        <div className={css.status}>{t('viewer.binary')}</div>
++      )}
++      {content !== undefined && content.kind === 'text' && (
++        <>
++          <CodeBlock
++            code={content.content}
++            lang={LANG_BY_EXT[name.split('.').at(-1) ?? ''] ?? undefined}
++            copyLabel={t('viewer.copy')}
++            copiedLabel={t('viewer.copied')}
++          />
++          {content.truncated && <div className={css.status}>{t('viewer.truncated')}</div>}
++        </>
++      )}
++      {canOpenPath && (
++        <div className={css.footer}>
++          <button type="button" className={css.openExternal} onClick={() => { openFile(viewing) }}>
++            {t('viewer.openExternal')}
++          </button>
++        </div>
++      )}
++    </Modal>
++  )
++}
+diff --git a/packages/client/ui-deliverables/src/client/ProducedFiles.tsx b/packages/client/ui-deliverables/src/client/ProducedFiles.tsx
+index a14e2bea86..dc43b5d56b 100644
+--- a/packages/client/ui-deliverables/src/client/ProducedFiles.tsx
++++ b/packages/client/ui-deliverables/src/client/ProducedFiles.tsx
+@@ -1,14 +1,15 @@
+ // ProducedFiles: the produced-file row a finished turn ends with. The paths
+ // come pre-matched by the turn-tail chain from the mutation tools'
+-// follow-along locations, never from the closing prose. Clicking one goes
+-// through the same openFile the tool rows use — the Host's own opener, on the
+-// Host machine.
++// follow-along locations, never from the closing prose. Clicking one opens
++// the in-app FileViewer; the Host's own opener survives as the viewer's
++// secondary action and the folder shortcut below.
+ 
+ import { useLayoutEffect, useRef, useState } from 'react'
+ import type { HostDescriptionSource } from '@deepseek-ai/dsh-client-connection/client'
+ import type { InjectFace, PropsLocale } from '@deepseek-ai/dsh-client-ui-slots'
+ import type { TurnTailOwnerProps } from '@deepseek-ai/dsh-client-ui-conversation/client'
+ import { basename } from './turn-deliverables.ts'
++import { FileViewer, type ReadFileFace } from './FileViewer.tsx'
+ import type { NS } from './locales.ts'
+ import css from './ProducedFiles.module.css'
+ 
+@@ -50,6 +51,8 @@ export function fitProducedFiles(
+ export interface ProducedFilesInjected {
+   /** Whether the browser itself is connected over loopback. */
+   isLoopback: boolean
++  /** The workspaces readFile face the viewer drives. */
++  readFile: ReadFileFace
+   hooks: {
+     /** Current generation's Host description, bound by the slot renderer. */
+     hostDescription: HostDescriptionSource
+@@ -71,10 +74,12 @@ function moreLabel(t: ProducedFilesProps['t'], count: number): string {
+  * @returns The produced-files row.
+  */
+ export function ProducedFiles({
+-  matched: paths, openFile, isLoopback, useHostDescription, t,
++  matched: paths, openFile, isLoopback, readFile, useHostDescription, t,
+ }: ProducedFilesProps) {
+   const hostCanOpenPath = useHostDescription(description => description?.canOpenPath === true)
+   const canOpenPath = isLoopback && hostCanOpenPath
++  // The chip's primary action is the in-app viewer; undefined closes it.
++  const [viewing, setViewing] = useState<string | undefined>(undefined)
+   const limit = Math.min(paths.length, SHOWN_LIMIT)
+   const [shownCount, setShownCount] = useState(limit)
+   const rowRef = useRef<HTMLDivElement>(null)
+@@ -114,6 +119,14 @@ export function ProducedFiles({
+   const hidden = paths.length - shown.length
+   return (
+     <div className={css.root}>
++      <FileViewer
++        viewing={viewing}
++        onClose={() => { setViewing(undefined) }}
++        readFile={readFile}
++        openFile={openFile}
++        canOpenPath={canOpenPath}
++        t={t}
++      />
+       <span className={css.label}>{t('produced.label')}</span>
+       <div ref={rowRef} className={css.row} data-produced-files-row>
+         {shown.map(path => (
+@@ -124,8 +137,8 @@ export function ProducedFiles({
+             // The full path is the disambiguator when two turns produce files
+             // that share a basename; the chip itself stays short.
+             title={path}
+-            aria-label={t('produced.open', { name: path })}
+-            onClick={() => { openFile(path) }}
++            aria-label={t('produced.view', { name: path })}
++            onClick={() => { setViewing(path) }}
+           >
+             {basename(path)}
+           </button>
+diff --git a/packages/client/ui-deliverables/src/client/index.ts b/packages/client/ui-deliverables/src/client/index.ts
+index 38b7f3fb89..d10b774e0b 100644
+--- a/packages/client/ui-deliverables/src/client/index.ts
++++ b/packages/client/ui-deliverables/src/client/index.ts
+@@ -28,7 +28,7 @@ export { ProducedFiles, type ProducedFilesProps } from './ProducedFiles.tsx'
+ export { producedForClosing } from './turn-deliverables.ts'
+ 
+ /** Required services for the tail-slot registration and its dictionaries. */
+-export const inject = ['slots', 'locale', 'conversationEvents', 'connection']
++export const inject = ['slots', 'locale', 'conversationEvents', 'connection', 'workspaces']
+ 
+ /**
+  * Client plugin body: register the dictionaries and the turn-tail entry.
+@@ -46,6 +46,7 @@ export function apply(ctx: ClientContext): void {
+       locale: NS,
+       inject: () => ({
+         isLoopback: connection.isLoopback,
++        readFile: (path: string, signal?: AbortSignal) => ctx.workspaces.readFile(path, signal),
+         hooks: { hostDescription: connection.hostDescription },
+       }),
+     }, ProducedFiles),
+diff --git a/packages/client/ui-deliverables/src/client/locales.ts b/packages/client/ui-deliverables/src/client/locales.ts
+index ec8b587b28..20944b7eeb 100644
+--- a/packages/client/ui-deliverables/src/client/locales.ts
++++ b/packages/client/ui-deliverables/src/client/locales.ts
+@@ -8,8 +8,18 @@ export const zh = {
+   'produced.label': '产物',
+   'produced.moreOne': '+ 1 个文件',
+   'produced.more': '+ {count} 个文件',
++  'produced.view': '查看 {name}',
+   'produced.open': '打开 {name}',
+   'produced.showInFolder': '在文件夹中显示',
++  'viewer.close': '关闭',
++  'viewer.loading': '加载中…',
++  'viewer.error': '读取失败',
++  'viewer.retry': '重试',
++  'viewer.binary': '二进制文件，不支持预览',
++  'viewer.truncated': '文件较大，仅显示开头部分',
++  'viewer.copy': '复制',
++  'viewer.copied': '复制成功',
++  'viewer.openExternal': '用系统程序打开',
+ }
+ 
+ /** English dictionary (same key set). */
+@@ -17,8 +27,18 @@ export const en: Record<DeliverablesKey, string> = {
+   'produced.label': 'Produced',
+   'produced.moreOne': '+ 1 file',
+   'produced.more': '+ {count} files',
++  'produced.view': 'View {name}',
+   'produced.open': 'Open {name}',
+   'produced.showInFolder': 'Show in folder',
++  'viewer.close': 'Close',
++  'viewer.loading': 'Loading…',
++  'viewer.error': 'Read failed',
++  'viewer.retry': 'Retry',
++  'viewer.binary': 'Binary file; no preview',
++  'viewer.truncated': 'Large file; showing the leading part only',
++  'viewer.copy': 'Copy',
++  'viewer.copied': 'Copied',
++  'viewer.openExternal': 'Open with system app',
+ }
+ 
+ /** Union of this namespace's dictionary keys. */
+diff --git a/packages/client/ui-deliverables/tests/produced-files.client.spec.tsx b/packages/client/ui-deliverables/tests/produced-files.client.spec.tsx
+index 1521010497..94bacefd71 100644
+--- a/packages/client/ui-deliverables/tests/produced-files.client.spec.tsx
++++ b/packages/client/ui-deliverables/tests/produced-files.client.spec.tsx
+@@ -283,12 +283,13 @@ describe('ProducedFiles row', () => {
+   const capability = (
+     canOpenPath: boolean | undefined,
+     isLoopback = true,
+-  ): Pick<ProducedFilesProps, 'isLoopback' | 'useHostDescription'> => {
++  ): Pick<ProducedFilesProps, 'isLoopback' | 'readFile' | 'useHostDescription'> => {
+     const description = canOpenPath === undefined
+       ? undefined
+       : { version: 'test', cwd: '/workspace', attachedSessions: 1, canOpenPath }
+     return {
+       isLoopback,
++      readFile: () => Promise.resolve({ path: '/workspace/a.md', kind: 'text', content: '# a', bytes: 4, truncated: false }),
+       useHostDescription: selector => selector(description),
+     }
+   }
+@@ -336,8 +337,9 @@ describe('ProducedFiles row', () => {
+         return rect(this.textContent === 'a.html' || this.textContent === 'b.css' ? 50 : 100)
+       })
+ 
++    const readFile = vi.fn(() => Promise.resolve({ path: 'deep/a.html', kind: 'text' as const, content: '# a', bytes: 4, truncated: false }))
+     const view = render(
+-      <ProducedFiles matched={paths} openFile={openFile} {...capability(true)} t={t} />,
++      <ProducedFiles matched={paths} openFile={openFile} {...capability(true)} readFile={readFile} t={t} />,
+     )
+     expect(view.getByText('产物')).toBeTruthy()
+     const row = view.container.querySelector('[data-produced-files-row]')
+@@ -345,12 +347,14 @@ describe('ProducedFiles row', () => {
+     // The third probe is 100px: two chips plus the remainder fit, three do not.
+     expect(within(row).getAllByRole('button')).toHaveLength(2)
+     expect(within(row).getByText('+ 5 个文件')).toBeTruthy()
+-    const chip = view.getByRole('button', { name: '打开 deep/a.html' })
++    const chip = view.getByRole('button', { name: '查看 deep/a.html' })
+     expect(chip.textContent).toBe('a.html')
+     expect(chip.getAttribute('title')).toBe('deep/a.html')
+-    expect(view.queryByRole('button', { name: '打开 g.ts' })).toBeNull()
++    expect(view.queryByRole('button', { name: '查看 g.ts' })).toBeNull()
+     fireEvent.click(chip)
+-    expect(openFile).toHaveBeenCalledWith('deep/a.html')
++    // The chip's primary action is the in-app read, not the host opener.
++    expect(readFile).toHaveBeenCalledWith('deep/a.html', expect.anything())
++    expect(openFile).not.toHaveBeenCalled()
+ 
+     const showFolder = view.getByRole('button', { name: '在文件夹中显示' })
+     fireEvent.click(showFolder)
+@@ -381,6 +385,31 @@ describe('ProducedFiles row', () => {
+     bounds.mockRestore()
+   })
+ 
++  it('shows the clicked file in the in-app viewer, binary marked, opener on the footer', async () => {
++    const openFile = vi.fn<(path: string) => void>()
++    const text = { path: 'deep/a.html', kind: 'text' as const, content: '<p>hi</p>', bytes: 12, truncated: false }
++    const readFile = vi.fn(() => Promise.resolve(text))
++    const view = render(
++      <ProducedFiles matched={["deep/a.html"]} openFile={openFile} {...capability(true)} readFile={readFile} t={t} />,
++    )
++    fireEvent.click(view.getByRole('button', { name: '查看 deep/a.html' }))
++    // The settled viewer shows the file's text; the host opener rides the footer.
++    expect(await view.findByText('<p>hi</p>')).toBeTruthy()
++    fireEvent.click(view.getByRole('button', { name: '用系统程序打开' }))
++    expect(openFile).toHaveBeenCalledWith('deep/a.html')
++
++    const binary = { path: 'deep/blob.bin', kind: 'binary' as const, content: '', bytes: 4, truncated: false }
++    view.rerender(
++      <ProducedFiles
++        matched={['deep/blob.bin']} openFile={openFile}
++        {...capability(true)} readFile={vi.fn(() => Promise.resolve(binary))} t={t}
++      />,
++    )
++    fireEvent.click(view.getByRole('button', { name: '查看 deep/blob.bin' }))
++    expect(await view.findByText('二进制文件，不支持预览')).toBeTruthy()
++    view.unmount()
++  })
++
+   it('keeps the folder action absent without overflow or a local native opener', () => {
+     const openFile = vi.fn<(path: string) => void>()
+     const view = render(
+@@ -466,6 +495,9 @@ describe('plugin registration', () => {
+       isLoopback: false,
+       hostDescription,
+     } as never)
++    // The viewer's read face; the registration test only proves wiring, so
++    // an inert stub satisfies the injected service.
++    ctx.provide('workspaces', { readFile: () => Promise.resolve(undefined) } as never)
+     // ui-theme's Appearance row binds a durable scope through these two.
+     ctx.provide('remote', { $on: () => () => {} } as never)
+     ctx.provide('settingsScope', { bind: () => stubSettingsScope().scope } as never)
+@@ -475,7 +507,11 @@ describe('plugin registration', () => {
+     await fiber.await()
+     const [entry] = ctx.slots.entries('conversation.chat.turnTail')
+     expect(entry).toBeDefined()
+-    expect(entry?.inject?.()).toEqual({ isLoopback: false, hooks: { hostDescription } })
++    expect(entry?.inject?.()).toEqual({
++      isLoopback: false,
++      readFile: expect.any(Function),
++      hooks: { hostDescription },
++    })
+ 
+     // The prose face is live while the plugin is: a produced turn yields a
+     // resolver whose matches open through the owner-supplied opener.
 diff --git a/packages/client/ui-workspace/README.i18n.yaml b/packages/client/ui-workspace/README.i18n.yaml
 index 6d5eff023b..d3ce1b39ae 100644
 --- a/packages/client/ui-workspace/README.i18n.yaml
@@ -1193,7 +1706,7 @@ index ba83efedb5..1c0b8b961d 100644
      "@deepseek-ai/dsh-native-command": "workspace:^",
      "@deepseek-ai/dsh-session": "workspace:^",
 diff --git a/packages/host/apiproxy/src/api-proxy.ts b/packages/host/apiproxy/src/api-proxy.ts
-index bda99362b6..209cc5bb19 100644
+index bda99362b6..795f99fbfa 100644
 --- a/packages/host/apiproxy/src/api-proxy.ts
 +++ b/packages/host/apiproxy/src/api-proxy.ts
 @@ -10,6 +10,8 @@ import type { Context } from '@deepseek-ai/cordis'
@@ -1205,7 +1718,7 @@ index bda99362b6..209cc5bb19 100644
  import { AttachmentError } from '@deepseek-ai/dsh-attachment'
  import type { ImageAttachmentRef } from '@deepseek-ai/dsh-attachment'
  import { contentHasImage, createUserMessage, freezeMessage, ReasoningEffortId } from '@deepseek-ai/dsh-llm'
-@@ -2989,6 +2991,27 @@ export function createApiProxy(ctx: Context, defaults: ApiProxyDefaults): ApiPro
+@@ -2989,6 +2991,48 @@ export function createApiProxy(ctx: Context, defaults: ApiProxyDefaults): ApiPro
          }
        },
  
@@ -1230,11 +1743,32 @@ index bda99362b6..209cc5bb19 100644
 +        }
 +      },
 +
++      async readFile(request, signal) {
++        const fileTree = ctx.get('fileTree')
++        if (fileTree === undefined) {
++          return err(request, {
++            code: 'internal',
++            message: 'host.readFile needs the file-tree service; compose @deepseek-ai/dsh-host-file-tree',
++            details: {},
++          })
++        }
++        try {
++          // Same signal handoff as listFiles: a departed caller stops the
++          // backend's read instead of outliving it.
++          return ok(request, await fileTree.read(request.payload.path, signal))
++        } catch (error: unknown) {
++          if (signal.aborted) {
++            return err(request, { code: 'cancelled', message: 'file read was aborted', details: {} })
++          }
++          return err(request, directoryError(error))
++        }
++      },
++
        async createDirectory(request) {
          const capability = ctx.directoryPicker.capability()
          if (capability.kind !== 'browse') {
 diff --git a/packages/host/apiproxy/src/api/host.schema.ts b/packages/host/apiproxy/src/api/host.schema.ts
-index 7dd560d3a4..7678954c9d 100644
+index 7dd560d3a4..e0ed82f512 100644
 --- a/packages/host/apiproxy/src/api/host.schema.ts
 +++ b/packages/host/apiproxy/src/api/host.schema.ts
 @@ -3,7 +3,7 @@
@@ -1246,7 +1780,7 @@ index 7dd560d3a4..7678954c9d 100644
  import type { RequestPayload, ResponseValue } from './rpc-map.ts'
  import type { Wire } from './rpc.schema.ts'
  
-@@ -49,6 +49,26 @@ export const hostListDirectoryValueSchema = z.object({
+@@ -49,6 +49,40 @@ export const hostListDirectoryValueSchema = z.object({
    truncated: z.boolean(),
  }) satisfies z.ZodType<Wire<ResponseValue<'host.listDirectory'>>>
  
@@ -1270,14 +1804,28 @@ index 7dd560d3a4..7678954c9d 100644
 +  truncated: z.boolean(),
 +}) satisfies z.ZodType<Wire<ResponseValue<'host.listFiles'>>>
 +
++/** host.readFile request payload; the viewer always names its file explicitly. */
++export const hostReadFileRequestSchema = z.object({
++  path: z.string().min(1),
++}) satisfies z.ZodType<Wire<RequestPayload<'host.readFile'>>>
++
++/** host.readFile response value. */
++export const hostReadFileValueSchema = z.object({
++  path: z.string(),
++  kind: z.enum(['text', 'binary']),
++  content: z.string(),
++  bytes: z.number(),
++  truncated: z.boolean(),
++}) satisfies z.ZodType<Wire<ResponseValue<'host.readFile'>>>
++
  /** host.createDirectory request payload: name must be one plain path segment. */
  export const hostCreateDirectoryRequestSchema = z.object({
    path: z.string(),
 diff --git a/packages/host/apiproxy/src/api/host.ts b/packages/host/apiproxy/src/api/host.ts
-index 33c55106f5..513750fb82 100644
+index 33c55106f5..be3f7c7e9f 100644
 --- a/packages/host/apiproxy/src/api/host.ts
 +++ b/packages/host/apiproxy/src/api/host.ts
-@@ -32,6 +32,28 @@ export interface DirectoryListing {
+@@ -32,6 +32,42 @@ export interface DirectoryListing {
    truncated: boolean
  }
  
@@ -1303,10 +1851,24 @@ index 33c55106f5..513750fb82 100644
 +  truncated: boolean
 +}
 +
++/** host.readFile response value: one file's bounded content for in-app viewing. */
++export interface FileContent {
++  /** Absolute path of the read file. */
++  path: string
++  /** `'text'` (content carries UTF-8 text) or `'binary'` (a NUL byte was seen; content is empty). */
++  kind: 'text' | 'binary'
++  /** The file's text, cut at the complete-result bound; always empty for `'binary'`. */
++  content: string
++  /** The file's complete size in bytes, before any bound cut. */
++  bytes: number
++  /** True when `content` was cut at the bound (the tail is absent). */
++  truncated: boolean
++}
++
  /** Host-level unary methods. */
  export interface HostApi {
    /**
-@@ -73,6 +95,18 @@ export interface HostApi {
+@@ -73,6 +109,31 @@ export interface HostApi {
      signal: AbortSignal,
    ): Promise<RpcResponse<DirectoryListing>>
  
@@ -1322,11 +1884,24 @@ index 33c55106f5..513750fb82 100644
 +    signal: AbortSignal,
 +  ): Promise<RpcResponse<FileTreeListing>>
 +
++  /**
++   * Read one file's content for in-app viewing, bounded by the file-tree
++   * service's `maxBytes` complete-result bound (`truncated` flags a cut
++   * tail); a NUL-carrying file answers `'binary'` with empty content.
++   * Failures carry `file-unreadable` (not fully qualified, a directory, or
++   * an unreadable target). The carrier's request signal follows the
++   * caller, stopping the backend's read on disconnect or timeout.
++   */
++  readFile(
++    request: RpcRequest<{ path: string }>,
++    signal: AbortSignal,
++  ): Promise<RpcResponse<FileContent>>
++
    /**
     * Create one child directory under an existing parent (the browser's
     * "New folder"). Only served under the `browse` capability; an existing
 diff --git a/packages/host/apiproxy/src/api/index.ts b/packages/host/apiproxy/src/api/index.ts
-index b5e1d1ffd9..8ed6fb3c36 100644
+index b5e1d1ffd9..410c54ccff 100644
 --- a/packages/host/apiproxy/src/api/index.ts
 +++ b/packages/host/apiproxy/src/api/index.ts
 @@ -47,7 +47,7 @@ export type {
@@ -1334,61 +1909,90 @@ index b5e1d1ffd9..8ed6fb3c36 100644
    SessionListMetadata, SessionProjectionsBlock, SessionSearchItem, SessionsApi, SessionSummary,
  } from './sessions.ts'
 -export type { DirectoryEntry, DirectoryListing, HostApi } from './host.ts'
-+export type { DirectoryEntry, DirectoryListing, FileTreeEntry, FileTreeListing, HostApi } from './host.ts'
++export type { DirectoryEntry, DirectoryListing, FileContent, FileTreeEntry, FileTreeListing, HostApi } from './host.ts'
  export type {
    SubagentAddress, SubagentCatalog, SubagentInterruptReceipt, SubagentListEntry,
    SubagentPromptReceipt, SubagentsApi,
 diff --git a/packages/host/apiproxy/src/api/rpc-map.ts b/packages/host/apiproxy/src/api/rpc-map.ts
-index 80dede1799..e8bf42966f 100644
+index 80dede1799..5f2d40945b 100644
 --- a/packages/host/apiproxy/src/api/rpc-map.ts
 +++ b/packages/host/apiproxy/src/api/rpc-map.ts
-@@ -41,6 +41,7 @@ export interface RpcMethodMap {
+@@ -41,6 +41,8 @@ export interface RpcMethodMap {
    'host.describe': HostApi['describe']
    'host.pickDirectory': HostApi['pickDirectory']
    'host.listDirectory': HostApi['listDirectory']
 +  'host.listFiles': HostApi['listFiles']
++  'host.readFile': HostApi['readFile']
    'host.createDirectory': HostApi['createDirectory']
    'host.openPath': HostApi['openPath']
    'workspace.list': WorkspaceApi['list']
+diff --git a/packages/host/apiproxy/src/api/rpc.schema.ts b/packages/host/apiproxy/src/api/rpc.schema.ts
+index 177f0ffd29..6bbb64a874 100644
+--- a/packages/host/apiproxy/src/api/rpc.schema.ts
++++ b/packages/host/apiproxy/src/api/rpc.schema.ts
+@@ -46,6 +46,7 @@ export const rpcErrorSchema: z.ZodType<RpcError> = z.discriminatedUnion('code',
+   z.object({ code: z.literal('directory-unreadable'), message: z.string(), details: z.object({ path: z.string() }) }),
+   z.object({ code: z.literal('directory-exists'), message: z.string(), details: z.object({ path: z.string() }) }),
+   z.object({ code: z.literal('directory-create-failed'), message: z.string(), details: z.object({ path: z.string() }) }),
++  z.object({ code: z.literal('file-unreadable'), message: z.string(), details: z.object({ path: z.string() }) }),
+   z.object({ code: z.literal('directory-picker-unavailable'), message: z.string(), details: z.object({ capability: z.string() }) }),
+   z.object({ code: z.literal('agent-preset-read-only'), message: z.string(), details: z.object({ agentPreset: z.string(), reason: z.string() }) }),
+   z.object({ code: z.literal('agent-preset-locked'), message: z.string(), details: z.object({ sessionId: z.string(), agentPreset: z.string() }) }),
+diff --git a/packages/host/apiproxy/src/api/rpc.ts b/packages/host/apiproxy/src/api/rpc.ts
+index 134a39eba9..91eb858ea5 100644
+--- a/packages/host/apiproxy/src/api/rpc.ts
++++ b/packages/host/apiproxy/src/api/rpc.ts
+@@ -44,6 +44,7 @@ export interface RpcErrorDetailsMap {
+   'directory-unreadable': { path: string }
+   'directory-exists': { path: string }
+   'directory-create-failed': { path: string }
++  'file-unreadable': { path: string }
+   'directory-picker-unavailable': { capability: string }
+   'agent-preset-read-only': { agentPreset: string; reason: string }
+   'agent-preset-locked': { sessionId: SessionId; agentPreset: string }
 diff --git a/packages/host/apiproxy/src/fetch/client.ts b/packages/host/apiproxy/src/fetch/client.ts
-index 70e3ece58f..8e47f6b9fc 100644
+index 70e3ece58f..7b9b27aa8a 100644
 --- a/packages/host/apiproxy/src/fetch/client.ts
 +++ b/packages/host/apiproxy/src/fetch/client.ts
-@@ -15,7 +15,7 @@ import { rpcReceiptSchema, serverRequestSchema, serverResponseSchema } from '../
+@@ -15,7 +15,8 @@ import { rpcReceiptSchema, serverRequestSchema, serverResponseSchema } from '../
  import { hostFrameSchema, muxFrameSchema } from '../api/events.schema.ts'
  import {
    hostCreateDirectoryValueSchema, hostDescribeValueSchema,
 -  hostListDirectoryValueSchema, hostOpenPathValueSchema, hostPickDirectoryValueSchema,
 +  hostListDirectoryValueSchema, hostListFilesValueSchema, hostOpenPathValueSchema, hostPickDirectoryValueSchema,
++  hostReadFileValueSchema,
  } from '../api/host.schema.ts'
  import {
    sessionCancelValueSchema,
-@@ -109,6 +109,7 @@ export interface IApiClient {
+@@ -109,6 +110,8 @@ export interface IApiClient {
      describe(payload: RequestPayload<'host.describe'>, signal?: AbortSignal): Promise<RpcResponse<ResponseValue<'host.describe'>>>
      pickDirectory(payload: RequestPayload<'host.pickDirectory'>, signal?: AbortSignal): Promise<RpcResponse<ResponseValue<'host.pickDirectory'>>>
      listDirectory(payload: RequestPayload<'host.listDirectory'>, signal?: AbortSignal): Promise<RpcResponse<ResponseValue<'host.listDirectory'>>>
 +    listFiles(payload: RequestPayload<'host.listFiles'>, signal?: AbortSignal): Promise<RpcResponse<ResponseValue<'host.listFiles'>>>
++    readFile(payload: RequestPayload<'host.readFile'>, signal?: AbortSignal): Promise<RpcResponse<ResponseValue<'host.readFile'>>>
      createDirectory(payload: RequestPayload<'host.createDirectory'>, signal?: AbortSignal): Promise<RpcResponse<ResponseValue<'host.createDirectory'>>>
      openPath(payload: RequestPayload<'host.openPath'>, signal?: AbortSignal): Promise<RpcResponse<ResponseValue<'host.openPath'>>>
    }
-@@ -189,6 +190,7 @@ const UNARY_VALUE_SCHEMAS: { [K in keyof RpcMethodMap]: z.ZodType<Wire<ResponseV
+@@ -189,6 +192,8 @@ const UNARY_VALUE_SCHEMAS: { [K in keyof RpcMethodMap]: z.ZodType<Wire<ResponseV
    'host.describe': hostDescribeValueSchema,
    'host.pickDirectory': hostPickDirectoryValueSchema,
    'host.listDirectory': hostListDirectoryValueSchema,
 +  'host.listFiles': hostListFilesValueSchema,
++  'host.readFile': hostReadFileValueSchema,
    'host.createDirectory': hostCreateDirectoryValueSchema,
    'host.openPath': hostOpenPathValueSchema,
    'workspace.list': workspaceListValueSchema,
-@@ -439,6 +441,7 @@ export abstract class AbstractApiClient implements IApiClient {
+@@ -439,6 +444,8 @@ export abstract class AbstractApiClient implements IApiClient {
        'host.pickDirectory', payload, signal, 'caller-signal-only',
      ),
      listDirectory: (payload, signal) => this.callUnary('host.listDirectory', payload, signal),
 +    listFiles: (payload, signal) => this.callUnary('host.listFiles', payload, signal),
++    readFile: (payload, signal) => this.callUnary('host.readFile', payload, signal),
      createDirectory: (payload, signal) => this.callUnary('host.createDirectory', payload, signal),
      openPath: (payload, signal) => this.callUnary('host.openPath', payload, signal),
    }
 diff --git a/packages/host/apiproxy/src/fetch/handler.ts b/packages/host/apiproxy/src/fetch/handler.ts
-index 697171ec53..c63ed54a29 100644
+index 697171ec53..717d55495b 100644
 --- a/packages/host/apiproxy/src/fetch/handler.ts
 +++ b/packages/host/apiproxy/src/fetch/handler.ts
 @@ -31,7 +31,7 @@ import {
@@ -1396,40 +2000,45 @@ index 697171ec53..c63ed54a29 100644
  import {
    hostCreateDirectoryRequestSchema, hostDescribeRequestSchema,
 -  hostListDirectoryRequestSchema, hostOpenPathRequestSchema,
-+  hostListDirectoryRequestSchema, hostListFilesRequestSchema, hostOpenPathRequestSchema,
++  hostListDirectoryRequestSchema, hostListFilesRequestSchema, hostOpenPathRequestSchema, hostReadFileRequestSchema,
    hostPickDirectoryRequestSchema,
  } from '../api/host.schema.ts'
  import {
-@@ -107,6 +107,7 @@ const UNARY_ROUTES: UnaryRoutes = {
+@@ -107,6 +107,8 @@ const UNARY_ROUTES: UnaryRoutes = {
    'host.describe': { schema: hostDescribeRequestSchema, invoke: (api, r) => api.host.describe(r) },
    'host.pickDirectory': { schema: hostPickDirectoryRequestSchema, invoke: (api, r, signal) => api.host.pickDirectory(r, signal) },
    'host.listDirectory': { schema: hostListDirectoryRequestSchema, invoke: (api, r, signal) => api.host.listDirectory(r, signal) },
 +  'host.listFiles': { schema: hostListFilesRequestSchema, invoke: (api, r, signal) => api.host.listFiles(r, signal) },
++  'host.readFile': { schema: hostReadFileRequestSchema, invoke: (api, r, signal) => api.host.readFile(r, signal) },
    'host.createDirectory': { schema: hostCreateDirectoryRequestSchema, invoke: (api, r) => api.host.createDirectory(r) },
    'host.openPath': { schema: hostOpenPathRequestSchema, invoke: (api, r, signal) => api.host.openPath(r, signal) },
    'workspace.list': { schema: workspaceListRequestSchema, invoke: (api, r) => api.workspace.list(r) },
 diff --git a/packages/host/apiproxy/tests/client-handler.spec.ts b/packages/host/apiproxy/tests/client-handler.spec.ts
-index 4130d8f210..c2f24f827f 100644
+index 4130d8f210..d440ca5d35 100644
 --- a/packages/host/apiproxy/tests/client-handler.spec.ts
 +++ b/packages/host/apiproxy/tests/client-handler.spec.ts
-@@ -76,6 +76,7 @@ function scriptedApi(overrides: {
+@@ -76,6 +76,8 @@ function scriptedApi(overrides: {
        }),
        pickDirectory: r => ok(r, { path: null }),
        listDirectory: r => ok(r, { path: '/t', home: '/t', crumbs: [], entries: [], truncated: false }),
 +      listFiles: r => ok(r, { path: '/t', entries: [], truncated: false }),
++      readFile: r => ok(r, { path: '/t/f.txt', kind: 'text', content: '', bytes: 0, truncated: false }),
        createDirectory: r => ok(r, { path: '/t/new' }),
        openPath: r => ok(r, { opened: true as const }),
        ...overrides.host,
 diff --git a/packages/host/apiproxy/tests/fetch-carrier.spec.ts b/packages/host/apiproxy/tests/fetch-carrier.spec.ts
-index 2000f708ba..a790522995 100644
+index 2000f708ba..6e363e2236 100644
 --- a/packages/host/apiproxy/tests/fetch-carrier.spec.ts
 +++ b/packages/host/apiproxy/tests/fetch-carrier.spec.ts
-@@ -153,6 +153,9 @@ function fakeApi(overrides: Partial<{ muxFrames: MuxFrame[]; hostFrames: HostFra
+@@ -153,6 +153,12 @@ function fakeApi(overrides: Partial<{ muxFrames: MuxFrame[]; hostFrames: HostFra
        async listDirectory(request) {
          return { rpcId: request.rpcId, result: { ok: true, value: { path: '/w', home: '/w', crumbs: [{ name: '/', path: '/', hidden: false }], entries: [], truncated: false } } }
        },
 +      async listFiles(request) {
 +        return { rpcId: request.rpcId, result: { ok: true, value: { path: '/w', entries: [], truncated: false } } }
++      },
++      async readFile(request) {
++        return { rpcId: request.rpcId, result: { ok: true, value: { path: '/w/f.txt', kind: 'text', content: '', bytes: 0, truncated: false } } }
 +      },
        async createDirectory(request) {
          return { rpcId: request.rpcId, result: { ok: true, value: { path: '/w/new' } } }
@@ -1715,8 +2324,21 @@ index b8ff4c3f1a..c8e6e0301c 100644
    it('cascades DPI contexts to the first the host accepts', async () => {
      const world = comWorld({ supportedDpiContexts: [-3] })
      installFakeKoffi(world)
+diff --git a/packages/host/directory-picker/src/index.ts b/packages/host/directory-picker/src/index.ts
+index 5e8eb64f87..6ff75b473a 100644
+--- a/packages/host/directory-picker/src/index.ts
++++ b/packages/host/directory-picker/src/index.ts
+@@ -100,7 +100,7 @@ export interface DirectoryPickerCapabilities {
+ export type DirectoryPickerCapability = DirectoryPickerCapabilities[keyof DirectoryPickerCapabilities]
+ 
+ /** Closed failure vocabulary of the browse primitives (mirrored onto the wire by consumers). */
+-export type DirectoryPickerErrorCode = 'directory-unreadable' | 'directory-exists' | 'directory-create-failed'
++export type DirectoryPickerErrorCode = 'directory-unreadable' | 'directory-exists' | 'directory-create-failed' | 'file-unreadable'
+ 
+ /** Typed failure thrown by browse primitives so consumers can map business codes without string matching. */
+ export class DirectoryPickerError extends Error {
 diff --git a/packages/test-support/client-runtime/src/workspaces.ts b/packages/test-support/client-runtime/src/workspaces.ts
-index 4f6b2122cb..e3ad76a7a6 100644
+index 4f6b2122cb..98771f8c49 100644
 --- a/packages/test-support/client-runtime/src/workspaces.ts
 +++ b/packages/test-support/client-runtime/src/workspaces.ts
 @@ -1,7 +1,7 @@
@@ -1724,11 +2346,11 @@ index 4f6b2122cb..e3ad76a7a6 100644
  import { createSnapshotStore } from '@deepseek-ai/dsh-client-runtime/client'
  import type {
 -  DirectoryListing, IWorkspaces, SessionId, SnapshotStore, WorkspaceId, WorkspaceListState, WorkspaceView,
-+  DirectoryListing, FileTreeListing, IWorkspaces, SessionId, SnapshotStore, WorkspaceId, WorkspaceListState, WorkspaceView,
++  DirectoryListing, FileContent, FileTreeListing, IWorkspaces, SessionId, SnapshotStore, WorkspaceId, WorkspaceListState, WorkspaceView,
  } from '@deepseek-ai/dsh-client-runtime/client'
  import { workspaceListState } from './fixtures.ts'
  import type { Stabilizer } from './fixtures.ts'
-@@ -150,6 +150,22 @@ export class TestWorkspaces implements IWorkspaces {
+@@ -150,6 +150,31 @@ export class TestWorkspaces implements IWorkspaces {
      return `${path}/${name}`
    }
  
@@ -1746,6 +2368,15 @@ index 4f6b2122cb..e3ad76a7a6 100644
 +    const stub = this.stubs.get('listFiles')
 +    if (stub !== undefined) return await (stub(path, signal) as Promise<FileTreeListing>)
 +    return { path, entries: [], truncated: false }
++  }
++
++  async readFile(path: string, signal?: AbortSignal): Promise<FileContent> {
++    // Same record-and-forward contract as listFiles; the default echoes an
++    // empty text file so viewer feature tests stub richer content by seat.
++    this.calls.push({ method: 'readFile', args: [path, signal] })
++    const stub = this.stubs.get('readFile')
++    if (stub !== undefined) return await (stub(path, signal) as Promise<FileContent>)
++    return { path, kind: 'text', content: '', bytes: 0, truncated: false }
 +  }
 +
    /**

@@ -6,6 +6,8 @@ web GUI 宿主的**文件树服务**：`FileTree` 以 `ctx.fileTree` 注册服�
 
 行为事实：一次 `list(path, signal)` 调用至多返回 `maxEntries` 行（配置项，默认 1000——GitHub 网页端对目录列举采用的同一上限），文件与目录统一按名称排序；每行携带绝对宿主路径（客户端从不自行拼接段）、`kind`（`file`/`directory`——符号链接的 kind 由目标的 stat 探测决定）和宿主判定的 `hidden` 标志（POSIX 点前缀约定）。层级以有界窗口流式扫描，无论目录有多少子项内存都保持 O(maxEntries)；被截断的层级保留按名排序的头部、隐藏行计入上限，并报告 `truncated: true`。断链或循环符号链接被静默跳过（树只展示名称背后真实存在的东西）。`path` 必须是完全限定路径——相对形式，以及 Windows 上 `isAbsolute` 会放行的无盘符有根形式（`\foo`、`/foo`）与不完整的 UNC 前缀（`\\`、`\\server`）——一律报 `directory-unreadable`，而不是让 `resolve` 把 wire 值重定位到宿主进程 cwd 或当前盘符之下；调用方的 `AbortSignal` 会停止扫描（网络盘卡住时不得拖住已离场的调用方）。失败抛出 picker seam 的类型化 `DirectoryPickerError`，网关将其 1:1 映射到 wire。
 
+一次 `read(path, signal)` 调用返回单个文件的内容供应用内查看，由 API proxy 的 `host.readFile` 消费：文本在 `maxBytes` 处截断（配置项，默认 1 MiB，与 `maxEntries` 对称的完整结果上限），`truncated: true` 标记截断，`bytes` 始终报告文件完整大小。前 8 KiB 含 NUL 字节的文件以 `kind: 'binary'` 应答且内容为空——查看器展示标记而非乱码。同样的完全限定路径栅栏与信号交接适用；目录、缺失文件或不可读目标报 `file-unreadable`。
+
 ## Model Experience
 
 无：该服务只喂给 GUI 宿主的工作区树，不接触任何模型请求。

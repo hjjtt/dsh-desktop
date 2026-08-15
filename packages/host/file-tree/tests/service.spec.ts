@@ -71,7 +71,7 @@ describe('FileTree', () => {
 
   it('cuts a level at maxEntries keeping the name-sorted head, and flags the cut', async () => {
     const ctx = new Context()
-    const fiber = ctx.plugin(FileTree, { maxEntries: 2 })
+    const fiber = ctx.plugin(FileTree, { maxEntries: 2, maxBytes: 1000 })
     await fiber.await()
     const bounded = ctx.get('fileTree')!
     try {
@@ -118,5 +118,57 @@ describe('FileTree', () => {
     const controller = new AbortController()
     controller.abort()
     await expect(fileTree.list(root, controller.signal)).rejects.toThrow()
+  })
+})
+
+describe('FileTree.read', () => {
+  it('returns a text file\'s content with its complete size', async () => {
+    const content = await fileTree.read(join(root, 'notes.txt'))
+    expect(content).toMatchObject({ kind: 'text', content: 'a file row', bytes: 10, truncated: false })
+    expect(content.path).toBe(join(root, 'notes.txt'))
+  })
+
+  it('marks a NUL-carrying file binary and returns no content', async () => {
+    const blob = join(root, 'blob.bin')
+    await writeFile(blob, Buffer.from([0x4d, 0x5a, 0x00, 0x01]))
+    await expect(fileTree.read(blob)).resolves.toMatchObject({
+      kind: 'binary',
+      content: '',
+      bytes: 4,
+      truncated: false,
+    })
+  })
+
+  it('cuts content at maxBytes and flags the truncation', async () => {
+    const long = join(root, 'long.txt')
+    await writeFile(long, 'abcdefghij')
+    const ctx = new Context()
+    const fiber = ctx.plugin(FileTree, { maxEntries: 1000, maxBytes: 4 })
+    await fiber.await()
+    try {
+      await expect(ctx.get('fileTree')!.read(long)).resolves.toMatchObject({
+        kind: 'text',
+        content: 'abcd',
+        bytes: 10,
+        truncated: true,
+      })
+    } finally {
+      await fiber.dispose()
+    }
+  })
+
+  it('rejects a relative path, a directory, and a missing file with file-unreadable', async () => {
+    await expect(fileTree.read('notes.txt')).rejects.toMatchObject({
+      name: 'DirectoryPickerError',
+      code: 'file-unreadable',
+    })
+    await expect(fileTree.read(root)).rejects.toMatchObject({ code: 'file-unreadable' })
+    await expect(fileTree.read(join(root, 'no-such-file'))).rejects.toMatchObject({ code: 'file-unreadable' })
+  })
+
+  it('rejects an already-aborted call without touching the filesystem', async () => {
+    const controller = new AbortController()
+    controller.abort()
+    await expect(fileTree.read(join(root, 'notes.txt'), controller.signal)).rejects.toThrow()
   })
 })

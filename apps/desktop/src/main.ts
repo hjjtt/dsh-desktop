@@ -90,10 +90,14 @@ app.on('before-quit', (event) => {
   }
 })
 
-/** Boot Electron, then the host sidecar, then the window; failures exit loud. */
+/** Boot Electron, then the window, then the host sidecar; failures exit loud. */
 async function boot(): Promise<void> {
   await app.whenReady()
   installMenu()
+  // The window shows immediately as an empty document: the sidecar's cold
+  // start takes seconds, and an instant window replaces that dead time with
+  // the app's own frame while the host origin loads in place once ready.
+  createWindow()
   try {
     await startHost()
   } catch (error) {
@@ -133,7 +137,7 @@ async function startHost(): Promise<void> {
   child.exited.then(onHostExit).catch(() => {
     // exited never rejects; an observer failure must not kill the shell.
   })
-  openWindow(url)
+  loadMainWindow(url)
 }
 
 /** Restart a crashed host, or give up and quit once restarts exceed the cap. */
@@ -151,17 +155,22 @@ function onHostExit(): void {
 
 /** Open (or reload) the window on the host origin. */
 function openWindow(url: string): void {
+  createWindow()
+  loadMainWindow(url)
+}
+
+/** Create the window now on an empty document; the host origin loads in place later. */
+function createWindow(): void {
   const existing = mainWindow
-  if (existing !== undefined && !existing.isDestroyed()) {
-    void existing.loadURL(url)
-    return
-  }
+  if (existing !== undefined && !existing.isDestroyed()) return
   const state = loadWindowState()
   const win = new BrowserWindow({
     width: state.width,
     height: state.height,
     ...(state.x !== undefined && state.y !== undefined ? { x: state.x, y: state.y } : {}),
-    show: false,
+    // Shown on creation: the empty first document has no first paint, so
+    // `ready-to-show` would withhold the window until the host page loads.
+    show: !smoke,
     title: 'DeepSeek Harness',
     webPreferences: {
       contextIsolation: true,
@@ -171,12 +180,15 @@ function openWindow(url: string): void {
   })
   if (state.maximized) win.maximize()
   mainWindow = win
-  win.on('ready-to-show', () => {
-    if (!smoke) win.show()
-  })
   win.on('close', () => {
     saveWindowState(win)
   })
+}
+
+/** Load the host origin into the window; navigation guarding starts here. */
+function loadMainWindow(url: string): void {
+  const win = mainWindow
+  if (win === undefined || win.isDestroyed()) return
   guardNavigation(win, url)
   if (smoke) wireSmoke(win)
   void win.loadURL(url)

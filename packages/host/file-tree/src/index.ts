@@ -14,7 +14,7 @@
  * @module @deepseek-ai/dsh-host-file-tree
  */
 
-import { stat } from 'node:fs/promises'
+import { open, stat } from 'node:fs/promises'
 import { join, resolve } from 'node:path'
 import { Context, Service } from '@deepseek-ai/cordis'
 import z from '@deepseek-ai/schemastery'
@@ -43,6 +43,20 @@ export interface FileTreeListing {
   truncated: boolean
 }
 
+/** One read file's content, as {@link FileTree.read} reports it. */
+export interface FileContent {
+  /** Absolute path of the read file. */
+  path: string
+  /** `'text'` (content carries the file's UTF-8 text) or `'binary'` (a NUL byte was seen; content is empty). */
+  kind: 'text' | 'binary'
+  /** The file's text, cut at the complete-result bound; always empty for `'binary'`. */
+  content: string
+  /** The file's complete size in bytes, before any bound cut. */
+  bytes: number
+  /** True when `content` was cut at the bound (the tail is absent). */
+  truncated: boolean
+}
+
 declare module '@deepseek-ai/cordis' {
   interface Context {
     fileTree: FileTree
@@ -53,6 +67,8 @@ declare module '@deepseek-ai/cordis' {
 export interface Config {
   /** Complete-result bound of one tree level; see {@link FileTree.Config}. */
   maxEntries: number
+  /** Complete-result bound of one read file; see {@link FileTree.Config}. */
+  maxBytes: number
 }
 
 /**
@@ -67,10 +83,12 @@ export default class FileTree extends Service {
    * materialize and put on the wire: at most this many child rows (hidden
    * rows included), with `truncated` flagging a cut level. The default
    * follows GitHub's web UI, which truncates directory listings at 1,000
-   * entries.
+   * entries. `maxBytes` bounds the text a single `read` call returns the
+   * same way (1 MiB by default), with `truncated` flagging the cut tail.
    */
   static Config: z<Config> = z.object({
     maxEntries: z.natural().min(1).default(1000),
+    maxBytes: z.natural().min(1).default(1_048_576),
   })
 
   constructor(ctx: Context, private readonly config: Config) {
@@ -125,6 +143,54 @@ export default class FileTree extends Service {
       })
     }
     return { path: target, entries, truncated }
+  }
+
+  /**
+   * Read one file's content for in-app viewing, bounded by `maxBytes`.
+   * @param path - absolute file to read.
+   * @param signal - caller lifetime; abort stops the read and rejects with
+   * the abort reason.
+   * @returns the file's text (cut at the bound, `truncated` flagging it) or
+   * a `'binary'` marker (content empty) when a NUL byte was seen.
+   * @throws {DirectoryPickerError} `file-unreadable` when the path is not
+   * fully qualified, names a directory, or cannot be read.
+   */
+  async read(path: string, signal?: AbortSignal): Promise<FileContent> {
+    // Same fence as `list`: never rebase a relative or rooted drive-less wire
+    // value under the process cwd or current drive.
+    if (!fullyQualified(path)) {
+      throw new DirectoryPickerError('file-unreadable', path, `cannot read "${path}": not a fully qualified path`)
+    }
+    const target = resolve(path)
+    // One bounded read window: maxBytes plus the one byte that proves a cut.
+    const window = this.config.maxBytes + 1
+    let buffer: Buffer
+    let bytes: number
+    let truncated: boolean
+    try {
+      const info = await raceAbort(stat(target), signal)
+      if (info.isDirectory()) {
+        throw new DirectoryPickerError('file-unreadable', target, `cannot read "${target}": it is a directory`)
+      }
+      bytes = info.size
+      truncated = info.size > this.config.maxBytes
+      const handle = await raceAbort(open(target, 'r'), signal)
+      try {
+        const capacity = Math.min(info.size, window)
+        buffer = Buffer.alloc(capacity)
+        const { bytesRead } = await raceAbort(handle.read(buffer, 0, capacity, 0), signal)
+        buffer = buffer.subarray(0, bytesRead)
+      } finally {
+        await handle.close()
+      }
+    } catch (error: unknown) {
+      if (signal?.aborted || error instanceof DirectoryPickerError) throw error
+      throw new DirectoryPickerError('file-unreadable', target, `cannot read "${target}": ${error instanceof Error ? error.message : String(error)}`)
+    }
+    // A NUL byte names a binary file; the viewer shows the marker, not mojibake.
+    const binary = buffer.subarray(0, Math.min(buffer.length, 8192)).includes(0)
+    const content = binary || truncated ? buffer.subarray(0, this.config.maxBytes).toString('utf8') : buffer.toString('utf8')
+    return { path: target, kind: binary ? 'binary' : 'text', content: binary ? '' : content, bytes, truncated }
   }
 }
 
