@@ -1,38 +1,70 @@
-# dsh-desktop — DeepSeek Harness 桌面壳与工作区文件树（自研部分）
+# dsh-desktop
 
-本仓库只包含我们在 [deepseek-ai/deepseek-harness](https://github.com/deepseek-ai/deepseek-harness) 之上**自研的全部新增代码**，不包含任何上游源码：
+**DeepSeek Harness 桌面客户端** — 把 dsh agent 工作台装进一个原生窗口。
 
-- `apps/desktop/` — **桌面应用壳**：Electron 窗口 + `dsh web` sidecar 宿主。Electron 主进程拉起打包好的 dsh host 子进程，host 崩溃自动重启并重载窗口；打包流程（electron-builder + 生产闭包 staging）一并在此。
-- `packages/client/ui-file-tree/` — **客户端文件树插件**：侧栏"会话/文件"标签页下的全高目录树，逐级懒加载（`host.listFiles`），每行可拖拽为绝对路径引用到对话输入框。
-- `packages/host/file-tree/` — **宿主侧文件树服务**：目录层级列举能力（listFiles），走 apiproxy wire 契约。
-- `notes/agent-notes/` — 两篇特性实现笔记（桌面壳、工作区文件树），记录设计决策。
-- `patches/apply-on-upstream.patch` — 对上游已有文件的**配套修改**（WorkspaceBrowser 标签页改造、apiproxy wire schema、Win32 目录选择器绑定、workspace 注册等，55 个文件）。上游文件本体不收入本仓库，修改以 patch 形式提供。
+![Release](https://img.shields.io/github/v/release/hjjtt/dsh-desktop?style=flat-square)
+![Platform](https://img.shields.io/badge/platform-Windows-blue?style=flat-square)
+![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)
 
-## 依赖与使用
+## ✨ 功能特性
 
-这些组件依赖上游 monorepo 的包体系（`@deepseek-ai/dsh-*`），不能独立编译。使用方式：
+- 🖥 **原生桌面窗口** — Electron 窗口与后台 `dsh web` 宿主同生命周期：宿主崩溃自动重启、界面自动恢复；窗口位置与尺寸自动记忆；外链交给系统浏览器打开
+- 📁 **工作区文件树** — 侧栏「会话 / 文件」双视图一键切换；文件树整栏显示当前工作区目录，逐级懒加载，支持错误重试与超长列表截断提示，隐藏文件淡化显示
+- 🖱 **拖拽即引用** — 把任意文件或目录从文件树拖进对话输入框，自动生成绝对路径引用，agent 直接可读
+- 📦 **开箱即用** — 安装包内置完整运行时（含 dsh 闭包），**无需安装 Node.js**，下载即用
+
+## 📥 下载安装
+
+前往 [Releases](https://github.com/hjjtt/dsh-desktop/releases) 下载：
+
+| 文件 | 说明 |
+|---|---|
+| `DeepSeek Harness Setup 0.2.0.exe` | Windows 安装包（123 MB，NSIS） |
+| `DeepSeek Harness-0.2.0-win.zip` | 免安装版（168 MB，解压即用） |
+
+安装后启动 `DeepSeek Harness.exe` 即可。
+
+## 🖼 界面一览
+
+- **左侧栏**
+  - 顶部「新会话」入口与搜索
+  - 「会话」视图：按工作区分组浏览会话，支持重命名、归档、拖拽排序
+  - 「文件」视图：当前工作区目录树，点击展开子目录，行内显示加载/错误/空目录状态
+- **主区域** — 对话与 agent 工作区
+
+## 🛠 从源码构建
+
+本项目在 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) monorepo 体系内构建；`patches/apply-on-upstream.patch` 包含与 monorepo 的集成改动（界面标签页、wire 契约、目录选择器等）。
 
 ```sh
-# 1. 检出上游仓库并应用配套修改
+# 1. 准备 monorepo 并应用集成改动
 git clone https://github.com/deepseek-ai/deepseek-harness.git
 cd deepseek-harness
-git apply /path/to/apply-on-upstream.patch
+git apply /path/to/dsh-desktop/patches/apply-on-upstream.patch
 
-# 2. 把本仓库的三个目录放进上游 checkout 对应位置
-cp -r /path/to/dsh-desktop/apps/desktop        apps/
-cp -r /path/to/dsh-desktop/packages/client/ui-file-tree  packages/client/
-cp -r /path/to/dsh-desktop/packages/host/file-tree       packages/host/
+# 2. 放入本项目组件
+cp -r /path/to/dsh-desktop/apps/desktop               apps/
+cp -r /path/to/dsh-desktop/packages/client/ui-file-tree packages/client/
+cp -r /path/to/dsh-desktop/packages/host/file-tree      packages/host/
 
-# 3. 安装、构建、打包桌面 exe
+# 3. 安装、构建、打包
 pnpm install
 pnpm run build
-cd apps/desktop && pnpm run dist   # 产物在 dist-exe/
+cd apps/desktop && pnpm run dist   # 产物输出至 dist-exe/
 ```
 
-## 界面效果
+## 📁 目录结构
 
-侧栏顶部为"会话 / 文件"标签页：会话视图保持原有工作区分组浏览；文件视图整栏显示当前工作区目录树（根 = 当前会话所属工作区），支持逐级展开、错误重试、截断提示、隐藏文件淡化显示、拖拽路径到输入框。
+```
+apps/desktop/                 桌面壳：Electron 主进程、sidecar 监管、打包流水线
+packages/client/ui-file-tree/ 文件树界面组件（懒加载、拖拽引用）
+packages/host/file-tree/      宿主侧目录列举服务（listFiles）
+patches/                      与 DeepSeek Harness monorepo 的集成改动
+notes/                        特性实现笔记（设计决策与取舍）
+```
 
-## 打包产物
+## 📄 许可证
 
-`pnpm run dist` 产出 `dist-exe/win-unpacked/DeepSeek Harness.exe`（免安装目录版）、NSIS 安装包与 zip。dsh 生产闭包由 `scripts/stage-dsh.mjs` 完成封闭性校验后随包分发，无需系统 Node。
+[MIT](LICENSE)
+
+基于 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness)（MIT）构建。
