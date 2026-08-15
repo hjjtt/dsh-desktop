@@ -1,0 +1,33 @@
+# Desktop packaging: the Electron main bundle rides the asar; the staged dsh
+# production closure (apps/desktop/scripts/stage-dsh.mjs) is copied verbatim by
+# the afterPack hook — extraResources would prune the closure's node_modules
+# against this app's own (dev-only) dependency graph.
+appId: com.deepseekai.dsh
+productName: DeepSeek Harness
+directories:
+  output: dist-exe
+  buildResources: build
+afterPack: scripts/after-pack.cjs
+# Icon: build/icon.ico, rasterized from build/icon.svg (the black DeepSeek
+# whale) by scripts/render-icon.cjs + scripts/make-ico.mjs.
+# Keep only the locales the product ships UI languages for; the rest of
+# Electron's ~50 locale packs are dead weight (53 files, ~40 MB).
+electronLanguages:
+  - zh-CN
+  - en-US
+files:
+  - lib/**
+win:
+  icon: build/icon.ico
+  target:
+    - dir
+    - nsis
+    - zip
+  signtoolOptions:
+    # RFC3161 timestamping keeps signatures valid after the certificate
+    # expires. Harmless when no certificate is configured (CSC_LINK /
+    # CSC_KEY_PASSWORD, or azureSignOptions for Azure Trusted Signing).
+    rfc3161TimeStampServer: http://timestamp.digicert.com
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
