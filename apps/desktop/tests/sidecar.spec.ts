@@ -1,6 +1,9 @@
+import { readFileSync, rmSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
-import { startSidecar, SidecarStartupError, type SidecarCommand } from '../src/sidecar.ts'
+import { startSidecar, isTransientStartupFailure, SidecarStartupError, type SidecarCommand } from '../src/sidecar.ts'
 
 const fixture = fileURLToPath(new URL('./fixtures/fake-dsh-web.mjs', import.meta.url))
 
@@ -73,4 +76,56 @@ describe('startSidecar', () => {
     },
     15_000,
   )
+
+  it(
+    'appends every line and the exit code to the durable log file',
+    async () => {
+      const logFile = join(tmpdir(), `dsh-sidecar-log-${process.pid}-${Date.now()}.log`)
+      const sidecar = startSidecar({
+        command: command({ FAKE_PORT: '4573' }),
+        readyTimeoutMs: 10_000,
+        logFile,
+      })
+      await sidecar.ready
+      await sidecar.stop()
+      await sidecar.exited
+      await new Promise(resolve => { setTimeout(resolve, 50) })
+      const log = readFileSync(logFile, 'utf8')
+      expect(log).toContain('stdout: dsh web: http://127.0.0.1:4573')
+      expect(log).toMatch(/exit: code=/)
+      rmSync(logFile, { force: true })
+    },
+    15_000,
+  )
+})
+
+describe('isTransientStartupFailure', () => {
+  it(
+    'classifies a child that died without any output as transient',
+    async () => {
+      const sidecar = startSidecar({
+        command: { file: process.execPath, args: ['-e', 'process.exit(1)'], env: {} },
+        readyTimeoutMs: 10_000,
+      })
+      const error = await sidecar.ready.then(
+        () => { throw new Error('expected the sidecar ready promise to reject') },
+        (rejection: unknown) => rejection as SidecarStartupError,
+      )
+      expect(error.output.trim()).toBe('')
+      expect(isTransientStartupFailure(error)).toBe(true)
+      await sidecar.exited
+    },
+    15_000,
+  )
+
+  it('classifies a child that stated its failure as non-transient', async () => {
+    const sidecar = startSidecar({ command: command({ FAKE_FAIL_FAST: '1' }), readyTimeoutMs: 10_000 })
+    const error = await sidecar.ready.then(
+      () => { throw new Error('expected the sidecar ready promise to reject') },
+      (rejection: unknown) => rejection as SidecarStartupError,
+    )
+    expect(isTransientStartupFailure(error)).toBe(false)
+    expect(isTransientStartupFailure(new Error('not a sidecar error'))).toBe(false)
+    await sidecar.exited
+  })
 })

@@ -20,8 +20,8 @@
 
 | 文件 | 说明 |
 |---|---|
-| `DeepSeek Harness Setup 0.3.0.exe` | Windows 安装包（123 MB，NSIS） |
-| `DeepSeek Harness-0.3.0-win.zip` | 免安装版（168 MB，解压即用） |
+| `DeepSeek Harness Setup 0.3.1.exe` | Windows 安装包（123 MB，NSIS） |
+| `DeepSeek Harness-0.3.1-win.zip` | 免安装版（168 MB，解压即用） |
 
 安装后启动 `DeepSeek Harness.exe` 即可。
 
@@ -34,6 +34,7 @@
 
 | 版本 | 内容 |
 |---|---|
+| 0.3.1 | 「用系统程序打开」修复（无关联文件不再静默失败）；查看器滚动/加宽/文件大小信息；Markdown 渲染显示；启动失败自动重试 + 诊断日志 |
 | 0.3.0 | 产出文件应用内预览；桌面窗口双击立即显示 |
 | 0.2.0 | 首个发布：桌面壳、会话/文件双视图、文件树、拖拽引用 |
 

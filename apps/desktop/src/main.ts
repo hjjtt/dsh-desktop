@@ -19,13 +19,19 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { app, BrowserWindow, dialog, Menu, screen, shell } from 'electron'
 import { resolveDshLaunch } from './launch.ts'
-import { startSidecar, SidecarStartupError, type SidecarProcess } from './sidecar.ts'
+import { startSidecar, isTransientStartupFailure, SidecarStartupError, type SidecarProcess } from './sidecar.ts'
 
 /** Environment variable enabling the headless acceptance pass. */
 const SMOKE_ENV = 'DSH_DESKTOP_SMOKE'
 
 /** Overall deadline for the smoke pass, covering first boot of the host. */
 const SMOKE_DEADLINE_MS = 120_000
+
+/** Backoff before retrying a host that died without any output. */
+const STARTUP_RETRY_DELAY_MS = 600
+
+/** Extra attempts for a transiently dead host, after the first try. */
+const STARTUP_RETRIES = 2
 
 /** Sidecar restarts allowed inside the window before giving up. */
 const MAX_RESTARTS = 3
@@ -99,9 +105,28 @@ async function boot(): Promise<void> {
   // the app's own frame while the host origin loads in place once ready.
   createWindow()
   try {
-    await startHost()
+    await startHostWithRetry()
   } catch (error) {
     failFast(error)
+  }
+}
+
+/**
+ * Start the host, retrying a child that died without any output: freshly
+ * written install files under scanner locks kill the very first module loads
+ * and die before reporting anything, and an immediate retry clears that
+ * window. A failure that said something is a stated problem — it surfaces.
+ * @returns when the host is up; rethrows the last failure otherwise.
+ */
+async function startHostWithRetry(): Promise<void> {
+  for (let attempt = 0; ; attempt++) {
+    try {
+      await startHost()
+      return
+    } catch (error) {
+      if (attempt >= STARTUP_RETRIES || smoke || !isTransientStartupFailure(error)) throw error
+      await new Promise(resolve => { setTimeout(resolve, STARTUP_RETRY_DELAY_MS) })
+    }
   }
 }
 
@@ -130,6 +155,9 @@ async function startHost(): Promise<void> {
     // The sidecar's working directory seeds the default workspace root: the
     // user's home for an installation, the repository for a dev checkout.
     cwd: (app.isPackaged ? homedir() : repoRoot) ?? homedir(),
+    // One durable record per boot: the dialog cannot carry what a child that
+    // died silently never said, so every line and the exit code land here.
+    logFile: prepareSidecarLog(),
   })
   sidecar = child
   const url = await child.ready
@@ -150,7 +178,7 @@ function onHostExit(): void {
     failFast(new Error(`the dsh host exited ${String(restarts.length - 1)} times within ${String(RESTART_WINDOW_MS / 1000)}s; giving up`))
     return
   }
-  startHost().catch(failFast)
+  startHostWithRetry().catch(failFast)
 }
 
 /** Open (or reload) the window on the host origin. */
@@ -318,6 +346,28 @@ function failFast(error: unknown): void {
     app.exit(1)
     return
   }
-  dialog.showErrorBox('DeepSeek Harness', `Failed to start the dsh host:\n${detail}`)
+  dialog.showErrorBox('DeepSeek Harness',
+    `Failed to start the dsh host:\n${detail}\n\nStartup log: ${sidecarLogPath()}`)
   app.exit(1)
+}
+
+/** @returns the sidecar log file path under Electron's userData directory. */
+function sidecarLogPath(): string {
+  return join(app.getPath('userData'), 'logs', 'sidecar.log')
+}
+
+/**
+ * Reset the sidecar log for this boot: truncate, then stamp the header so the
+ * file always describes exactly the latest attempt.
+ * @returns the log file path handed to the sidecar.
+ */
+function prepareSidecarLog(): string {
+  const path = sidecarLogPath()
+  try {
+    mkdirSync(dirname(path), { recursive: true })
+    writeFileSync(path, `dsh desktop boot ${new Date().toISOString()}\n`)
+  } catch {
+    // An unwritable log path loses diagnostics only; the sidecar proceeds.
+  }
+  return path
 }

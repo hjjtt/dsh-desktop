@@ -15,6 +15,7 @@
  */
 
 import { spawn } from 'node:child_process'
+import { appendFile } from 'node:fs/promises'
 import { createInterface } from 'node:readline'
 import { parseWebUrlLine } from './urls.ts'
 
@@ -49,6 +50,13 @@ export interface SidecarOptions {
   stopTimeoutMs?: number
   /** Observer receiving every child output line, for logs. */
   onLine?: (line: string, stream: 'stdout' | 'stderr') => void
+  /**
+   * Durable log file: every child line and the exit code are appended here,
+   * best-effort. A child that dies before printing anything leaves the
+   * failure visible only in this file — the dialog alone cannot carry what
+   * the process never said.
+   */
+  logFile?: string
 }
 
 /** Startup failure: the reason plus the retained child output tail. */
@@ -89,9 +97,18 @@ export interface SidecarProcess {
 export function startSidecar(options: SidecarOptions): SidecarProcess {
   const readyTimeoutMs = options.readyTimeoutMs ?? READY_TIMEOUT_MS
   const stopTimeoutMs = options.stopTimeoutMs ?? STOP_TIMEOUT_MS
+  const logFile = options.logFile
   const tail: string[] = []
   let readyUrl: string | undefined
   let exited = false
+
+  /** Best-effort durable line; a log write failure must not disturb the child. */
+  const log = (line: string): void => {
+    if (logFile === undefined) return
+    void appendFile(logFile, `${line}\n`, 'utf8').catch(() => {
+      // An unwritable log path loses diagnostics only; the sidecar proceeds.
+    })
+  }
 
   const env: Record<string, string | undefined> = { ...process.env }
   for (const [key, value] of Object.entries(options.command.env ?? {})) {
@@ -121,6 +138,7 @@ export function startSidecar(options: SidecarOptions): SidecarProcess {
 
   const observe = (stream: 'stdout' | 'stderr') => (line: string): void => {
     options.onLine?.(line, stream)
+    log(`${stream}: ${line}`)
     tail.push(`${stream}: ${line}`)
     if (tail.length > OUTPUT_TAIL_LINES) tail.shift()
     if (stream === 'stdout' && readyUrl === undefined) {
@@ -152,6 +170,7 @@ export function startSidecar(options: SidecarOptions): SidecarProcess {
   child.on('close', (code) => {
     exited = true
     clearTimeout(readyTimer)
+    log(`exit: code=${String(code ?? 'null')}`)
     resolveExit(code ?? null)
     if (readyUrl === undefined) {
       rejectReady(report(`dsh web exited before printing its URL (exit code ${String(code ?? 'null')})`))
@@ -194,6 +213,20 @@ export function startSidecar(options: SidecarOptions): SidecarProcess {
   }
 
   return { ready, exited: exitedPromise, stop }
+}
+
+/**
+ * Classify one {@link SidecarStartupError} as a transient startup death: a
+ * child that exited without emitting any output died before its own failure
+ * reporting existed (module-load and spawn-window failures — freshly written
+ * install files under scanner locks behave this way), so an immediate retry
+ * can succeed. A child that said something failed for a stated reason and
+ * would fail again.
+ * @param error - the rejection from `ready`.
+ * @returns true when a retry has a realistic chance.
+ */
+export function isTransientStartupFailure(error: unknown): boolean {
+  return error instanceof SidecarStartupError && error.output.trim() === ''
 }
 
 /** @returns a promise resolving after `ms`. */
