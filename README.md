@@ -20,8 +20,8 @@
 
 | 文件 | 说明 |
 |---|---|
-| `DeepSeek Harness Setup 0.4.0.exe` | Windows 安装包（NSIS，大小以 Releases 页面为准） |
-| `DeepSeek Harness-0.4.0-win.zip` | 免安装版（解压即用） |
+| `DeepSeek Harness Setup 0.4.0.exe` | Windows 安装包（117 MB，NSIS） |
+| `DeepSeek Harness-0.4.0-win.zip` | 免安装版（160 MB，解压即用） |
 
 安装后启动 `DeepSeek Harness.exe` 即可。
 
