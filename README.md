@@ -20,8 +20,8 @@
 
 | 文件 | 说明 |
 |---|---|
-| `DeepSeek Harness Setup 0.3.1.exe` | Windows 安装包（123 MB，NSIS） |
-| `DeepSeek Harness-0.3.1-win.zip` | 免安装版（168 MB，解压即用） |
+| `DeepSeek Harness Setup 0.4.0.exe` | Windows 安装包（NSIS，大小以 Releases 页面为准） |
+| `DeepSeek Harness-0.4.0-win.zip` | 免安装版（解压即用） |
 
 安装后启动 `DeepSeek Harness.exe` 即可。
 
@@ -34,6 +34,7 @@
 
 | 版本 | 内容 |
 |---|---|
+| 0.4.0 | 跟随上游 DeepSeek Harness 更新（基线 dsh-v0.1.0-rc.7 → master b150a551b / 0.1.1-rc.2 时代）：补丁在 master 上重新生成并全量验证（受影响包 1500+ 测试、host/client 类型检查与构建通过）；适配上游 InputBar 重构（拖拽引用改为独立监听）、WorkspaceBrowser 调整、apiproxy 图片管线变更；修复补丁文件 CRLF 编码导致 Windows 下 `git apply` 失败的问题（新增 `.gitattributes` 强制 LF） |
 | 0.3.1 | 「用系统程序打开」修复（无关联文件不再静默失败）；查看器滚动/加宽/文件大小信息；Markdown 渲染显示；启动失败自动重试 + 诊断日志 |
 | 0.3.0 | 产出文件应用内预览；桌面窗口双击立即显示 |
 | 0.2.0 | 首个发布：桌面壳、会话/文件双视图、文件树、拖拽引用 |
@@ -50,8 +51,10 @@
 
 本项目在 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) monorepo 体系内构建；`patches/apply-on-upstream.patch` 包含与 monorepo 的集成改动（界面标签页、wire 契约、目录选择器等）。
 
+> 补丁基线：上游 master `b150a551b`（2026-08-21，0.1.1-rc.2 时代）。上游更新后需重新生成补丁。
+
 ```sh
-# 1. 准备 monorepo 并应用集成改动
+# 1. 准备 monorepo 并应用集成改动（补丁为 LF 编码，可直接 git apply）
 git clone https://github.com/deepseek-ai/deepseek-harness.git
 cd deepseek-harness
 git apply /path/to/dsh-desktop/patches/apply-on-upstream.patch
@@ -61,7 +64,7 @@ cp -r /path/to/dsh-desktop/apps/desktop               apps/
 cp -r /path/to/dsh-desktop/packages/client/ui-file-tree packages/client/
 cp -r /path/to/dsh-desktop/packages/host/file-tree      packages/host/
 
-# 3. 安装、构建、打包
+# 3. 安装、构建、打包（补丁已预置 lockfile 依赖条目）
 pnpm install
 pnpm run build
 cd apps/desktop && pnpm run dist   # 产物输出至 dist-exe/

@@ -1,0 +1,5 @@
+# 仓库统一 LF：集成补丁必须保持 LF 才能应用到上游仓库
+# （上游 .gitattributes 强制 LF，CRLF 检出会让 git apply 失配）。
+* text=auto eol=lf
+*.ico binary
+*.png binary

@@ -1,8 +1,8 @@
 diff --git a/THIRD_PARTY_NOTICES.md b/THIRD_PARTY_NOTICES.md
-index 92b218ff33..10666a6142 100644
+index 295eb1868f..c98311401d 100644
 --- a/THIRD_PARTY_NOTICES.md
 +++ b/THIRD_PARTY_NOTICES.md
-@@ -143,6 +143,8 @@ External packages **directly declared** only by repository tooling, test infrast
+@@ -144,6 +144,8 @@ External packages **directly declared** only by repository tooling, test infrast
  | [`cytoscape-cose-bilkent`](https://github.com/cytoscape/cytoscape.js-cose-bilkent) | MIT |
  | [`dayjs`](https://github.com/iamkun/dayjs) | MIT |
  | [`debug`](https://github.com/debug-js/debug) | MIT |
@@ -12,7 +12,7 @@ index 92b218ff33..10666a6142 100644
  | [`eslint-plugin-sonarjs`](https://github.com/SonarSource/SonarJS) | LGPL-3.0-only |
  | [`execa`](https://github.com/sindresorhus/execa) | MIT |
 diff --git a/apps/cli/package.json b/apps/cli/package.json
-index fdd4740b3c..e1b54d7945 100644
+index eeeb48e79a..4c19b49f2a 100644
 --- a/apps/cli/package.json
 +++ b/apps/cli/package.json
 @@ -20,32 +20,51 @@
@@ -67,7 +67,7 @@ index fdd4740b3c..e1b54d7945 100644
      "@deepseek-ai/dsh-pwsh-local": "workspace:^",
      "@deepseek-ai/dsh-pwsh-sandbox": "workspace:^",
      "@deepseek-ai/dsh-session-projection": "workspace:^",
-@@ -77,6 +96,7 @@
+@@ -78,6 +97,7 @@
      "@deepseek-ai/dsh-web-app": "workspace:^",
      "@deepseek-ai/dsh-workflow-worker-thread": "workspace:^",
      "@deepseek-ai/dsh-agent-instructions": "workspace:^",
@@ -76,10 +76,10 @@ index fdd4740b3c..e1b54d7945 100644
      "@deepseek-ai/cordis": "workspace:^",
      "js-yaml": "^4.2.0",
 diff --git a/knip.json b/knip.json
-index 3017292382..bd3c554e17 100644
+index 280d10a1f0..63dbbb3548 100644
 --- a/knip.json
 +++ b/knip.json
-@@ -189,6 +189,16 @@
+@@ -158,6 +158,16 @@
          "tests/**/*.tsx"
        ]
      },
@@ -96,7 +96,7 @@ index 3017292382..bd3c554e17 100644
      "packages/client/ui-deliverables": {
        "entry": [
          "tests/**/*.spec.tsx"
-@@ -740,6 +750,18 @@
+@@ -640,6 +650,18 @@
          "@deepseek-ai/.+"
        ]
      },
@@ -112,14 +112,14 @@ index 3017292382..bd3c554e17 100644
 +        "tests/**/*.ts"
 +      ]
 +    },
-     "packages/client/modules": {
+     "packages/subagent/subagent-dsh-sdk": {
        "entry": [
-         "tests/**/*.spec.ts"
+         "tests/**/*.spec.ts",
 diff --git a/packages/api/remotes/src/client/index.ts b/packages/api/remotes/src/client/index.ts
-index 210ec0bf80..0759ae6b85 100644
+index 6a5164f160..979db09688 100644
 --- a/packages/api/remotes/src/client/index.ts
 +++ b/packages/api/remotes/src/client/index.ts
-@@ -34,7 +34,7 @@ export type {} from '@deepseek-ai/dsh-settings/types'
+@@ -38,7 +38,7 @@ export type {} from '@deepseek-ai/dsh-settings/types'
   */
  export type {
    ClientResponse, ConfigurableProviderView, ConnectionHandle, ConnectionSinks, ContentBlock,
@@ -129,10 +129,10 @@ index 210ec0bf80..0759ae6b85 100644
    MuxFrame, PromptContentPart, QuestionResponsePayload, QueueAction, RpcError, RpcId, RpcReceipt,
    RpcRequest, RpcResponse, RpcResult, SessionId, SessionModels, SessionSearchItem,
 diff --git a/packages/bundle/web-app/cordis.patch.yml b/packages/bundle/web-app/cordis.patch.yml
-index b06e63b54f..ecce0ecfc5 100644
+index 61151bdc65..fd94750a00 100644
 --- a/packages/bundle/web-app/cordis.patch.yml
 +++ b/packages/bundle/web-app/cordis.patch.yml
-@@ -90,6 +90,11 @@
+@@ -96,6 +96,11 @@
      - id: directory-picker
        name: '@deepseek-ai/dsh-host-directory-picker-auto'
  
@@ -144,7 +144,7 @@ index b06e63b54f..ecce0ecfc5 100644
      # Read-only projection of current Loader entries for trusted client RPCs.
      - id: plugin-inventory
        name: '@deepseek-ai/dsh-host-plugin-inventory'
-@@ -219,6 +224,11 @@
+@@ -237,6 +242,11 @@
      - id: ui-workspace
        name: '@deepseek-ai/dsh-client-ui-workspace'
  
@@ -154,13 +154,13 @@ index b06e63b54f..ecce0ecfc5 100644
 +      name: '@deepseek-ai/dsh-client-ui-file-tree'
 +
      # Input triggers: the '/' | '@' pipeline (ui-input-trigger), the command surface over
-     # it (ui-commands), and the two reference sources (ui-skill / ui-subagent).
+     # it (ui-commands), and the reference sources (ui-skill / ui-reference).
      - id: ui-input-trigger
 diff --git a/packages/bundle/web-app/package.json b/packages/bundle/web-app/package.json
-index ca4709a2a9..6272efc150 100644
+index 530192b0e4..c11131585b 100644
 --- a/packages/bundle/web-app/package.json
 +++ b/packages/bundle/web-app/package.json
-@@ -59,6 +59,7 @@
+@@ -62,6 +62,7 @@
      "@deepseek-ai/dsh-client-ui-deliverables": "workspace:^",
      "@deepseek-ai/dsh-client-ui-directory-picker-browse": "workspace:^",
      "@deepseek-ai/dsh-client-ui-directory-picker-native": "workspace:^",
@@ -168,14 +168,14 @@ index ca4709a2a9..6272efc150 100644
      "@deepseek-ai/dsh-client-ui-message-feedback": "workspace:^",
      "@deepseek-ai/dsh-client-ui-goal": "workspace:^",
      "@deepseek-ai/dsh-client-ui-layout": "workspace:^",
-@@ -91,6 +92,7 @@
+@@ -95,6 +96,7 @@
      "@deepseek-ai/dsh-host-directory-picker-auto": "workspace:^",
      "@deepseek-ai/dsh-host-directory-picker-browse": "workspace:^",
      "@deepseek-ai/dsh-host-directory-picker-native": "workspace:^",
 +    "@deepseek-ai/dsh-host-file-tree": "workspace:^",
      "@deepseek-ai/dsh-host-plugin-inventory": "workspace:^",
      "@deepseek-ai/dsh-host-webserver": "workspace:^",
-     "@deepseek-ai/dsh-message-feedback": "workspace:^",
+     "@deepseek-ai/dsh-file-reference": "workspace:^",
 diff --git a/packages/client/connection/src/client/api.ts b/packages/client/connection/src/client/api.ts
 index 1b7627b293..8f4a98b3b2 100644
 --- a/packages/client/connection/src/client/api.ts
@@ -190,10 +190,10 @@ index 1b7627b293..8f4a98b3b2 100644
    SkillsApi, SkillEntry,
    ModelCatalogFailure, ModelCatalogModel, ModelProviderGroup, ModelReasoning,
 diff --git a/packages/client/connection/src/client/fixture.ts b/packages/client/connection/src/client/fixture.ts
-index dd0566486e..186b39aac3 100644
+index cfcae2eb1f..4e3e4307b8 100644
 --- a/packages/client/connection/src/client/fixture.ts
 +++ b/packages/client/connection/src/client/fixture.ts
-@@ -2545,6 +2545,28 @@ function createFixtureWorld(options: FixtureOptions): FixtureWorld {
+@@ -2639,6 +2639,28 @@ function createFixtureWorld(options: FixtureOptions): FixtureWorld {
            truncated: false,
          })
        },
@@ -222,7 +222,7 @@ index dd0566486e..186b39aac3 100644
        createDirectory: (request) => {
          const parent = request.payload.path
          const children = childrenOf(parent)
-@@ -3096,6 +3118,8 @@ export class FixtureApiClient extends AbstractApiClient {
+@@ -3194,6 +3216,8 @@ export class FixtureApiClient extends AbstractApiClient {
        case 'host.describe': return this.api.host.describe(request)
        case 'host.pickDirectory': return this.api.host.pickDirectory(request, new AbortController().signal)
        case 'host.listDirectory': return this.api.host.listDirectory(request, new AbortController().signal)
@@ -232,7 +232,7 @@ index dd0566486e..186b39aac3 100644
        case 'host.openPath': return this.api.host.openPath(request, new AbortController().signal)
        case 'workspace.list': return this.api.workspace.list(request)
 diff --git a/packages/client/connection/src/client/index.ts b/packages/client/connection/src/client/index.ts
-index c4470b13aa..37bffc8406 100644
+index dce8d030bf..0de3293441 100644
 --- a/packages/client/connection/src/client/index.ts
 +++ b/packages/client/connection/src/client/index.ts
 @@ -16,7 +16,7 @@ import type { ClientConnectionRpc } from '../rpc.ts'
@@ -245,10 +245,10 @@ index c4470b13aa..37bffc8406 100644
    SkillsApi, SkillEntry,
    ModelCatalogFailure, ModelCatalogModel, ModelProviderGroup, ModelReasoning,
 diff --git a/packages/client/connection/tests/fake-api.client.ts b/packages/client/connection/tests/fake-api.client.ts
-index bee4fc0ce0..cae9da9bf1 100644
+index 7c9dc6accb..56f51d7d00 100644
 --- a/packages/client/connection/tests/fake-api.client.ts
 +++ b/packages/client/connection/tests/fake-api.client.ts
-@@ -144,6 +144,8 @@ export class FakeApiClient implements IApiClient {
+@@ -145,6 +145,8 @@ export class FakeApiClient implements IApiClient {
      describe: payload => this.record('host.describe', payload, this.onDescribe(payload)),
      pickDirectory: payload => this.record('host.pickDirectory', payload, this.onPickDirectory(payload)),
      listDirectory: payload => this.record('host.listDirectory', payload, this.onListDirectory(payload)),
@@ -295,7 +295,7 @@ index 4012086c3d..913273f106 100644
     * Create one child directory through the Host's `browse` capability.
     * @param path - absolute existing parent directory.
 diff --git a/packages/client/runtime/src/client/index.ts b/packages/client/runtime/src/client/index.ts
-index b5433bb573..cb06ad11e0 100644
+index 90a2b2f5f3..b81a73230d 100644
 --- a/packages/client/runtime/src/client/index.ts
 +++ b/packages/client/runtime/src/client/index.ts
 @@ -64,7 +64,7 @@ export type { SubagentAddress, JobView } from '@deepseek-ai/dsh-client-connectio
@@ -305,7 +305,7 @@ index b5433bb573..cb06ad11e0 100644
 -  DirectoryEntry, DirectoryListing, WorkspaceId, WorkspaceView,
 +  DirectoryEntry, DirectoryListing, FileContent, FileTreeEntry, FileTreeListing, WorkspaceId, WorkspaceView,
  } from '@deepseek-ai/dsh-client-connection/client'
- // Runtime owns the snapshot store; web-react only binds it to React.
+ // Runtime owns the snapshot store; ui-renderer only binds it to React.
  export { createSnapshotStore, defineStore, shallowEqual } from './contract/store.ts'
 diff --git a/packages/client/runtime/src/client/workspaces/service.ts b/packages/client/runtime/src/client/workspaces/service.ts
 index c23e3b3a6c..f9449c8762 100644
@@ -354,10 +354,10 @@ index c23e3b3a6c..f9449c8762 100644
     * Create one child directory through the Host's `browse` capability.
     * @param path - absolute existing parent directory.
 diff --git a/packages/client/runtime/tests/fake-api.client.ts b/packages/client/runtime/tests/fake-api.client.ts
-index 33a0efbbfd..971bffaabc 100644
+index e5bdaa5f66..0af4c0091c 100644
 --- a/packages/client/runtime/tests/fake-api.client.ts
 +++ b/packages/client/runtime/tests/fake-api.client.ts
-@@ -130,6 +130,22 @@ export class FakeApiClient implements IApiClient {
+@@ -131,6 +131,22 @@ export class FakeApiClient implements IApiClient {
    onCreateDirectory: (payload: unknown) => Promise<RpcResponse<{ path: string }>> =
      () => Promise.resolve(ok({ path: '/home/fake/new' }))
  
@@ -380,7 +380,7 @@ index 33a0efbbfd..971bffaabc 100644
    private readonly muxConns: StreamConn<MuxFrame>[] = []
    private readonly hostConns: StreamConn<HostFrame>[] = []
    lastSearchSignal: AbortSignal | undefined
-@@ -178,6 +194,8 @@ export class FakeApiClient implements IApiClient {
+@@ -179,6 +195,8 @@ export class FakeApiClient implements IApiClient {
      describe: (payload: unknown) => this.record('host.describe', payload, this.onDescribe(payload)),
      pickDirectory: (payload: unknown) => this.record('host.pickDirectory', payload, this.onPickDirectory(payload)),
      listDirectory: (payload: unknown) => this.record('host.listDirectory', payload, this.onListDirectory(payload)),
@@ -428,48 +428,50 @@ index cfdfa98e9b..43be4f5e8d 100644
      const ctx = new Context()
      const api = new FakeApiClient()
 diff --git a/packages/client/ui-conversation/README.i18n.yaml b/packages/client/ui-conversation/README.i18n.yaml
-index 954ba5d7af..132a1388e9 100644
+index 2b24d725a5..73235acf83 100644
 --- a/packages/client/ui-conversation/README.i18n.yaml
 +++ b/packages/client/ui-conversation/README.i18n.yaml
 @@ -2,5 +2,5 @@
  # side as of the last confirmed-consistent state. Both languages carry equal authority;
  # after editing either side, bring the other along and re-record with:
  #   pnpm run verify-translation-pairing --write packages/client/ui-conversation/README.md
--README.md: ecf463da619662fe158511079e7773ee3c627ac8
--README.zh.md: f8922b160cdc6feca94dea998163c25d803a5535
-+README.md: 25e2fd8ba056313b6ea55892708689756a7f53f7
-+README.zh.md: a3254e50f846ab52ce0001dc73bb00cd9beda342
+-README.md: 96f67677f690f12929cf691ab5901ded399504d3
+-README.zh.md: 05fdcd7a989fb74eb9f86f11cffb4eb77d38088a
++README.md: d826cec834342029535fac1191516b498fbd4a3b
++README.zh.md: 94676774b423c537d52a4e97aa7fc1fb36f5d677
 diff --git a/packages/client/ui-conversation/README.md b/packages/client/ui-conversation/README.md
-index ecf463da61..25e2fd8ba0 100644
+index 96f67677f6..d826cec834 100644
 --- a/packages/client/ui-conversation/README.md
 +++ b/packages/client/ui-conversation/README.md
-@@ -36,7 +36,7 @@ Keyboard message submission resolves delivery from the addressed session's runni
+@@ -36,8 +36,7 @@ Keyboard message submission resolves delivery from the addressed session's runni
  
  Per-session UI state for selection and the active view lives in the declared chat store (`stores.ts` `createChatStore`); the InputHub owns the composer state machine and mirrors its draft into that store for persistence. Apply passes one store handle to the strict session subtree, chat view, and details registrations, so each session shares one instance and the framework owns its lifecycle. Components are pure: the framework standard kit supplies `useSession`/`sessionId`, global `useSessions`/`useWorkspaces`, and the input machine's `useInput`/`inputActions`; store faces and inject factories supply the remaining state and callbacks.
  
--Image intake accepts paste and whole-page drop: the bar binds document-level drag listeners (the composer-bar slot is `kind: 'single'`, so at most one bar binds them) and shows the `DropOverlay` atom while a file drag is over the window — text drags pass through untouched, and a locked or busy composer shows the blocked overlay and refuses the drop. Both gestures feed one intake pre-check against the host's `imageLimits` projection (count, per-image bytes, aggregate bytes): an addition that would break a limit is refused as a whole batch with an immediate banner naming the limit, and never enters the rail. Host-side rejections that arrive anyway surface as product copy mapped from the `attachment-error` reason (`image-labels.ts` `attachmentErrorText`); reasons the user cannot act on fold into one send-failed line carrying the reason code, and non-attachment error codes keep their developer-facing message plus code.
-+Image intake accepts paste and whole-page drop; a workspace-tree row drop (the `application/x-dsh-workspace-path` flavor ui-file-tree sets beside `text/plain`) bypasses the rail and lands the row's absolute path in the draft instead. Image intake accepts paste and whole-page drop: the bar binds document-level drag listeners (the composer-bar slot is `kind: 'single'`, so at most one bar binds them) and shows the `DropOverlay` atom while a file drag is over the window — text drags pass through untouched, and a locked or busy composer shows the blocked overlay and refuses the drop. Both gestures feed one intake pre-check against the host's `imageLimits` projection (count, per-image bytes, aggregate bytes): an addition that would break a limit is refused as a whole batch with an immediate banner naming the limit, and never enters the rail. Host-side rejections that arrive anyway surface as product copy mapped from the `attachment-error` reason (`image-labels.ts` `attachmentErrorText`); reasons the user cannot act on fold into one send-failed line carrying the reason code, and non-attachment error codes keep their developer-facing message plus code.
- 
+-Image intake accepts paste and whole-page drop: the bar binds document-level drag listeners (the composer-bar slot is `kind: 'single'`, so at most one bar binds them) and shows the `DropOverlay` atom while a file drag is over the window — text drags pass through untouched, and a locked or busy composer shows the blocked overlay and refuses the drop. Both gestures feed one intake pre-check against the host's `imageLimits` projection (count, per-image bytes, aggregate bytes): an addition that would break a limit is refused as a whole batch with an immediate banner naming the limit, and never enters the rail. Host-side rejections that arrive anyway surface as product copy mapped from the `attachment-error` reason (`image-labels.ts` `attachmentErrorText`); reasons the user cannot act on fold into one send-failed line carrying the reason code, and non-attachment error codes keep their developer-facing message plus code. Attached images are part of the submission envelope on every send path: a slash-command submit either consumes them (a claim declaring `images` has them serialized through the hub's `commandImages` plumbing, passed to `claim.submit`, and cleared plus released only on a success outcome) or refuses the whole submission with the `command.imagesUnsupported` notice while draft and images stay in place — a command can never consume the text and strand the images.
+-
++Image intake accepts paste and whole-page drop; a workspace-tree row drop (the `application/x-dsh-workspace-path` flavor ui-file-tree sets beside `text/plain`) bypasses the rail and lands the row's absolute path in the draft instead. Image intake accepts paste and whole-page drop: the bar binds document-level drag listeners (the composer-bar slot is `kind: 'single'`, so at most one bar binds them) and shows the `DropOverlay` atom while a file drag is over the window — text drags pass through untouched, and a locked or busy composer shows the blocked overlay and refuses the drop. Both gestures feed one intake pre-check against the host's `imageLimits` projection (count, per-image bytes, aggregate bytes): an addition that would break a limit is refused as a whole batch with an immediate banner naming the limit, and never enters the rail. Host-side rejections that arrive anyway surface as product copy mapped from the `attachment-error` reason (`image-labels.ts` `attachmentErrorText`); reasons the user cannot act on fold into one send-failed line carrying the reason code, and non-attachment error codes keep their developer-facing message plus code. Attached images are part of the submission envelope on every send path: a slash-command submit either consumes them (a claim declaring `images` has them serialized through the hub's `commandImages` plumbing, passed to `claim.submit`, and cleared plus released only on a success outcome) or refuses the whole submission with the `command.imagesUnsupported` notice while draft and images stay in place — a command can never consume the text and strand the images.
  The composer bar declares session-scoped single seats for `'conversation.input.plan'` (right of the local access-mode control) and `'conversation.input.model'` (immediately before the pending indicator and send/stop controls), plus list slots for overlay, dock, left, and right input extensions. Feature packages own each control and its state; ui-conversation supplies placement, the `locked` owner prop, and the standard slot shares. The leading plus button is a Command launcher, not an attachment surface: it asks the session's `InputTriggerController` to open only the `/` trigger's `command` source over the current textarea selection, while ui-input-trigger's existing `MenuView` remains the sole floating menu and pick path. No file row, file input, upload protocol, or second menu component is introduced. While the `plan` projection's effective target is plan mode, InputBar swaps its textarea placeholder to the plan-task wording, localized through the `conversation` locale namespace this package registers (the `placeholder.plan` / `hint.plan` keys) and shared verbatim with the claimed `/plan` command hint (a host-folded value read through the standard-kit `useProjection`; owner-supplied placeholders win). A pending composer takeover remains mounted when another conversation view is active so the blocked agent can still receive its answer; without a pending interaction, the active-session composer belongs to Chat. The composer-bar slot itself is `session-maybe`: with no current session the same bar keeps message actions inert (machine faces absent, `disabled` owner prop), while the whole dashed card opens the existing Workspace picker by pointer and the read-only textarea opens it through Enter or Space. Disabled controls release pointer events to the card, and the card contains `pointerdown` so the open picker's outside-close cannot race a reopen. The bar never swaps in a parallel tree, so the textarea DOM survives Workspace selection; strict-session control seats stay empty until a session exists.
  
+ The chat stats line takes its token accounting from the generic token-meter `tokenUsage` projection read through the standard-kit `useProjection`: billed input is uncached input plus cache reads and writes; cache hit divides cache reads by that total. Every non-empty ratio starts with integer rounding. A non-full ratio adds decimal places only while the current precision would round to 100%, stopping at the minimum precision that remains below 100%; only a full cache hit displays 100%, and the precision has no fixed limit. The turn and step counts, the LLM and tool wall times, and the latency/throughput group all ride the whole-log `sessionStats` projection (host-folded from step boundaries, first-token chunks, tool pairs, and assembled messages), so paging and compaction cannot change any strip figure; an assembly without that unit falls back to the window fold over visible nodes, whose fields mirror the projection's. The strip averages each recorded step's TTFT and divides sampled output tokens by their summed decode spans into a latency/throughput group localized through the `conversation` locale namespace (`TTFT avg … · … tok/s` in English); a step missing a timing boundary or a usage sample drops out of those figures instead of skewing them, and durable count, token, and context groups remain visible when compaction leaves no assistant node in the loaded window. The turn-count, step-count, duration, cache, and token labels use the same namespace. Each settled turn additionally appends hover-revealed `TTFT {s}s · {tps} tok/s` labels to its assistant footer after the `Ran for` duration — the turn's first-step TTFT and its turn-aggregate decode throughput — gated on the turn's timing being in the loaded window (a contiguous log suffix, so an in-window turn carries every one of its steps) and omitting whichever figure is unrecorded. A deployment without token-meter drops the token groups; when the line overflows, it elides with an ellipsis and a delayed hover tooltip carries the full text only while actually clipped. Context occupancy renders as the composer's trailing ContextMeter: a 14px occupancy ring after the model seat, fed by `contextPressure` and rendered only once both a numerator and a route capacity are known, that click-opens a panel pairing the `percent used` header and `~used / capacity` figures with a color-segmented bar and `~`-prefixed heuristic composition rows (system prompt, tools, messages) from the `contextBreakdown` projection. The ring and header read `projectedTokens` — the provider sample carried forward over the surface's movement since — so a compaction registers immediately instead of after a further turn; the composition rows stay wholly heuristic and therefore still do not sum to the header ([rationale](../../llm/token-meter/README.md)). Occupancy is deliberately an approximation: numerator and capacity are independent last-wins projection fields, not one atomic request observation.
 diff --git a/packages/client/ui-conversation/README.zh.md b/packages/client/ui-conversation/README.zh.md
-index f8922b160c..a3254e50f8 100644
+index 05fdcd7a98..94676774b4 100644
 --- a/packages/client/ui-conversation/README.zh.md
 +++ b/packages/client/ui-conversation/README.zh.md
-@@ -36,7 +36,7 @@ Host 带 placement 的 `session/queue` 快照也会携带待处理 steering。Qu
+@@ -36,8 +36,7 @@ Host 带 placement 的 `session/queue` 快照也会携带待处理 steering。Qu
  
  逐会话 UI 状态中的选择与活跃视图位于已声明的聊天 store（`stores.ts` `createChatStore`）中；InputHub 拥有输入区状态机，并将草稿镜像到该 store 以便持久化。apply 将同一个 store handle 传给严格限定于会话的子树、聊天视图和详情注册，因此每个会话内共享一个实例，框架拥有其生命周期。组件保持纯粹：框架标准工具包提供 `useSession`／`sessionId`、全局 `useSessions`／`useWorkspaces`，以及输入状态机的 `useInput`／`inputActions`；store 表层与 inject factory 提供其余状态和回调。
  
--图片经粘贴与整页拖放进入：输入栏绑定 document 级拖拽监听（composer-bar slot 为 `kind: 'single'`，同一时刻至多一个 bar 绑定），文件拖拽悬停窗口时显示 `DropOverlay` 原子组件——纯文本拖拽不受影响，锁定或忙碌的 composer 显示禁用遮罩并拒绝 drop。两种手势共用一条对宿主 `imageLimits` 投影的加入预检（数量、单图字节、总字节）：会突破上限的加入整批拒收，立刻弹出点名上限的横幅，完全不进入附件栏。仍然到达的宿主侧拒绝按 `attachment-error` 原因映射为产品文案（`image-labels.ts` 的 `attachmentErrorText`）；用户无法解决的原因折叠为一条带原因码的发送失败文案，非附件错误码保留开发者可读的原文加错误码。
-+图片经粘贴与整页拖放进入；工作区文件树的拖拽行（`application/x-dsh-workspace-path` 风味，ui-file-tree 在 `text/plain` 之外设置）不走附件栏，而是把该行的绝对路径落进草稿。图片经粘贴与整页拖放进入：输入栏绑定 document 级拖拽监听（composer-bar slot 为 `kind: 'single'`，同一时刻至多一个 bar 绑定），文件拖拽悬停窗口时显示 `DropOverlay` 原子组件——纯文本拖拽不受影响，锁定或忙碌的 composer 显示禁用遮罩并拒绝 drop。两种手势共用一条对宿主 `imageLimits` 投影的加入预检（数量、单图字节、总字节）：会突破上限的加入整批拒收，立刻弹出点名上限的横幅，完全不进入附件栏。仍然到达的宿主侧拒绝按 `attachment-error` 原因映射为产品文案（`image-labels.ts` 的 `attachmentErrorText`）；用户无法解决的原因折叠为一条带原因码的发送失败文案，非附件错误码保留开发者可读的原文加错误码。
- 
+-图片经粘贴与整页拖放进入：输入栏绑定 document 级拖拽监听（composer-bar slot 为 `kind: 'single'`，同一时刻至多一个 bar 绑定），文件拖拽悬停窗口时显示 `DropOverlay` 原子组件——纯文本拖拽不受影响，锁定或忙碌的 composer 显示禁用遮罩并拒绝 drop。两种手势共用一条对宿主 `imageLimits` 投影的加入预检（数量、单图字节、总字节）：会突破上限的加入整批拒收，立刻弹出点名上限的横幅，完全不进入附件栏。仍然到达的宿主侧拒绝按 `attachment-error` 原因映射为产品文案（`image-labels.ts` 的 `attachmentErrorText`）；用户无法解决的原因折叠为一条带原因码的发送失败文案，非附件错误码保留开发者可读的原文加错误码。已附加的图片在每条发送路径上都是提交信封的一部分：斜杠命令提交要么消费它们（声明 `images` 的 claim 经 hub 的 `commandImages` 管道序列化图片、传给 `claim.submit`，仅在成功 outcome 后清除并释放），要么以 `command.imagesUnsupported` 通知拒绝整个提交，草稿与图片原样保留——命令不可能消费了文字却把图片留在原地。
+-
++图片经粘贴与整页拖放进入；工作区文件树的拖拽行（`application/x-dsh-workspace-path` 风味，ui-file-tree 在 `text/plain` 之外设置）不走附件栏，而是把该行的绝对路径落进草稿。图片经粘贴与整页拖放进入：输入栏绑定 document 级拖拽监听（composer-bar slot 为 `kind: 'single'`，同一时刻至多一个 bar 绑定），文件拖拽悬停窗口时显示 `DropOverlay` 原子组件——纯文本拖拽不受影响，锁定或忙碌的 composer 显示禁用遮罩并拒绝 drop。两种手势共用一条对宿主 `imageLimits` 投影的加入预检（数量、单图字节、总字节）：会突破上限的加入整批拒收，立刻弹出点名上限的横幅，完全不进入附件栏。仍然到达的宿主侧拒绝按 `attachment-error` 原因映射为产品文案（`image-labels.ts` 的 `attachmentErrorText`）；用户无法解决的原因折叠为一条带原因码的发送失败文案，非附件错误码保留开发者可读的原文加错误码。已附加的图片在每条发送路径上都是提交信封的一部分：斜杠命令提交要么消费它们（声明 `images` 的 claim 经 hub 的 `commandImages` 管道序列化图片、传给 `claim.submit`，仅在成功 outcome 后清除并释放），要么以 `command.imagesUnsupported` 通知拒绝整个提交，草稿与图片原样保留——命令不可能消费了文字却把图片留在原地。
  输入栏为 `'conversation.input.plan'`（位于本地 access 模式控件右侧）和 `'conversation.input.model'`（渲染在 pending 指示器与发送／停止控件之前）声明会话作用域的单实例 seat，并为 overlay、dock、left 和 right 输入扩展声明列表 slot。各功能包拥有相应控件及其状态；ui-conversation 提供放置位置、`locked` owner prop 和标准 slot share。前置加号按钮是 Command launcher，而非附件入口：它要求当前会话的 `InputTriggerController` 基于 textarea 当前 selection，只打开 `/` trigger 的 `command` source，同时 ui-input-trigger 既有的 `MenuView` 仍是唯一的浮层菜单与 pick 路径。不引入 File 行、file input、上传协议或第二套菜单组件。当 `plan` 投影的有效目标为 plan mode 时，InputBar 将文本框 placeholder 切换为 plan 任务措辞，经本包注册的 `conversation` locale 命名空间（`placeholder.plan` / `hint.plan` 键）本地化，并与已认领 `/plan` 命令的提示逐字共用同一份文案（经标准套件 `useProjection` 读取的 host 折叠值；owner 提供的 placeholder 优先）。另一个会话视图活跃时，待处理的 composer 接管仍保持挂载，使被阻塞的 agent（智能体）仍能收到回答；没有待处理交互时，活跃会话的 composer 归 Chat 所有。composer bar slot 本身为 `session-maybe`：没有当前会话时，同一个 bar 会让消息操作保持不可交互（machine face 均缺席、`disabled` owner prop），整张虚线卡片可经指针打开现有 Workspace picker，只读 textarea 也可通过 Enter 或 Space 打开。禁用控件会把指针事件交给卡片，卡片也会拦下 `pointerdown`，避免已打开 picker 的外点关闭与重新打开发生竞态。它不会换入一棵平行树，因此选择 Workspace 时 textarea DOM 不会被销毁；严格会话作用域的控件 seat 在会话存在之前保持为空。
  
+ 聊天统计行的 token 账目来自经标准套件 `useProjection` 读取的通用 token-meter 投影 `tokenUsage`：计费输入为未缓存输入、缓存读取与缓存写入之和；缓存命中率以缓存读取除以该总量。所有非空比率都先按整数舍入。非满命中只有在当前精度会舍入成 100% 时才增加小数位，并在首次得到低于 100% 的结果时停止；只有完整缓存命中才显示 100%，且精度没有固定上限。轮次与步骤计数、LLM（大语言模型）与工具墙钟时间、以及延迟／吞吐分组都来自全日志的 `sessionStats` 投影（Host 端从步边界、首 token chunk、工具配对与已组装消息折算），因此分页与压缩都无法改变统计条的任何数字；未组合该单元的装配回退为对可见节点做窗口折算，其字段与投影一一对应。统计条把每个有完整记录的步骤的 TTFT（首 token 延迟）取平均，并用采样到的输出 token 数除以其解码时长之和，得到经 `conversation` locale 命名空间本地化的延迟／吞吐分组（中文为 `首 token 平均 … · … tok/s`）；缺少某个 timing 边界或 usage 采样的步骤会直接退出这些数字，而不是让它们失真；压缩（compaction）使已加载窗口不再包含 assistant 节点时，持久计数、token 与上下文分组仍保持可见。轮次计数、步骤计数、耗时、缓存与 token 各项的标签也使用同一命名空间。每个已结算轮次还会在其 assistant footer 的 `用时` 之后追加 hover 才显示的 `首 token {s}秒 · {tps} tok/s` 标签——即该轮次首个步骤的 TTFT 与轮次聚合的解码吞吐——仅当该轮次的 timing 位于已加载窗口内才显示（窗口是日志的连续后缀，因此窗口内的轮次必然带着它的全部步骤），未记录的数字会各自省略。未组合 token-meter 的部署会整组省略 token 分组；统计行过长时以省略号截断，仅在内容真的被裁切时由延迟 hover tooltip 承载完整文本。上下文占用率渲染为 composer 尾部的 ContextMeter：模型座位之后的一枚 14px 占用圆环，由 `contextPressure` 供数，仅当分子与路由容量都已知时才渲染；点击弹出的面板把「已用百分比」标题与 `~已用 / 容量` 数字，与来自 `contextBreakdown` 投影、带 `~` 前缀的启发式组成明细行（系统提示词、工具、对话消息）及分色分段进度条并列。圆环与标题读取 `projectedTokens`——把提供方样本沿此后表层的增减推进到当下——因此压缩会立刻反映出来，而不必再等一整轮；组成明细行仍是纯启发式，因此加起来依然不等于标题数字（[原理](../../llm/token-meter/README.zh.md)）。占用率是刻意为之的近似值：分子与容量是两个相互独立的「后写覆盖」投影字段，并非同一次请求的原子观测。
 diff --git a/packages/client/ui-conversation/src/client/skeleton/InputBar.tsx b/packages/client/ui-conversation/src/client/skeleton/InputBar.tsx
-index 9585677ae3..c44d7b671d 100644
+index 4e5d526176..382b762857 100644
 --- a/packages/client/ui-conversation/src/client/skeleton/InputBar.tsx
 +++ b/packages/client/ui-conversation/src/client/skeleton/InputBar.tsx
-@@ -36,6 +36,14 @@ import css from './InputBar.module.css'
+@@ -35,6 +35,14 @@ import css from './InputBar.module.css'
  /** Decoration product of the no-session state (no machine, empty draft). */
  const INERT_DECORATIONS: DraftDecorations = { token: null, chips: [], textRefs: [], hint: null }
  
@@ -481,101 +483,70 @@ index 9585677ae3..c44d7b671d 100644
 + */
 +const WORKSPACE_PATH_DRAG_MIME = 'application/x-dsh-workspace-path'
 +
- /** Rail thumbnail carrying its source attachment for the open/remove callbacks. */
- interface ComposerRailItem extends AttachmentRailItem {
-   attachment: ComposerAttachment
-@@ -452,13 +460,20 @@ export function InputBar({
-   // on the document so a drop anywhere over the window adds images, not only
-   // over the composer card. Safe as document-level state: the composer-bar
-   // slot is `kind: 'single'`, so at most one bar is mounted to bind these.
--  // Text drags carry no 'Files' type and pass through untouched, keeping the
--  // native drop-text-into-textarea path. The overlay layer itself is
-+  // Plain text drags carry no 'Files' type and pass through untouched,
-+  // keeping the native drop-text-into-textarea path; the one exception is a
-+  // workspace-tree row drag (the custom MIME below), which the document
-+  // handler adopts as a draft path reference. The overlay layer itself is
-   // pointer-inert, so it never disturbs the enter/leave count.
+ /** The selection and edit family a `beforeinput` recorded, with the draft length it applied to. */
+ interface PendingEdit {
+   readonly start: number
+@@ -536,6 +544,41 @@ export function InputBar({
+ 
    const canAcceptDrop = !locked && !machineBusy && addImages !== undefined
+ 
++  // A workspace-tree row drag (ui-file-tree sets the custom MIME beside
++  // text/plain) may land anywhere over the page: this document handler adopts
++  // it as a draft path reference. File drags are none of its business —
++  // ComposerAttachments owns those, and text/plain drags keep the browser's
++  // native drop-into-textarea path.
 +  const canAcceptTreeDrop = !locked && !machineBusy
-   useEffect(() => {
-     const hasFiles = (event: globalThis.DragEvent): boolean =>
-       event.dataTransfer?.types.includes('Files') ?? false
-+    const treePathOf = (event: globalThis.DragEvent): string | null => {
-+      if (!event.dataTransfer?.types.includes(WORKSPACE_PATH_DRAG_MIME)) return null
-+      return event.dataTransfer.getData(WORKSPACE_PATH_DRAG_MIME) || null
++  useEffect(() => {
++    const isTreeDrag = (event: globalThis.DragEvent): boolean =>
++      event.dataTransfer?.types.includes(WORKSPACE_PATH_DRAG_MIME) ?? false
++    const treePathOf = (event: globalThis.DragEvent): string | null =>
++      event.dataTransfer?.getData(WORKSPACE_PATH_DRAG_MIME) || null
++    const onDragOver = (event: globalThis.DragEvent): void => {
++      if (event.dataTransfer === null || !isTreeDrag(event)) return
++      event.preventDefault()
++      event.dataTransfer.dropEffect = canAcceptTreeDrop ? 'copy' : 'none'
 +    }
-     const reset = (): void => {
-       dragDepthRef.current = 0
-       setDragActive(false)
-@@ -470,9 +485,18 @@ export function InputBar({
-       setDragActive(true)
-     }
-     const onDragOver = (event: globalThis.DragEvent): void => {
--      if (!hasFiles(event) || event.dataTransfer === null) return
--      event.preventDefault()
--      event.dataTransfer.dropEffect = canAcceptDrop ? 'copy' : 'none'
-+      if (event.dataTransfer === null) return
-+      if (hasFiles(event)) {
-+        event.preventDefault()
-+        event.dataTransfer.dropEffect = canAcceptDrop ? 'copy' : 'none'
-+        return
-+      }
-+      // A workspace-tree row drag may land anywhere over the page; the image
-+      // overlay stays reserved for real file drags.
-+      if (event.dataTransfer.types.includes(WORKSPACE_PATH_DRAG_MIME)) {
-+        event.preventDefault()
-+        event.dataTransfer.dropEffect = canAcceptTreeDrop ? 'copy' : 'none'
-+      }
-     }
-     const onDragLeave = (event: globalThis.DragEvent): void => {
-       if (!hasFiles(event)) return
-@@ -485,6 +509,16 @@ export function InputBar({
-       if ((event.target === document.documentElement || event.target === document.body) && leavingViewport) reset()
-     }
-     const onDrop = (event: globalThis.DragEvent): void => {
++    const onDrop = (event: globalThis.DragEvent): void => {
++      if (!isTreeDrag(event)) return
++      // preventDefault keeps the browser's native text/plain insertion from
++      // double-writing the same path the machine write below commits.
++      event.preventDefault()
++      if (!canAcceptTreeDrop || keyboard === undefined) return
 +      const treePath = treePathOf(event)
-+      if (treePath !== null) {
-+        // preventDefault keeps the browser's native text/plain insertion from
-+        // double-writing the same path the machine write below commits.
-+        event.preventDefault()
-+        if (!canAcceptTreeDrop) return
-+        const current = keyboard.snapshot.draft
-+        keyboard.setDraft(current === '' ? treePath : `${current}\n${treePath}`)
-+        return
-+      }
-       if (!hasFiles(event)) return
-       event.preventDefault()
-       reset()
-@@ -503,7 +537,7 @@ export function InputBar({
-       document.removeEventListener('drop', onDrop)
-       window.removeEventListener('dragend', reset)
-     }
--  }, [canAcceptDrop, intakeImages])
-+  }, [canAcceptDrop, canAcceptTreeDrop, intakeImages, keyboard])
- 
-   const closePreview = useCallback(() => { setPreview(null) }, [])
- 
++      if (treePath === null) return
++      const current = keyboard.snapshot.draft
++      keyboard.setDraft(current === '' ? treePath : `${current}\n${treePath}`)
++    }
++    document.addEventListener('dragover', onDragOver)
++    document.addEventListener('drop', onDrop)
++    return () => {
++      document.removeEventListener('dragover', onDragOver)
++      document.removeEventListener('drop', onDrop)
++    }
++  }, [canAcceptTreeDrop, keyboard])
++
+   const onSelect = (e: React.SyntheticEvent<HTMLTextAreaElement>): void => {
+     // Any caret/selection gesture ends a live paste attempt (the machine
+     // cannot observe DOM selection). Cheap no-op when none is live.
 diff --git a/packages/client/ui-conversation/tests/input-bar.client.spec.tsx b/packages/client/ui-conversation/tests/input-bar.client.spec.tsx
-index 94354bd316..a5a3406ea8 100644
+index 4f32b68211..dcc338976f 100644
 --- a/packages/client/ui-conversation/tests/input-bar.client.spec.tsx
 +++ b/packages/client/ui-conversation/tests/input-bar.client.spec.tsx
-@@ -257,6 +257,42 @@ describe('image draft rail', () => {
-     expect(addImages).not.toHaveBeenCalled()
+@@ -251,6 +251,40 @@ describe('image draft rail', () => {
+     expect(shell.snapshot.draft).toBe('同时粘贴的文字')
    })
  
 +  it('adopts a workspace-tree row drop as a draft path reference', () => {
 +    const addImages = vi.fn(() => null)
-+    const { view, shell } = bench({ addImages })
++    const { shell } = bench({ addImages })
 +    const dataTransfer = {
 +      types: ['application/x-dsh-workspace-path', 'text/plain'],
 +      files: [],
 +      dropEffect: 'none',
 +      getData: () => '/w/src/main.ts',
 +    }
-+    // The custom flavor carries no Files type: no image overlay, and the
-+    // drop lands in the draft instead of the attachment rail.
-+    fireEvent.dragEnter(document.body, { dataTransfer })
-+    expect(view.queryByRole('status')).toBeNull()
++    // The custom flavor carries no Files type: the image intake stays out of
++    // it, and the drop lands in the draft instead of the attachment rail.
 +    expect(fireEvent.dragOver(document.body, { dataTransfer })).toBe(false)
 +    expect(dataTransfer.dropEffect).toBe('copy')
 +    expect(fireEvent.drop(document.body, { dataTransfer })).toBe(false)
@@ -603,17 +574,15 @@ index 94354bd316..a5a3406ea8 100644
      const limits = {
        maxImageBytes: 1024 * 1024,
 diff --git a/packages/client/ui-deliverables/README.i18n.yaml b/packages/client/ui-deliverables/README.i18n.yaml
-index 70b3f889bf..bd1c5bf5cf 100644
+index c131cc33d9..348c51fbf3 100644
 --- a/packages/client/ui-deliverables/README.i18n.yaml
 +++ b/packages/client/ui-deliverables/README.i18n.yaml
-@@ -2,5 +2,5 @@
+@@ -2,5 +2,3 @@
  # side as of the last confirmed-consistent state. Both languages carry equal authority;
  # after editing either side, bring the other along and re-record with:
  #   pnpm run verify-translation-pairing --write packages/client/ui-deliverables/README.md
 -README.md: e7118eac75f31b3ffc3f2434371dba06f029d241
--README.zh.md: 0c41170ef38331166f6ad87df0c3e5976200eaf9
-+README.md: d8b6c0bebe47ed099734242e667bf3e29441f693
-+README.zh.md: 1f8411974e17995d34bcc17b967cbecc09bbe823
+-README.zh.md: 62aa568bb7a14b5f703e60a0c263e851d01734ed
 diff --git a/packages/client/ui-deliverables/README.md b/packages/client/ui-deliverables/README.md
 index e7118eac75..d8b6c0bebe 100644
 --- a/packages/client/ui-deliverables/README.md
@@ -628,39 +597,40 @@ index e7118eac75..d8b6c0bebe 100644
  The closing prose carries the same vocabulary. This plugin provides the `chatFileMentions` service the chat view consults per closing message: `producedFileMentions` resolves an inline-code token by exact path, or by being exactly the basename of exactly one produced path — a basename two paths share stays inert rather than guessing, so a mention link can never open the wrong file or 404. A resolved mention keeps its code chip and takes the markdown sheet's link language — link-blue at rest, underlined on hover, exactly like URL-promoted inline code — with the full path as its `title`; mentions never render inside anchors or streaming text. Decision record: the [inline file mentions Agent Note](../../../.agents/notes/implemented/feature/2026-08-07-web-inline-file-mentions.md).
  
 diff --git a/packages/client/ui-deliverables/README.zh.md b/packages/client/ui-deliverables/README.zh.md
-index 0c41170ef3..1f8411974e 100644
+index 62aa568bb7..4735c80f41 100644
 --- a/packages/client/ui-deliverables/README.zh.md
 +++ b/packages/client/ui-deliverables/README.zh.md
-@@ -6,7 +6,7 @@
+@@ -6,8 +6,7 @@
  
  `deliverablesDefinition` 把每个轮次中成功的修改调用折叠进引擎发布的 `DeliverablesTurnData`；`producedForClosing` 结合收尾 Assistant 的 seq 读取这份数据。依据的是修改工具自身附带的 `locations`，而不是收尾正文：无论模型是否记得点名，产出文件都会被列出。修改操作按渲染意图而非工具名识别：diff 卡片，或 `kind` 为 `edit` 的通用卡片（即 `str_replace_editor` 的 insert 操作所呈现的形态）；因此新的修改工具只需声明自身行为即可加入。读取、删除和失败的调用不贡献任何条目；同一路径在一个轮次内按首见顺序只出现一次。Conversation Location 索引负责维护轮次归属关系，因此一个轮次即使先修改文件、随后没有正文内容就结束，也不会溢进下一个轮次的行里。
  
--`ProducedFiles` 在收尾消息正文与其 IconActions 之间渲染该行：一个低调的标签和一条经过测量的单行文件 lane。它展示能够放下的最大前缀（至多六个标签项；文本为文件名，完整路径作为 `title`），并为本地化后的精确 `+ N 个文件` 宽度预留空间，因此剩余计数始终可见，既不换行也不横向滚动。每个标签项经由属主提供的 `openFile` 打开——与工具行相同的 Host 打开器，chat 视图会把相对路径按会话 cwd 解析。存在隐藏文件时，第二行的**在文件夹中显示**也经由同一属主路径打开会话 workspace；它只在页面使用 loopback 且当前 Host 握手报告 `canOpenPath` 时出现，直接远程 Web 与 headless／容器 Linux Host 默认均省略该操作。设计原理：[workspace 文件链接 Agent Note](../../../.agents/notes/implemented/feature/2026-07-31-web-workspace-file-links.md)。
+-`ProducedFiles` 在收尾消息正文与其 IconActions 之间渲染该行：一个低调的标签和一条经过测量的单行文件 lane。它展示能够放下的最大前缀（至多六个标签项；文本为文件名，完整路径作为 `title`），并为本地化后的精确 `+ N 个文件` 宽度预留空间，因此剩余计数始终可见，既不换行也不横向滚动。每个标签项经由属主提供的 `openFile` 打开——与工具行相同的 Host 打开器，chat 视图会把相对路径按会话 cwd 解析。存在隐藏文件时，第二行的**在文件夹中显示**也经由同一属主路径打开会话 workspace；它只在页面使用 loopback 且当前 Host 握手报告 `canOpenPath` 时出现，直接远程 Web 与 headless／容器 Linux Host 默认均省略该操作。设计原理：[workspace 文件链接 Agent Note](../../../.agents/notes/implemented/feature/2026-07-31-web-workspace-file-links.zh.md)。
+-
 +`ProducedFiles` 在收尾消息正文与其 IconActions 之间渲染该行：一个低调的标签和一条经过测量的单行文件 lane。它展示能够放下的最大前缀（至多六个标签项；文本为文件名，完整路径作为 `title`），并为本地化后的精确 `+ N 个文件` 宽度预留空间，因此剩余计数始终可见，既不换行也不横向滚动。每个标签项打开应用内 `FileViewer`：文件内容经由 workspaces 的 `readFile` wire 加载（Host 的完整结果上限会截断超大文件，二进制文件以标记应答），在模态代码面板中展示，带按扩展名推断的语法高亮提示、复制、重试与截断提示。Host 打开器保留为查看器的**用系统程序打开**底部操作，受同一 loopback + `canOpenPath` 握手门控；存在隐藏文件时，第二行的**在文件夹中显示**也经由同一属主路径打开会话 workspace。直接远程 Web 与 headless／容器 Linux Host 默认均省略这两个 Host 打开操作。设计原理：[workspace 文件链接 Agent Note](../../../.agents/notes/implemented/feature/2026-07-31-web-workspace-file-links.md)。
+ 收尾正文承载同一份词表。本插件提供供 chat 视图按收尾消息查询的 `chatFileMentions` 服务：`producedFileMentions` 按精确路径解析行内代码 token，或当 token 恰好等于某条产出路径的 basename，且这样的路径仅有一条时解析——两条路径共享同一 basename 时，文本保持不可点击而不作猜测，因此提及链接永远不会打开错误的文件，也不会导致 404。解析成功的提及保留代码标签，并采用 Markdown 样式表的链接样式：静止时为链接蓝色，悬停时显示下划线，与 URL 提升的行内代码完全一致——完整路径作为其 `title`；提及绝不会渲染在链接内部或流式文本中。决策记录：[行内文件提及 Agent Note](../../../.agents/notes/implemented/feature/2026-08-07-web-inline-file-mentions.zh.md)。
  
- 收尾正文承载同一份词表。本插件提供供 chat 视图按收尾消息查询的 `chatFileMentions` 服务：`producedFileMentions` 按精确路径解析行内代码 token，或当 token 恰好等于某条产出路径的 basename，且这样的路径仅有一条时解析——两条路径共享同一 basename 时，文本保持不可点击而不作猜测，因此提及链接永远不会打开错误的文件，也不会导致 404。解析成功的提及保留代码标签，并采用 Markdown 样式表的链接样式：静止时为链接蓝色，悬停时显示下划线，与 URL 提升的行内代码完全一致——完整路径作为其 `title`；提及绝不会渲染在链接内部或流式文本中。决策记录：[行内文件提及 Agent Note](../../../.agents/notes/implemented/feature/2026-08-07-web-inline-file-mentions.md)。
- 
+ Node 侧注册静态系统提示词段落 `ui:deliverable-file-references`。它要求模型点名成功创建或修改的主要文件，并将这些文件以及正文中提到的其他本轮变更文件写成 Markdown 行内代码：使用文件工具采用的精确路径，或仅在 basename 能唯一指代本轮文件时使用 basename。该提示词只向模型说明渲染器接受的语法；它不约束无关的路径讨论，也不会扩大渲染器的成功修改词表。
 diff --git a/packages/client/ui-deliverables/package.json b/packages/client/ui-deliverables/package.json
-index f7b20a8a11..ab1e6cfcd7 100644
+index 4035f4616c..72571006e0 100644
 --- a/packages/client/ui-deliverables/package.json
 +++ b/packages/client/ui-deliverables/package.json
-@@ -46,13 +46,15 @@
+@@ -45,11 +45,16 @@
+     "watch": "tsdown --watch"
    },
    "license": "MIT",
-   "dependencies": {
--    "react": "^18.2.0"
-+    "react": "^18.2.0",
++  "dependencies": {
 +    "clsx": "^2.0.0"
-   },
++  },
    "peerDependencies": {
      "@deepseek-ai/dsh-client-connection": "workspace:^",
      "@deepseek-ai/dsh-client-locale": "workspace:^",
      "@deepseek-ai/dsh-client-runtime": "workspace:^",
      "@deepseek-ai/dsh-client-ui-conversation": "workspace:^",
 +    "@deepseek-ai/dsh-client-ui-primitives": "workspace:^",
-     "@deepseek-ai/dsh-client-ui-slots": "workspace:^",
++    "@deepseek-ai/dsh-client-ui-slots": "workspace:^",
      "@deepseek-ai/dsh-invariants": "workspace:^",
      "@deepseek-ai/dsh-system-prompt": "workspace:^",
+     "@deepseek-ai/cordis": "workspace:^"
 diff --git a/packages/client/ui-deliverables/src/client/FileViewer.module.css b/packages/client/ui-deliverables/src/client/FileViewer.module.css
 new file mode 100644
 index 0000000000..d84f401605
@@ -1009,7 +979,7 @@ index ec8b587b28..20944b7eeb 100644
  
  /** Union of this namespace's dictionary keys. */
 diff --git a/packages/client/ui-deliverables/tests/produced-files.client.spec.tsx b/packages/client/ui-deliverables/tests/produced-files.client.spec.tsx
-index 1521010497..36384388a7 100644
+index b37e65c9ea..77f57281b8 100644
 --- a/packages/client/ui-deliverables/tests/produced-files.client.spec.tsx
 +++ b/packages/client/ui-deliverables/tests/produced-files.client.spec.tsx
 @@ -283,12 +283,13 @@ describe('ProducedFiles row', () => {
@@ -1020,7 +990,7 @@ index 1521010497..36384388a7 100644
 +  ): Pick<ProducedFilesProps, 'isLoopback' | 'readFile' | 'useHostDescription'> => {
      const description = canOpenPath === undefined
        ? undefined
-       : { version: 'test', cwd: '/workspace', attachedSessions: 1, canOpenPath }
+       : { version: 'test', cwd: '/workspace', attachedSessions: 1, home: '/h', canOpenPath }
      return {
        isLoopback,
 +      readFile: () => Promise.resolve({ path: '/workspace/a.md', kind: 'text', content: '# a', bytes: 4, truncated: false }),
@@ -1124,43 +1094,43 @@ index 1521010497..36384388a7 100644
      // The prose face is live while the plugin is: a produced turn yields a
      // resolver whose matches open through the owner-supplied opener.
 diff --git a/packages/client/ui-workspace/README.i18n.yaml b/packages/client/ui-workspace/README.i18n.yaml
-index 6d5eff023b..d3ce1b39ae 100644
+index dbc3aa46dd..8542d3fe9d 100644
 --- a/packages/client/ui-workspace/README.i18n.yaml
 +++ b/packages/client/ui-workspace/README.i18n.yaml
-@@ -2,5 +2,5 @@
+@@ -2,5 +2,3 @@
  # side as of the last confirmed-consistent state. Both languages carry equal authority;
  # after editing either side, bring the other along and re-record with:
  #   pnpm run verify-translation-pairing --write packages/client/ui-workspace/README.md
--README.md: 8878aa49dcccd60ddcde5f0a9563bbfbd969c9c0
--README.zh.md: c83f1c53d5471dd8d52b933163a573eb98a70c2e
-+README.md: 2ad841f5647d921acb966e8eca774e648156762e
-+README.zh.md: 4bc77c0cae68130798c1fc6aa655217a87368685
+-README.md: 041c886ae3f38415ac01fbfc3546a1f32581257c
+-README.zh.md: de9419799e23fcf66489d4b407d7a5424b532bb2
 diff --git a/packages/client/ui-workspace/README.md b/packages/client/ui-workspace/README.md
-index 8878aa49dc..2ad841f564 100644
+index 041c886ae3..c48b952098 100644
 --- a/packages/client/ui-workspace/README.md
 +++ b/packages/client/ui-workspace/README.md
-@@ -8,7 +8,7 @@ The browser renders grouped or flat Session rows from the global runtime hooks a
+@@ -8,8 +8,7 @@ The browser renders grouped or flat Session rows from the global runtime hooks a
  
- Collapsed search is one header action beside the view and add actions. In the rail, add and search render as 36px controls on the shell's shared horizontal entry path. Activating search expands the field across the header; an outside click collapses only a query that is empty after trimming, while the clear control always resets and collapses it. A non-blank search query replaces either browsing mode with one flat result list: case-insensitive title and Workspace substring matches appear immediately, while a 250 ms debounced Host request adds ranked current-conversation content matches and snippets. The English search input and its defensive request path remove NUL, cap the query at the wire schema's 500 UTF-16 code units without splitting a surrogate pair, and preserve the existing debounce and cancellation behavior. Each new query aborts the preceding request; a failed content search leaves metadata matches visible with a warning. The list is capped at 20, asks the user to narrow broader queries, and opens the selected Session without clearing the query or jumping to a specific event.
+ Collapsed search is one header action beside the view and add actions. In the rail, add and search render as 36px controls on the shell's shared horizontal entry path. Activating search expands the field across the header; an outside click collapses only a query that is empty after trimming — except while the rail search gesture is still in flight (until focus lands in the input after the column slide), so the expanding click cannot dismiss the search it opened — while the clear control always resets and collapses it. A non-blank search query replaces either browsing mode with one flat result list: case-insensitive title and Workspace substring matches appear immediately, while a 250 ms debounced Host request adds ranked current-conversation content matches and snippets. The English search input and its defensive request path remove NUL, cap the query at the wire schema's 500 UTF-16 code units without splitting a surrogate pair, and preserve the existing debounce and cancellation behavior. Each new query aborts the preceding request; a failed content search leaves metadata matches visible with a warning. The list is capped at 20, asks the user to narrow broader queries, and opens the selected Session without clearing the query or jumping to a specific event.
  
--The picker lists real Host Workspace entities through the global `useWorkspaces` hook. Selecting a Workspace invokes the slot owner's `onPick` callback to retarget the frontend Session object. Distinct canonical paths remain separate id-keyed Workspaces when their basenames and display titles match; the sidebar hover detail exposes the full path. Each registration declares a **directory-flow child hole** (`single` kind: `conversation.hero.workspace.directoryFlow` / `sidebar.workspaces.directoryFlow`) that the composed picker package's client half fills with its picking interaction — the [`-native`](../../host/directory-picker-native/README.md) backend's renderless OS-chooser driver today, an in-app browsing dialog under a `-browse` composition. The flat **Add workspace...** action renders only while the surface's hole is occupied (occupancy read per menu render; an empty hole means the composition has no picking affordance — the seam's documented no-flow default, under which the sidebar header drops its add button rather than offering a dead one). This package owns the trigger and the adoption: the occupant reports one picked path per open through the hole's owner conversation (`open`/`busy`/`onPicked`/`onCancel`/`onError`), and the owner adopts it through the object layer, selecting the committed Workspace only after its list projection has refreshed; cancellation is silent, and errors land in the retryable folder dialog whose **Choose again** reopens the flow. Adding has exactly one route: the occupant's own create-folder affordance already covers a brand-new directory, so no separate create-by-name dialog exists. A menu only appears where there is something to choose between — with no Workspace listed, the anchor gesture raises the flow directly instead of a one-row popover, and it waits for the list baseline before treating an empty list as final. The runtime Session and Workspace services own materialization. The Workspace row's Delete action opens a confirmation that states the retention boundary, blocks duplicate submission, and keeps failures open; success removes the group while its Sessions remain under Ungrouped. The Session row's Rename action opens the same browser-owned dialog pattern prefilled with the row's display title: no client-side conflict rule exists (the host normalizes and may reject with `title-invalid`, rendered in the dialog alert), and confirming an unchanged title is deliberately allowed — it pins the current automatic title against regeneration. The Session row's Archive action commits without a confirmation dialog (non-destructive: the log and the workspace accounting slot remain) through `ctx.workspaces.archiveSession`; the row disappears from every grouping surface — workspace groups, Ungrouped, content search, and the flat list — when the archive-set echo lands, and failures are console diagnostics that leave the tree unchanged. A blank New Session row is a pure placeholder: it renders no row menu and no time label (nothing has happened in it yet), so rename, fork, and archive first apply once the first prompt lands.
-+The picker lists real Host Workspace entities through the global `useWorkspaces` hook. Selecting a Workspace invokes the slot owner's `onPick` callback to retarget the frontend Session object. Distinct canonical paths remain separate id-keyed Workspaces when their basenames and display titles match; the sidebar hover detail exposes the full path. Each registration declares a **directory-flow child hole** (`single` kind: `conversation.hero.workspace.directoryFlow` / `sidebar.workspaces.directoryFlow`) that the composed picker package's client half fills with its picking interaction — the [`-native`](../../host/directory-picker-native/README.md) backend's renderless OS-chooser driver today, an in-app browsing dialog under a `-browse` composition. The flat **Add workspace...** action renders only while the surface's hole is occupied (occupancy read per menu render; an empty hole means the composition has no picking affordance — the seam's documented no-flow default, under which the sidebar header drops its add button rather than offering a dead one). The browsing region also declares a **file-tree child hole** (`sidebar.workspaces.fileTree`, `single` kind) whose occupant renders the current Workspace's directory tree over `host.listFiles`; an unoccupied hole renders nothing. This package owns the trigger and the adoption: the occupant reports one picked path per open through the hole's owner conversation (`open`/`busy`/`onPicked`/`onCancel`/`onError`), and the owner adopts it through the object layer, selecting the committed Workspace only after its list projection has refreshed; cancellation is silent, and errors land in the retryable folder dialog whose **Choose again** reopens the flow. Adding has exactly one route: the occupant's own create-folder affordance already covers a brand-new directory, so no separate create-by-name dialog exists. A menu only appears where there is something to choose between — with no Workspace listed, the anchor gesture raises the flow directly instead of a one-row popover, and it waits for the list baseline before treating an empty list as final. The runtime Session and Workspace services own materialization. The Workspace row's Delete action opens a confirmation that states the retention boundary, blocks duplicate submission, and keeps failures open; success removes the group while its Sessions remain under Ungrouped. The Session row's Rename action opens the same browser-owned dialog pattern prefilled with the row's display title: no client-side conflict rule exists (the host normalizes and may reject with `title-invalid`, rendered in the dialog alert), and confirming an unchanged title is deliberately allowed — it pins the current automatic title against regeneration. The Session row's Archive action commits without a confirmation dialog (non-destructive: the log and the workspace accounting slot remain) through `ctx.workspaces.archiveSession`; the row disappears from every grouping surface — workspace groups, Ungrouped, content search, and the flat list — when the archive-set echo lands, and failures are console diagnostics that leave the tree unchanged. A blank New Session row is a pure placeholder: it renders no row menu and no time label (nothing has happened in it yet), so rename, fork, and archive first apply once the first prompt lands.
- 
+-The picker lists real Host Workspace entities through the global `useWorkspaces` hook. Selecting a Workspace invokes the slot owner's `onPick` callback to retarget the frontend Session object. Distinct canonical paths remain separate id-keyed Workspaces when their basenames and display titles match; the sidebar hover detail shows a POSIX home or descendant as `~` / `~/…` and leaves a Windows path verbatim. Each registration declares a **directory-flow child hole** (`single` kind: `conversation.hero.workspace.directoryFlow` / `sidebar.workspaces.directoryFlow`) that the composed picker package's client half fills with its picking interaction — the [`-native`](../../host/directory-picker-native/README.md) backend's renderless OS-chooser driver today, an in-app browsing dialog under a `-browse` composition. The flat **Add workspace...** action renders only while the surface's hole is occupied (occupancy read per menu render; an empty hole means the composition has no picking affordance — the seam's documented no-flow default, under which the sidebar header drops its add button rather than offering a dead one). This package owns the trigger and the adoption: the occupant reports one picked path per open through the hole's owner conversation (`open`/`busy`/`onPicked`/`onCancel`/`onError`), and the owner adopts it through the object layer, selecting the committed Workspace only after its list projection has refreshed; cancellation is silent, and errors land in the retryable folder dialog whose **Choose again** reopens the flow. Adding has exactly one route: the occupant's own create-folder affordance already covers a brand-new directory, so no separate create-by-name dialog exists. A menu only appears where there is something to choose between — with no Workspace listed, the anchor gesture raises the flow directly instead of a one-row popover, and it waits for the list baseline before treating an empty list as final. The runtime Session and Workspace services own materialization. The Workspace row's Delete action opens a confirmation that states the retention boundary, blocks duplicate submission, and keeps failures open; success removes the group while its Sessions remain under Ungrouped. The Session row's Rename action opens the same browser-owned dialog pattern prefilled with the row's display title: no client-side conflict rule exists (the host normalizes and may reject with `title-invalid`, rendered in the dialog alert), and confirming an unchanged title is deliberately allowed — it pins the current automatic title against regeneration. The Session row's Archive action commits without a confirmation dialog (non-destructive: the log and the workspace accounting slot remain) through `ctx.workspaces.archiveSession`; the row disappears from every grouping surface — workspace groups, Ungrouped, content search, and the flat list — when the archive-set echo lands, and failures are console diagnostics that leave the tree unchanged. A blank New Session row is a pure placeholder: it renders no row menu and no time label (nothing has happened in it yet), so rename, fork, and archive first apply once the first prompt lands.
+-
++The picker lists real Host Workspace entities through the global `useWorkspaces` hook. Selecting a Workspace invokes the slot owner's `onPick` callback to retarget the frontend Session object. Distinct canonical paths remain separate id-keyed Workspaces when their basenames and display titles match; the sidebar hover detail shows a POSIX home or descendant as `~` / `~/…` and leaves a Windows path verbatim. Each registration declares a **directory-flow child hole** (`single` kind: `conversation.hero.workspace.directoryFlow` / `sidebar.workspaces.directoryFlow`) that the composed picker package's client half fills with its picking interaction — the [`-native`](../../host/directory-picker-native/README.md) backend's renderless OS-chooser driver today, an in-app browsing dialog under a `-browse` composition. The flat **Add workspace...** action renders only while the surface's hole is occupied (occupancy read per menu render; an empty hole means the composition has no picking affordance — the seam's documented no-flow default, under which the sidebar header drops its add button rather than offering a dead one). The browsing region also declares a **file-tree child hole** (`sidebar.workspaces.fileTree`, `single` kind) whose occupant renders the current Workspace's directory tree over `host.listFiles`; an unoccupied hole renders nothing. This package owns the trigger and the adoption: the occupant reports one picked path per open through the hole's owner conversation (`open`/`busy`/`onPicked`/`onCancel`/`onError`), and the owner adopts it through the object layer, selecting the committed Workspace only after its list projection has refreshed; cancellation is silent, and errors land in the retryable folder dialog whose **Choose again** reopens the flow. Adding has exactly one route: the occupant's own create-folder affordance already covers a brand-new directory, so no separate create-by-name dialog exists. A menu only appears where there is something to choose between — with no Workspace listed, the anchor gesture raises the flow directly instead of a one-row popover, and it waits for the list baseline before treating an empty list as final. The runtime Session and Workspace services own materialization. The Workspace row's Delete action opens a confirmation that states the retention boundary, blocks duplicate submission, and keeps failures open; success removes the group while its Sessions remain under Ungrouped. The Session row's Rename action opens the same browser-owned dialog pattern prefilled with the row's display title: no client-side conflict rule exists (the host normalizes and may reject with `title-invalid`, rendered in the dialog alert), and confirming an unchanged title is deliberately allowed — it pins the current automatic title against regeneration. The Session row's Archive action commits without a confirmation dialog (non-destructive: the log and the workspace accounting slot remain) through `ctx.workspaces.archiveSession`; the row disappears from every grouping surface — workspace groups, Ungrouped, content search, and the flat list — when the archive-set echo lands, and failures are console diagnostics that leave the tree unchanged. A blank New Session row is a pure placeholder: it renders no row menu and no time label (nothing has happened in it yet), so rename, fork, and archive first apply once the first prompt lands.
  Workspace and Session hover cards copy the value their row clips: activating a Workspace card writes its full directory path, while activating a non-blank Session card writes its full display title. A provisional blank New Session card remains read-only because its localized label is a placeholder rather than session content. The card reports the dictionary-driven copied state only after the browser accepts the clipboard write.
  
+ The Session row's Fork action forks at the source's last completed turn, increments the inherited persisted title on the client, and then opens the child; a trailing ASCII or fullwidth parenthesized number is incremented in the same style, while an unnumbered title gets ` (1)` appended. The source and child always appear as peer rows within a workspace group, with lineage retained only as session data. A fork or rename failure leaves the current selection unchanged; after a rename failure, the created child remains in the list.
 diff --git a/packages/client/ui-workspace/README.zh.md b/packages/client/ui-workspace/README.zh.md
-index c83f1c53d5..4bc77c0cae 100644
+index de9419799e..4bfd8c011d 100644
 --- a/packages/client/ui-workspace/README.zh.md
 +++ b/packages/client/ui-workspace/README.zh.md
-@@ -8,7 +8,7 @@
+@@ -8,8 +8,7 @@
  
- 折叠搜索是视图和添加操作旁的一枚区头按钮。在轨道中，添加和搜索会渲染为沿外壳共用横向进入路径移动的 36px 控件。激活搜索后，输入框会扩展并占据区头；点击外部只会收起经清除首尾空白后为空的查询，而清除控件总会重置并收起搜索。非空白查询会以单一扁平结果列表替代任一浏览模式：不区分大小写的标题和 Workspace 子串匹配项会立即显示，经 250 ms 防抖的 Host 请求则会加入经过排序的当前对话内容匹配项及其摘要片段。英文搜索输入框及其防御性请求路径会移除 NUL，将查询限制在传输 schema 规定的 500 个 UTF-16 代码单元内且不会拆分代理项对，并保留现有的防抖与取消行为。每次新查询都会中止前一个请求；内容搜索失败时，元数据匹配项仍会显示，同时给出警告。列表最多显示 20 条结果，并会在查询过宽时提示用户缩小范围；打开所选 Session 时既不会清除查询，也不会跳转至特定事件。
+ 折叠搜索是视图和添加操作旁的一枚区头按钮。在轨道中，添加和搜索会渲染为沿外壳共用横向进入路径移动的 36px 控件。激活搜索后，输入框会扩展并占据区头；点击外部只会收起经清除首尾空白后为空的查询——但轨道搜索手势仍在进行期间（直至列滑动结束、焦点落入输入框）除外，这样触发展开的那次点击不会收起它刚打开的搜索——而清除控件总会重置并收起搜索。非空白查询会以单一扁平结果列表替代任一浏览模式：不区分大小写的标题和 Workspace 子串匹配项会立即显示，经 250 ms 防抖的 Host 请求则会加入经过排序的当前对话内容匹配项及其摘要片段。英文搜索输入框及其防御性请求路径会移除 NUL，将查询限制在传输 schema 规定的 500 个 UTF-16 代码单元内且不会拆分代理项对，并保留现有的防抖与取消行为。每次新查询都会中止前一个请求；内容搜索失败时，元数据匹配项仍会显示，同时给出警告。列表最多显示 20 条结果，并会在查询过宽时提示用户缩小范围；打开所选 Session 时既不会清除查询，也不会跳转至特定事件。
  
--该选择器通过全局 `useWorkspaces` hook 列出真实的 Host Workspace 实体。选择 Workspace 会调用 slot owner 的 `onPick` 回调，重新定位前端 Session 对象。不同的规范化路径即使 basename 和显示标题相同，仍会作为由 id 区分的独立 Workspace；侧边栏的悬停详情会显示完整路径。每个注册各自声明一个**目录流子 slot**（`single` kind：`conversation.hero.workspace.directoryFlow`／`sidebar.workspaces.directoryFlow`），由组合的选择器包 client half 填入其选取交互——今天是 [`-native`](../../host/directory-picker-native/README.md) 后端的无渲染 OS 选择器驱动，`-browse` 组合下则是应用内浏览对话框。平铺显示的 **添加工作区…** 操作仅在当前界面的 slot 被占用时渲染（每次菜单渲染读取占用状态；slot 为空意味着该组合没有目录选择能力——seam 文档化的无流程默认行为，此时侧边栏区头直接不渲染添加按钮，而非留下一个点了没反应的按钮）。本包持有触发与接纳：占用方通过 slot 的属主交互约定（`open`/`busy`/`onPicked`/`onCancel`/`onError`）每次打开上报一个所选路径，owner 通过对象层接纳它，并等待 Workspace 列表投影刷新后才选中已提交的 Workspace；取消操作不会显示提示，错误落入可重试的文件夹对话框，其 **重新选择** 会重新打开流程。添加只有一条路径：占用者自带的新建文件夹能力已经覆盖了全新目录，因此不再单设按名称创建的对话框。菜单只在确有多个目标可选时出现——没有 Workspace 可列时，锚点手势直接拉起流程，而不是弹出只有一行的浮层；在列表基线落地前，空列表不算最终结果。运行时 Session 与 Workspace 服务负责物化。Workspace 行内的 Delete 操作会打开确认框，说明保留边界、阻止重复提交，并在失败时保持打开；成功后，该分组会被移除，其 Session 则留在 Ungrouped 下。Session 行内的 Rename 操作打开同款浏览器持有的对话框，并以该行的显示标题预填：客户端不设名称冲突规则（host 负责规范化，可能以 `title-invalid` 拒绝，错误渲染在对话框告警区）；确认未修改的标题是有意允许的——这正是把当前自动标题钉住、不再被重新生成覆盖的手势。Session 行内的 Archive 操作不经确认对话框直接提交（非破坏性：日志和 workspace 记账席位保持不变），通过 `ctx.workspaces.archiveSession` 归档；归档集合回声落地后，该行从所有分组视图——workspace 分组、Ungrouped、内容搜索和平铺列表——中消失，失败只作为控制台诊断输出，树保持不变。空白的「新会话」行只是占位符：不渲染行菜单和时间标签（其中还没有发生任何事），重命名、fork 和归档都从首条提示词落地后才可用。
-+该选择器通过全局 `useWorkspaces` hook 列出真实的 Host Workspace 实体。选择 Workspace 会调用 slot owner 的 `onPick` 回调，重新定位前端 Session 对象。不同的规范化路径即使 basename 和显示标题相同，仍会作为由 id 区分的独立 Workspace；侧边栏的悬停详情会显示完整路径。每个注册各自声明一个**目录流子 slot**（`single` kind：`conversation.hero.workspace.directoryFlow`／`sidebar.workspaces.directoryFlow`），由组合的选择器包 client half 填入其选取交互——今天是 [`-native`](../../host/directory-picker-native/README.md) 后端的无渲染 OS 选择器驱动，`-browse` 组合下则是应用内浏览对话框。平铺显示的 **添加工作区…** 操作仅在当前界面的 slot 被占用时渲染（每次菜单渲染读取占用状态；slot 为空意味着该组合没有目录选择能力——seam 文档化的无流程默认行为，此时侧边栏区头直接不渲染添加按钮，而非留下一个点了没反应的按钮）。浏览区域还声明一个**文件树子洞**（`sidebar.workspaces.fileTree`，`single` 类），其占位者渲染当前 Workspace 的目录树（经 `host.listFiles`）；洞未被占用时不渲染任何内容。本包持有触发与接纳：占用方通过 slot 的属主交互约定（`open`/`busy`/`onPicked`/`onCancel`/`onError`）每次打开上报一个所选路径，owner 通过对象层接纳它，并等待 Workspace 列表投影刷新后才选中已提交的 Workspace；取消操作不会显示提示，错误落入可重试的文件夹对话框，其 **重新选择** 会重新打开流程。添加只有一条路径：占用者自带的新建文件夹能力已经覆盖了全新目录，因此不再单设按名称创建的对话框。菜单只在确有多个目标可选时出现——没有 Workspace 可列时，锚点手势直接拉起流程，而不是弹出只有一行的浮层；在列表基线落地前，空列表不算最终结果。运行时 Session 与 Workspace 服务负责物化。Workspace 行内的 Delete 操作会打开确认框，说明保留边界、阻止重复提交，并在失败时保持打开；成功后，该分组会被移除，其 Session 则留在 Ungrouped 下。Session 行内的 Rename 操作打开同款浏览器持有的对话框，并以该行的显示标题预填：客户端不设名称冲突规则（host 负责规范化，可能以 `title-invalid` 拒绝，错误渲染在对话框告警区）；确认未修改的标题是有意允许的——这正是把当前自动标题钉住、不再被重新生成覆盖的手势。Session 行内的 Archive 操作不经确认对话框直接提交（非破坏性：日志和 workspace 记账席位保持不变），通过 `ctx.workspaces.archiveSession` 归档；归档集合回声落地后，该行从所有分组视图——workspace 分组、Ungrouped、内容搜索和平铺列表——中消失，失败只作为控制台诊断输出，树保持不变。空白的「新会话」行只是占位符：不渲染行菜单和时间标签（其中还没有发生任何事），重命名、fork 和归档都从首条提示词落地后才可用。
- 
+-该选择器通过全局 `useWorkspaces` hook 列出真实的 Host Workspace 实体。选择 Workspace 会调用 slot owner 的 `onPick` 回调，重新定位前端 Session 对象。不同的规范化路径即使 basename 和显示标题相同，仍会作为由 id 区分的独立 Workspace；侧边栏的悬停详情把 POSIX 家目录及其后代显示为 `~`／`~/…`，Windows 路径保持原样。每个注册各自声明一个**目录流子 slot**（`single` kind：`conversation.hero.workspace.directoryFlow`／`sidebar.workspaces.directoryFlow`），由组合的选择器包 client half 填入其选取交互——今天是 [`-native`](../../host/directory-picker-native/README.zh.md) 后端的无渲染 OS 选择器驱动，`-browse` 组合下则是应用内浏览对话框。平铺显示的 **添加工作区…** 操作仅在当前界面的 slot 被占用时渲染（每次菜单渲染读取占用状态；slot 为空意味着该组合没有目录选择能力——seam 文档化的无流程默认行为，此时侧边栏区头直接不渲染添加按钮，而非留下一个点了没反应的按钮）。本包持有触发与接纳：占用方通过 slot 的属主交互约定（`open`/`busy`/`onPicked`/`onCancel`/`onError`）每次打开上报一个所选路径，owner 通过对象层接纳它，并等待 Workspace 列表投影刷新后才选中已提交的 Workspace；取消操作不会显示提示，错误落入可重试的文件夹对话框，其 **重新选择** 会重新打开流程。添加只有一条路径：占用者自带的新建文件夹能力已经覆盖了全新目录，因此不再单设按名称创建的对话框。菜单只在确有多个目标可选时出现——没有 Workspace 可列时，锚点手势直接拉起流程，而不是弹出只有一行的浮层；在列表基线落地前，空列表不算最终结果。运行时 Session 与 Workspace 服务负责物化。Workspace 行内的 Delete 操作会打开确认框，说明保留边界、阻止重复提交，并在失败时保持打开；成功后，该分组会被移除，其 Session 则留在 Ungrouped 下。Session 行内的 Rename 操作打开同款浏览器持有的对话框，并以该行的显示标题预填：客户端不设名称冲突规则（host 负责规范化，可能以 `title-invalid` 拒绝，错误渲染在对话框告警区）；确认未修改的标题是有意允许的——这正是把当前自动标题钉住、不再被重新生成覆盖的手势。Session 行内的 Archive 操作不经确认对话框直接提交（非破坏性：日志和 workspace 记账席位保持不变），通过 `ctx.workspaces.archiveSession` 归档；归档集合回声落地后，该行从所有分组视图——workspace 分组、Ungrouped、内容搜索和平铺列表——中消失，失败只作为控制台诊断输出，树保持不变。空白的「新会话」行只是占位符：不渲染行菜单和时间标签（其中还没有发生任何事），重命名、fork 和归档都从首条提示词落地后才可用。
+-
++该选择器通过全局 `useWorkspaces` hook 列出真实的 Host Workspace 实体。选择 Workspace 会调用 slot owner 的 `onPick` 回调，重新定位前端 Session 对象。不同的规范化路径即使 basename 和显示标题相同，仍会作为由 id 区分的独立 Workspace；侧边栏的悬停详情把 POSIX 家目录及其后代显示为 `~`／`~/…`，Windows 路径保持原样。每个注册各自声明一个**目录流子 slot**（`single` kind：`conversation.hero.workspace.directoryFlow`／`sidebar.workspaces.directoryFlow`），由组合的选择器包 client half 填入其选取交互——今天是 [`-native`](../../host/directory-picker-native/README.zh.md) 后端的无渲染 OS 选择器驱动，`-browse` 组合下则是应用内浏览对话框。平铺显示的 **添加工作区…** 操作仅在当前界面的 slot 被占用时渲染（每次菜单渲染读取占用状态；slot 为空意味着该组合没有目录选择能力——seam 文档化的无流程默认行为，此时侧边栏区头直接不渲染添加按钮，而非留下一个点了没反应的按钮）。浏览区域还声明一个**文件树子洞**（`sidebar.workspaces.fileTree`，`single` 类），其占位者渲染当前 Workspace 的目录树（经 `host.listFiles`）；洞未被占用时不渲染任何内容。本包持有触发与接纳：占用方通过 slot 的属主交互约定（`open`/`busy`/`onPicked`/`onCancel`/`onError`）每次打开上报一个所选路径，owner 通过对象层接纳它，并等待 Workspace 列表投影刷新后才选中已提交的 Workspace；取消操作不会显示提示，错误落入可重试的文件夹对话框，其 **重新选择** 会重新打开流程。添加只有一条路径：占用者自带的新建文件夹能力已经覆盖了全新目录，因此不再单设按名称创建的对话框。菜单只在确有多个目标可选时出现——没有 Workspace 可列时，锚点手势直接拉起流程，而不是弹出只有一行的浮层；在列表基线落地前，空列表不算最终结果。运行时 Session 与 Workspace 服务负责物化。Workspace 行内的 Delete 操作会打开确认框，说明保留边界、阻止重复提交，并在失败时保持打开；成功后，该分组会被移除，其 Session 则留在 Ungrouped 下。Session 行内的 Rename 操作打开同款浏览器持有的对话框，并以该行的显示标题预填：客户端不设名称冲突规则（host 负责规范化，可能以 `title-invalid` 拒绝，错误渲染在对话框告警区）；确认未修改的标题是有意允许的——这正是把当前自动标题钉住、不再被重新生成覆盖的手势。Session 行内的 Archive 操作不经确认对话框直接提交（非破坏性：日志和 workspace 记账席位保持不变），通过 `ctx.workspaces.archiveSession` 归档；归档集合回声落地后，该行从所有分组视图——workspace 分组、Ungrouped、内容搜索和平铺列表——中消失，失败只作为控制台诊断输出，树保持不变。空白的「新会话」行只是占位符：不渲染行菜单和时间标签（其中还没有发生任何事），重命名、fork 和归档都从首条提示词落地后才可用。
  Workspace 和 Session 悬浮卡片会复制对应行被截断的值：激活 Workspace 卡片会写入其完整目录路径，激活非空白 Session 卡片则会写入其完整显示标题。临时的空白「新会话」卡片保持只读，因为其本地化标签是占位文案，并非会话内容。只有浏览器接受剪贴板写入后，卡片才会显示由字典提供的已复制状态。
  
+ Session 行内的 fork 操作在源会话最后一个已完成轮次处 fork，在客户端递增继承的持久化标题后再打开子会话；尾部半角或全角括号编号会原样式递增，无编号标题追加 ` (1)`。源会话与子会话在 workspace 组内始终作为同级行展示，谱系只保留为 session 数据。Fork 或改名失败都不会改变当前选中项，改名失败时已创建的子会话仍会留在列表中。
 diff --git a/packages/client/ui-workspace/src/client/WorkspaceBrowser.module.css b/packages/client/ui-workspace/src/client/WorkspaceBrowser.module.css
 index 4d19163322..74af2bec50 100644
 --- a/packages/client/ui-workspace/src/client/WorkspaceBrowser.module.css
@@ -1252,19 +1222,19 @@ index 4d19163322..74af2bec50 100644
 +  color: var(--dsw-alias-label-tertiary);
 +}
 diff --git a/packages/client/ui-workspace/src/client/WorkspaceBrowser.tsx b/packages/client/ui-workspace/src/client/WorkspaceBrowser.tsx
-index d0f6835472..5d78ee1d81 100644
+index 08f22ed400..70b93c8037 100644
 --- a/packages/client/ui-workspace/src/client/WorkspaceBrowser.tsx
 +++ b/packages/client/ui-workspace/src/client/WorkspaceBrowser.tsx
-@@ -12,7 +12,7 @@
- import { useEffect, useMemo, useRef, useState } from 'react'
+@@ -13,7 +13,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
  import clsx from 'clsx'
  import {
--  Button, IconCloseFill14, IconPersonalizationOutline16,
-+  Button, IconCloseFill14, IconFolderOpenOutline16, IconPersonalizationOutline16,
-   IconProjectAddOutline16, IconSearchOutline16, Menu, Modal, Tooltip,
+   Button, IconCloseFill14, IconPersonalizationOutline16,
+-  IconProjectAddOutline16, IconSearchOutline16, Menu, Modal, Tooltip,
++  IconFolderOpenOutline16, IconProjectAddOutline16, IconSearchOutline16, Menu, Modal, Tooltip,
  } from '@deepseek-ai/dsh-client-ui-primitives'
  import type {
-@@ -764,11 +764,19 @@ export function WorkspaceBrowser({
+   SessionId, SessionListState, SessionSearchResultItem, WorkspaceId, WorkspaceView,
+@@ -769,11 +769,19 @@ export function WorkspaceBrowser({
    const workspaces = useWorkspaces(state => state.items)
    const workspacePhase = useWorkspaces(state => state.phase)
    const archivedSessionIds = useWorkspaces(state => state.archivedSessionIds)
@@ -1284,7 +1254,7 @@ index d0f6835472..5d78ee1d81 100644
    const groupExpansion = useStore(s => s.groupExpansion)
    const sessionOrderByAccount = useStore(s => s.sessionOrderByAccount)
    const sessionUpdatedAtByAccount = useStore(s => s.sessionUpdatedAtByAccount)
-@@ -975,12 +983,35 @@ export function WorkspaceBrowser({
+@@ -1010,12 +1018,35 @@ export function WorkspaceBrowser({
    return (
      <div className={clsx(css.root, !wide && css.rail)}>
        <div className={css.sectionHeader}>
@@ -1324,7 +1294,7 @@ index d0f6835472..5d78ee1d81 100644
            <div className={clsx(css.searchSlot, searchExpanded && css.searchSlotExpanded)}>
              <div
                ref={searchRoot}
-@@ -1038,7 +1069,7 @@ export function WorkspaceBrowser({
+@@ -1073,7 +1104,7 @@ export function WorkspaceBrowser({
            </div>
          )}
          <div className={clsx(css.headerActions, wide && searchExpanded && css.headerActionsHidden)}>
@@ -1333,7 +1303,7 @@ index d0f6835472..5d78ee1d81 100644
              <ViewOptionsMenu
                groupBy={groupBy}
                orderBy={orderBy}
-@@ -1050,7 +1081,7 @@ export function WorkspaceBrowser({
+@@ -1085,7 +1116,7 @@ export function WorkspaceBrowser({
            {/* Adding is the button's one action, so a composition with no
                picking affordance has nothing to offer here: the region hides the
                button rather than leaving a dead one in the header. */}
@@ -1342,7 +1312,7 @@ index d0f6835472..5d78ee1d81 100644
              <Tooltip label={t('workspace.add')} side="bottom" delayMs={500}>
                <button
                  ref={wsPlusRef}
-@@ -1085,7 +1116,8 @@ export function WorkspaceBrowser({
+@@ -1120,7 +1151,8 @@ export function WorkspaceBrowser({
          />
        </div>
  
@@ -1352,7 +1322,7 @@ index d0f6835472..5d78ee1d81 100644
        {!wide && <div className={css.search}>
          <Tooltip label={t('search')}>
            <button
-@@ -1093,6 +1125,7 @@ export function WorkspaceBrowser({
+@@ -1128,6 +1160,7 @@ export function WorkspaceBrowser({
              className={css.searchButton}
              aria-label={t('search.sessions.aria')}
              onClick={() => {
@@ -1360,7 +1330,7 @@ index d0f6835472..5d78ee1d81 100644
                setSearchExpanded(true)
                setSearchOnExpand(true)
                expandSidebar()
-@@ -1102,68 +1135,94 @@ export function WorkspaceBrowser({
+@@ -1137,11 +1170,37 @@ export function WorkspaceBrowser({
            </button>
          </Tooltip>
        </div>}
@@ -1388,129 +1358,23 @@ index d0f6835472..5d78ee1d81 100644
        <div className={css.listArea}>
 -        {wide && (normalizedQuery !== ''
 +        {wide && (browserView === 'files'
-           ? (
--            <SearchResults
--              useSessions={useSessions}
--              open={open}
--              workspaces={workspaces}
--              archivedSessionIds={archivedSessionIds}
--              query={normalizedQuery}
--              remote={remoteSearch}
--              resultLimit={searchResultLimit}
--              t={t}
--            />
++          ? (
 +            <div className={css.fileTreeArea}>
 +              {currentWorkspacePath === undefined
 +                ? <div className={css.filesEmpty}>{t('files.empty')}</div>
 +                /* An unoccupied hole renders nothing. */
 +                : renderSlot('sidebar.workspaces.fileTree', { path: currentWorkspacePath })}
 +            </div>
-           )
--          : groupBy === 'flat'
++          )
 +          : normalizedQuery !== ''
-             ? (
--              <FlatList
--                useSessions={useSessions} open={open} forkSession={forkSession}
--                onSessionRename={onSessionRename} onSessionArchive={onSessionArchive}
--                archivedSessionIds={archivedSessionIds}
--                orderBy={orderBy}
--                sessionOrderByAccount={sessionOrderByAccount}
--                sessionUpdatedAtByAccount={sessionUpdatedAtByAccount}
--                syncSessionOrderAccount={actions.syncSessionOrderAccount}
--                setSessionOrder={actions.setSessionOrder}
--                t={t}
--              />
--            )
--            : (
--              <SessionTree
-+              <SearchResults
-                 useSessions={useSessions}
--                onSessionRename={onSessionRename}
--                onSessionArchive={onSessionArchive}
--                forkSession={forkSession}
-+                open={open}
-                 workspaces={workspaces}
--                groupExpansion={groupExpansion}
--                setGroupExpanded={actions.setGroupExpanded}
--                sessionOrderByAccount={sessionOrderByAccount}
--                sessionUpdatedAtByAccount={sessionUpdatedAtByAccount}
--                syncSessionOrderAccount={actions.syncSessionOrderAccount}
--                setSessionOrder={actions.setSessionOrder}
-                 archivedSessionIds={archivedSessionIds}
--                startSession={startSession}
--                open={open}
--                insertWorkspaceBefore={insertWorkspaceBefore}
--                insertSessionBefore={insertSessionBefore}
--                orderBy={orderBy}
-+                query={normalizedQuery}
-+                remote={remoteSearch}
-+                resultLimit={searchResultLimit}
-                 t={t}
--                onRenameRequest={(workspaceId, currentTitle) => {
--                  setRenameTarget({ workspaceId, currentTitle })
--                  setRenameDraft(currentTitle)
--                  setRenameError(null)
--                }}
--                onDeleteRequest={(workspaceId, title) => {
--                  setDeleteTarget({ workspaceId, title })
--                  setDeleteError(null)
--                }}
-               />
--            ))}
-+            )
-+            : groupBy === 'flat'
-+              ? (
-+                <FlatList
-+                  useSessions={useSessions} open={open} forkSession={forkSession}
-+                  onSessionRename={onSessionRename} onSessionArchive={onSessionArchive}
-+                  archivedSessionIds={archivedSessionIds}
-+                  orderBy={orderBy}
-+                  sessionOrderByAccount={sessionOrderByAccount}
-+                  sessionUpdatedAtByAccount={sessionUpdatedAtByAccount}
-+                  syncSessionOrderAccount={actions.syncSessionOrderAccount}
-+                  setSessionOrder={actions.setSessionOrder}
-+                  t={t}
-+                />
-+              )
-+              : (
-+                <SessionTree
-+                  useSessions={useSessions}
-+                  onSessionRename={onSessionRename}
-+                  onSessionArchive={onSessionArchive}
-+                  forkSession={forkSession}
-+                  workspaces={workspaces}
-+                  groupExpansion={groupExpansion}
-+                  setGroupExpanded={actions.setGroupExpanded}
-+                  sessionOrderByAccount={sessionOrderByAccount}
-+                  sessionUpdatedAtByAccount={sessionUpdatedAtByAccount}
-+                  syncSessionOrderAccount={actions.syncSessionOrderAccount}
-+                  setSessionOrder={actions.setSessionOrder}
-+                  archivedSessionIds={archivedSessionIds}
-+                  startSession={startSession}
-+                  open={open}
-+                  insertWorkspaceBefore={insertWorkspaceBefore}
-+                  insertSessionBefore={insertSessionBefore}
-+                  orderBy={orderBy}
-+                  t={t}
-+                  onRenameRequest={(workspaceId, currentTitle) => {
-+                    setRenameTarget({ workspaceId, currentTitle })
-+                    setRenameDraft(currentTitle)
-+                    setRenameError(null)
-+                  }}
-+                  onDeleteRequest={(workspaceId, title) => {
-+                    setDeleteTarget({ workspaceId, title })
-+                    setDeleteError(null)
-+                  }}
-+                />
-+              ))}
-       </div>
- 
-       <Modal
+           ? (
+             <SearchResults
+               useSessions={useSessions}
 diff --git a/packages/client/ui-workspace/src/client/contract/slots.ts b/packages/client/ui-workspace/src/client/contract/slots.ts
-index 8027a3623a..05aac7cbbb 100644
+index bdd85052a0..89c5459672 100644
 --- a/packages/client/ui-workspace/src/client/contract/slots.ts
 +++ b/packages/client/ui-workspace/src/client/contract/slots.ts
-@@ -50,12 +50,24 @@ export interface DirectoryFlowOwnerProps {
+@@ -51,12 +51,24 @@ export interface DirectoryFlowOwnerProps {
    onError: (message: string) => void
  }
  
@@ -1535,7 +1399,7 @@ index 8027a3623a..05aac7cbbb 100644
    }
  }
  
-@@ -140,7 +152,7 @@ export type WorkspaceBrowserInjected = DirectoryPickingInjected & {
+@@ -142,7 +154,7 @@ export type WorkspaceBrowserInjected = {
  /** Full browser props: shell owner share + viewing store + injected actions + the locale seat. */
  export type WorkspaceBrowserProps =
    PropsRuntime<'sidebar.workspaces'>
@@ -1543,12 +1407,12 @@ index 8027a3623a..05aac7cbbb 100644
 +  & PropsRenderSlots<'sidebar.workspaces.directoryFlow' | 'sidebar.workspaces.fileTree'>
    & PropsStore<ReturnType<typeof createWorkspaceViewStore>>
    & Omit<WorkspaceBrowserInjected, 'hooks'>
-   & DirectoryPickingHooks
+   & PropsHooks<WorkspaceBrowserInjected['hooks']>
 diff --git a/packages/client/ui-workspace/src/client/index.ts b/packages/client/ui-workspace/src/client/index.ts
-index 6b14243ecf..55137fb5fa 100644
+index 93269c22c1..2c22b59635 100644
 --- a/packages/client/ui-workspace/src/client/index.ts
 +++ b/packages/client/ui-workspace/src/client/index.ts
-@@ -110,7 +110,10 @@ export function apply(ctx: ClientContext): void {
+@@ -113,7 +113,10 @@ export function apply(ctx: ClientContext): void {
    ctx.slots.inject('sidebar.workspaces', () => ctx.slots.register(
      {
        name: 'sidebar.workspaces',
@@ -1635,13 +1499,13 @@ index f085329643..55b97ff358 100644
        retainAccountKeys: (d, workspaceKeys: readonly string[]) => {
          const retained = new Set(workspaceKeys)
 diff --git a/packages/client/ui-workspace/tests/workspace-browser.client.spec.tsx b/packages/client/ui-workspace/tests/workspace-browser.client.spec.tsx
-index fbe42fc279..7034d62d3a 100644
+index 820d2bd66b..cd8fb466cd 100644
 --- a/packages/client/ui-workspace/tests/workspace-browser.client.spec.tsx
 +++ b/packages/client/ui-workspace/tests/workspace-browser.client.spec.tsx
-@@ -80,7 +80,10 @@ function mount(overrides: Partial<WorkspaceBrowserProps> = {}) {
-     insertSessionBefore: vi.fn(async () => {}),
+@@ -81,7 +81,10 @@ function mount(overrides: Partial<WorkspaceBrowserProps> = {}) {
      createWorkspace: vi.fn(async () => workspace('created', [])),
      useDirectoryFlow: bindSnapshotSelector({ getSnapshot: () => true, subscribe: () => () => {} }),
+     useHostDescription: selector => selector(undefined),
 -    renderSlot: ((_name: string, owner: { open: boolean }) => (owner.open ? <div data-testid="directory-flow" /> : null)) as never,
 +    renderSlot: ((_name: string, owner: { open?: boolean; path?: string }) => {
 +      if (owner.path !== undefined) return <div data-testid="file-tree" data-path={owner.path} />
@@ -1650,7 +1514,7 @@ index fbe42fc279..7034d62d3a 100644
      t,
      ...overrides,
    }
-@@ -123,7 +126,7 @@ describe('WorkspaceBrowser', () => {
+@@ -145,7 +148,7 @@ describe('WorkspaceBrowser', () => {
        useSessions: hook(sessions),
        useWorkspaces: hook(workspaceState([workspace('alpha', ['alpha-s']), workspace('beta', ['beta-s'])])),
      })
@@ -1659,7 +1523,7 @@ index fbe42fc279..7034d62d3a 100644
      expect(screen.getByText('alpha')).toBeTruthy()
      // Sessions hidden while their group is folded.
      expect(screen.queryByText('alpha-s')).toBeNull()
-@@ -149,7 +152,7 @@ describe('WorkspaceBrowser', () => {
+@@ -171,7 +174,7 @@ describe('WorkspaceBrowser', () => {
      expect(screen.getByRole('menuitem', { name: '手动排序' }).hasAttribute('disabled')).toBe(false)
      fireEvent.click(screen.getByRole('menuitem', { name: '按工作区' }))
      expect(b.store.getSnapshot().groupBy).toBe('workspace')
@@ -1668,7 +1532,7 @@ index fbe42fc279..7034d62d3a 100644
  
      // Escape closes the menu without picking.
      fireEvent.click(screen.getByRole('button', { name: '视图选项' }))
-@@ -724,6 +727,48 @@ describe('WorkspaceBrowser', () => {
+@@ -834,6 +837,48 @@ describe('WorkspaceBrowser', () => {
      expect(screen.getByText('alpha')).toBeTruthy()
    })
  
@@ -1718,17 +1582,15 @@ index fbe42fc279..7034d62d3a 100644
      const insertWorkspaceBefore = vi.fn(async () => {})
      const sessions = sessionState(Array.from({ length: 5 }, (_, index) => summary(`beta-${index}`, index)))
 diff --git a/packages/host/README.i18n.yaml b/packages/host/README.i18n.yaml
-index 7697439a86..6a2dc4e7ec 100644
+index b011c50a9f..8d060c57cd 100644
 --- a/packages/host/README.i18n.yaml
 +++ b/packages/host/README.i18n.yaml
-@@ -2,5 +2,5 @@
+@@ -2,5 +2,3 @@
  # side as of the last confirmed-consistent state. Both languages carry equal authority;
  # after editing either side, bring the other along and re-record with:
  #   pnpm run verify-translation-pairing --write packages/host/README.md
 -README.md: 28a93e095f7c2a0fb08d6d10a8f5fe03f321dcbb
--README.zh.md: 9601e559d16aa7ed50a11865e8297310fbed3df7
-+README.md: fb92affe63c2b5d26b7b1bcb9e67191545bc9daf
-+README.zh.md: be97c07d0adeff3da2b974c27dbb7a92738c1883
+-README.zh.md: d705b8a4fb96d46340ffb843cfb76d3b78c89911
 diff --git a/packages/host/README.md b/packages/host/README.md
 index 28a93e095f..fb92affe63 100644
 --- a/packages/host/README.md
@@ -1742,19 +1604,21 @@ index 28a93e095f..fb92affe63 100644
  
  `apiproxy` remains transport-independent; [`client/connection`](../client/connection/README.md) supplies the browser/HTTP carrier. Picker implementations replace one another behind the shared seam.
 diff --git a/packages/host/README.zh.md b/packages/host/README.zh.md
-index 9601e559d1..be97c07d0a 100644
+index d705b8a4fb..923251c7f2 100644
 --- a/packages/host/README.zh.md
 +++ b/packages/host/README.zh.md
-@@ -13,6 +13,7 @@ dsh Web GUI 的宿主侧：所有客户端形态共享的 API 网关，以及承
- | [`directory-picker-native/`](directory-picker-native/README.md) | 原生目录选择器后端和浏览器交互 | 注册 `ctx.directoryPicker` |
- | [`directory-picker-browse/`](directory-picker-browse/README.md) | 应用内目录浏览器后端和交互 | 注册 `ctx.directoryPicker` |
- | [`directory-picker-auto/`](directory-picker-auto/README.md) | 宿主自适应选择器组合 | 挂载一个后端 |
-+| [`file-tree/`](file-tree/README.md) | 工作区文件树列举（文件与目录） | `ctx.fileTree` |
- | [`plugin-inventory/`](plugin-inventory/README.md) | 当前 Loader 条目的只读投影 | Remote `pluginInventory/list` |
+@@ -13,8 +13,8 @@ dsh Web GUI 的宿主侧：所有客户端形态共享的 API 网关，以及承
+ | [`directory-picker-native/`](directory-picker-native/README.zh.md) | 原生目录选择器后端和浏览器交互 | 注册 `ctx.directoryPicker` |
+ | [`directory-picker-browse/`](directory-picker-browse/README.zh.md) | 应用内目录浏览器后端和交互 | 注册 `ctx.directoryPicker` |
+ | [`directory-picker-auto/`](directory-picker-auto/README.zh.md) | 宿主自适应选择器组合 | 挂载一个后端 |
++| [`file-tree/`](file-tree/README.zh.md) | 工作区文件树列举（文件与目录） | `ctx.fileTree` |
+ | [`plugin-inventory/`](plugin-inventory/README.zh.md) | 当前 Loader 条目的只读投影 | Remote `pluginInventory/list` |
+-
+ `apiproxy` 保持传输无关；[`client/connection`](../client/connection/README.zh.md) 提供浏览器／HTTP 载体。选择器实现可在共享 seam 后互相替换。
  
- `apiproxy` 保持传输无关；[`client/connection`](../client/connection/README.md) 提供浏览器／HTTP 载体。选择器实现可在共享 seam 后互相替换。
+ 子系统参考：[web-server.md](../../docs/subsystems/web-server.zh.md) 与 [workspace.md](../../docs/subsystems/workspace.zh.md)（选择器 seam）。
 diff --git a/packages/host/apiproxy/package.json b/packages/host/apiproxy/package.json
-index ba83efedb5..1c0b8b961d 100644
+index 93a9e92a2c..f62ea23ccb 100644
 --- a/packages/host/apiproxy/package.json
 +++ b/packages/host/apiproxy/package.json
 @@ -54,6 +54,7 @@
@@ -1766,19 +1630,19 @@ index ba83efedb5..1c0b8b961d 100644
      "@deepseek-ai/dsh-native-command": "workspace:^",
      "@deepseek-ai/dsh-session": "workspace:^",
 diff --git a/packages/host/apiproxy/src/api-proxy.ts b/packages/host/apiproxy/src/api-proxy.ts
-index bda99362b6..795f99fbfa 100644
+index ba354e1173..0e97184532 100644
 --- a/packages/host/apiproxy/src/api-proxy.ts
 +++ b/packages/host/apiproxy/src/api-proxy.ts
-@@ -10,6 +10,8 @@ import type { Context } from '@deepseek-ai/cordis'
+@@ -12,6 +12,8 @@ import type { Context } from '@deepseek-ai/cordis'
  import { installModelSelection } from '@deepseek-ai/dsh-agent'
  import type { Agent, ModelSelection, ModelSelectionRef, AgentOptions, AgentStatus } from '@deepseek-ai/dsh-agent'
  import type {} from '@deepseek-ai/dsh-agent-presets/types'
 +// Type-only: brings the `ctx.fileTree` Context merge into this program (host.listFiles).
 +import type {} from '@deepseek-ai/dsh-host-file-tree'
- import { AttachmentError } from '@deepseek-ai/dsh-attachment'
+ import { AttachmentError, admitEncodedImages } from '@deepseek-ai/dsh-attachment'
  import type { ImageAttachmentRef } from '@deepseek-ai/dsh-attachment'
- import { contentHasImage, createUserMessage, freezeMessage, ReasoningEffortId } from '@deepseek-ai/dsh-llm'
-@@ -2989,6 +2991,48 @@ export function createApiProxy(ctx: Context, defaults: ApiProxyDefaults): ApiPro
+ import { createUserMessage, freezeMessage, ReasoningEffortId } from '@deepseek-ai/dsh-llm'
+@@ -2890,6 +2892,48 @@ export function createApiProxy(ctx: Context, defaults: ApiProxyDefaults): ApiPro
          }
        },
  
@@ -1828,7 +1692,7 @@ index bda99362b6..795f99fbfa 100644
          const capability = ctx.directoryPicker.capability()
          if (capability.kind !== 'browse') {
 diff --git a/packages/host/apiproxy/src/api/host.schema.ts b/packages/host/apiproxy/src/api/host.schema.ts
-index 7dd560d3a4..e0ed82f512 100644
+index 1a520f1e30..7d6945217d 100644
 --- a/packages/host/apiproxy/src/api/host.schema.ts
 +++ b/packages/host/apiproxy/src/api/host.schema.ts
 @@ -3,7 +3,7 @@
@@ -1840,7 +1704,7 @@ index 7dd560d3a4..e0ed82f512 100644
  import type { RequestPayload, ResponseValue } from './rpc-map.ts'
  import type { Wire } from './rpc.schema.ts'
  
-@@ -49,6 +49,40 @@ export const hostListDirectoryValueSchema = z.object({
+@@ -50,6 +50,40 @@ export const hostListDirectoryValueSchema = z.object({
    truncated: z.boolean(),
  }) satisfies z.ZodType<Wire<ResponseValue<'host.listDirectory'>>>
  
@@ -1882,7 +1746,7 @@ index 7dd560d3a4..e0ed82f512 100644
  export const hostCreateDirectoryRequestSchema = z.object({
    path: z.string(),
 diff --git a/packages/host/apiproxy/src/api/host.ts b/packages/host/apiproxy/src/api/host.ts
-index 33c55106f5..be3f7c7e9f 100644
+index 5e45fcf3a5..89613109a5 100644
 --- a/packages/host/apiproxy/src/api/host.ts
 +++ b/packages/host/apiproxy/src/api/host.ts
 @@ -32,6 +32,42 @@ export interface DirectoryListing {
@@ -1928,7 +1792,7 @@ index 33c55106f5..be3f7c7e9f 100644
  /** Host-level unary methods. */
  export interface HostApi {
    /**
-@@ -73,6 +109,31 @@ export interface HostApi {
+@@ -75,6 +111,31 @@ export interface HostApi {
      signal: AbortSignal,
    ): Promise<RpcResponse<DirectoryListing>>
  
@@ -1987,7 +1851,7 @@ index 80dede1799..5f2d40945b 100644
    'host.openPath': HostApi['openPath']
    'workspace.list': WorkspaceApi['list']
 diff --git a/packages/host/apiproxy/src/api/rpc.schema.ts b/packages/host/apiproxy/src/api/rpc.schema.ts
-index 177f0ffd29..6bbb64a874 100644
+index 03cfdd1e15..018813c5aa 100644
 --- a/packages/host/apiproxy/src/api/rpc.schema.ts
 +++ b/packages/host/apiproxy/src/api/rpc.schema.ts
 @@ -46,6 +46,7 @@ export const rpcErrorSchema: z.ZodType<RpcError> = z.discriminatedUnion('code',
@@ -1999,7 +1863,7 @@ index 177f0ffd29..6bbb64a874 100644
    z.object({ code: z.literal('agent-preset-read-only'), message: z.string(), details: z.object({ agentPreset: z.string(), reason: z.string() }) }),
    z.object({ code: z.literal('agent-preset-locked'), message: z.string(), details: z.object({ sessionId: z.string(), agentPreset: z.string() }) }),
 diff --git a/packages/host/apiproxy/src/api/rpc.ts b/packages/host/apiproxy/src/api/rpc.ts
-index 134a39eba9..91eb858ea5 100644
+index 0b5506b6b6..b6b8cc7433 100644
 --- a/packages/host/apiproxy/src/api/rpc.ts
 +++ b/packages/host/apiproxy/src/api/rpc.ts
 @@ -44,6 +44,7 @@ export interface RpcErrorDetailsMap {
@@ -2117,7 +1981,7 @@ index f8a065c8e2..81c59c5ca2 100644
  
  /** Translate a WSL path before handing it to the Windows desktop. */
 diff --git a/packages/host/apiproxy/tests/client-handler.spec.ts b/packages/host/apiproxy/tests/client-handler.spec.ts
-index 4130d8f210..d440ca5d35 100644
+index de9d4ddab0..b666a4b3e5 100644
 --- a/packages/host/apiproxy/tests/client-handler.spec.ts
 +++ b/packages/host/apiproxy/tests/client-handler.spec.ts
 @@ -76,6 +76,8 @@ function scriptedApi(overrides: {
@@ -2130,7 +1994,7 @@ index 4130d8f210..d440ca5d35 100644
        openPath: r => ok(r, { opened: true as const }),
        ...overrides.host,
 diff --git a/packages/host/apiproxy/tests/fetch-carrier.spec.ts b/packages/host/apiproxy/tests/fetch-carrier.spec.ts
-index 2000f708ba..6e363e2236 100644
+index 77432c55af..636e949755 100644
 --- a/packages/host/apiproxy/tests/fetch-carrier.spec.ts
 +++ b/packages/host/apiproxy/tests/fetch-carrier.spec.ts
 @@ -153,6 +153,12 @@ function fakeApi(overrides: Partial<{ muxFrames: MuxFrame[]; hostFrames: HostFra
@@ -2564,7 +2428,7 @@ index 4f6b2122cb..98771f8c49 100644
     * Rename a Workspace (recorded). The default echoes a minimal view.
     * @param workspaceId - target workspace.
 diff --git a/pnpm-lock.yaml b/pnpm-lock.yaml
-index 1490a0f9f7..3ace778b4b 100644
+index 737a21eea6..6f5b655d2b 100644
 --- a/pnpm-lock.yaml
 +++ b/pnpm-lock.yaml
 @@ -71,7 +71,7 @@ importers:
@@ -2721,7 +2585,7 @@ index 1490a0f9f7..3ace778b4b 100644
        '@deepseek-ai/dsh-tmux-context':
          specifier: workspace:^
          version: link:../../packages/context/tmux-context
-@@ -297,9 +351,15 @@ importers:
+@@ -300,9 +354,15 @@ importers:
        '@deepseek-ai/dsh-web-app':
          specifier: workspace:^
          version: link:../../packages/bundle/web-app
@@ -2737,7 +2601,7 @@ index 1490a0f9f7..3ace778b4b 100644
        commander:
          specifier: ^15.0.0
          version: 15.0.0
-@@ -353,6 +413,18 @@ importers:
+@@ -356,6 +416,18 @@ importers:
          specifier: ^10.0.0
          version: 10.0.0
  
@@ -2754,9 +2618,9 @@ index 1490a0f9f7..3ace778b4b 100644
 +        version: 26.15.3(electron-builder-squirrel-windows@26.15.3)
 +
    apps/web:
-     dependencies:
-       '@deepseek-ai/dsh-client-web':
-@@ -412,7 +484,7 @@ importers:
+     devDependencies:
+       '@deepseek-ai/cordis-plugin-group':
+@@ -411,7 +483,7 @@ importers:
          version: 6.4.3(@types/node@22.20.0)(jiti@2.7.0)(lightningcss@1.32.0)(tsx@4.22.4)(yaml@2.9.0)
        vitest:
          specifier: ^4.1.8
@@ -2765,7 +2629,7 @@ index 1490a0f9f7..3ace778b4b 100644
  
    examples:
      dependencies:
-@@ -1303,6 +1375,9 @@ importers:
+@@ -1326,6 +1398,9 @@ importers:
        '@deepseek-ai/dsh-client-ui-directory-picker-native':
          specifier: workspace:^
          version: link:../../client/ui-directory-picker-native
@@ -2775,7 +2639,7 @@ index 1490a0f9f7..3ace778b4b 100644
        '@deepseek-ai/dsh-client-ui-goal':
          specifier: workspace:^
          version: link:../../client/ui-goal
-@@ -1393,6 +1468,9 @@ importers:
+@@ -1428,6 +1503,9 @@ importers:
        '@deepseek-ai/dsh-host-directory-picker-native':
          specifier: workspace:^
          version: link:../../host/directory-picker-native
@@ -2785,20 +2649,18 @@ index 1490a0f9f7..3ace778b4b 100644
        '@deepseek-ai/dsh-host-frontend-static':
          specifier: workspace:^
          version: link:../../host/frontend-static
-@@ -1879,6 +1957,12 @@ importers:
+@@ -1951,6 +2029,10 @@ importers:
+         version: 18.3.1
  
    packages/client/ui-deliverables:
-     dependencies:
-+      '@deepseek-ai/dsh-client-ui-primitives':
-+        specifier: workspace:^
-+        version: link:../ui-primitives
++    dependencies:
 +      clsx:
 +        specifier: ^2.0.0
 +        version: 2.1.1
-       react:
-         specifier: ^18.2.0
-         version: 18.3.1
-@@ -1987,6 +2071,43 @@ importers:
+     devDependencies:
+       '@deepseek-ai/cordis':
+         specifier: workspace:^
+@@ -2059,6 +2141,43 @@ importers:
          specifier: ^18.2.0
          version: 18.3.1(react@18.3.1)
  
@@ -2842,7 +2704,7 @@ index 1490a0f9f7..3ace778b4b 100644
    packages/client/ui-goal:
      devDependencies:
        '@deepseek-ai/cordis':
-@@ -4725,6 +4846,9 @@ importers:
+@@ -4996,6 +5115,9 @@ importers:
        '@deepseek-ai/dsh-host-directory-picker':
          specifier: workspace:^
          version: link:../directory-picker
@@ -2852,7 +2714,7 @@ index 1490a0f9f7..3ace778b4b 100644
        '@deepseek-ai/dsh-jobs':
          specifier: workspace:^
          version: link:../../jobs/jobs
-@@ -4888,6 +5012,25 @@ importers:
+@@ -5159,6 +5281,25 @@ importers:
          specifier: ^4.19.2
          version: 4.22.4
  
@@ -2878,7 +2740,7 @@ index 1490a0f9f7..3ace778b4b 100644
    packages/host/frontend-static:
      dependencies:
        '@deepseek-ai/schemastery':
-@@ -7635,7 +7778,7 @@ importers:
+@@ -8012,7 +8153,7 @@ importers:
          version: link:../loader-smoke
        vitest:
          specifier: ^4.1.8
@@ -2887,7 +2749,7 @@ index 1490a0f9f7..3ace778b4b 100644
      devDependencies:
        '@deepseek-ai/cordis':
          specifier: workspace:^
-@@ -7684,7 +7827,7 @@ importers:
+@@ -8061,7 +8202,7 @@ importers:
          version: 16.3.2(@testing-library/dom@10.4.1)(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
        vitest:
          specifier: ^4.1.8
@@ -2896,7 +2758,7 @@ index 1490a0f9f7..3ace778b4b 100644
      devDependencies:
        '@deepseek-ai/cordis':
          specifier: workspace:^
-@@ -9257,6 +9400,46 @@ packages:
+@@ -9664,6 +9805,46 @@ packages:
      engines: {node: '>=22.19.0'}
      hasBin: true
  
@@ -2943,7 +2805,7 @@ index 1490a0f9f7..3ace778b4b 100644
    '@emnapi/core@1.10.0':
      resolution: {integrity: sha512-yq6OkJ4p82CAfPl0u9mQebQHKPJkY7WrIuk205cTYnYe+k2Z8YBh11FrbRG/H6ihirqcacOgl2BIO8oyMQLeXw==}
  
-@@ -10079,6 +10262,14 @@ packages:
+@@ -10486,6 +10667,14 @@ packages:
      cpu: [x64]
      os: [win32]
  
@@ -2958,7 +2820,7 @@ index 1490a0f9f7..3ace778b4b 100644
    '@mermaid-js/mermaid-mindmap@9.3.0':
      resolution: {integrity: sha512-IhtYSVBBRYviH1Ehu8gk69pMDF8DSRqXBRDMWrEfHoaMruHeaP2DXA3PBnuwsMaCdPQhlUUcy/7DBLAEIXvCAw==}
  
-@@ -10120,6 +10311,14 @@ packages:
+@@ -10527,6 +10716,14 @@ packages:
        '@emnapi/core': ^1.7.1
        '@emnapi/runtime': ^1.7.1
  
@@ -2973,12 +2835,13 @@ index 1490a0f9f7..3ace778b4b 100644
    '@nodable/entities@2.2.0':
      resolution: {integrity: sha512-9uGyhaQavEUMC8AIddIjau4NsnsXhou+j5sBAGojCM1oxmQpVKTWR/9JxABD6UAv12vpIms55fPZKFQEhG6uBg==}
  
-@@ -10628,6 +10827,20 @@ packages:
+@@ -11035,6 +11232,21 @@ packages:
      cpu: [x64]
      os: [win32]
  
-+  '@peculiar/asn1-schema@2.8.0':
-+    resolution: {integrity: sha512-7YT0U/ze0tF2QOBbE15gKZwy5tvgGyLRiRHLzhlbOpf7BT032oBSd0haZqXn5W6l26WLlu3dyxzjM+2638/z2Q==}
++  '@peculiar/asn1-schema@2.9.4':
++    resolution: {integrity: sha512-GjzePcT9Iw8NzeOPf73iNS9xM+TBhd/FilAfP+RQGkTMQJTVWtytN3JHJACCjf/ABNau5S7mS3g+DcuxmRgYEg==}
++    engines: {node: '>=14'}
 +
 +  '@peculiar/json-schema@1.1.12':
 +    resolution: {integrity: sha512-coUfuoMeIB7B8/NMekxaDzLhaYmp0HZNPEjYRm9goRou8UZIC3z21s0sL9AWoCw4EG876QyO3kYrc61WNF9B/w==}
@@ -2994,7 +2857,7 @@ index 1490a0f9f7..3ace778b4b 100644
    '@pkgjs/parseargs@0.11.0':
      resolution: {integrity: sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==}
      engines: {node: '>=14'}
-@@ -11055,6 +11268,10 @@ packages:
+@@ -11462,6 +11674,10 @@ packages:
    '@shikijs/vscode-textmate@10.0.2':
      resolution: {integrity: sha512-83yeghZ2xxin3Nj8z1NMd/NCuca+gsYXswywDy5bHvwlWL8tpTQmzGeUuHd9FC3E/SBEMvzJRwWEOz5gGes9Qg==}
  
@@ -3005,7 +2868,7 @@ index 1490a0f9f7..3ace778b4b 100644
    '@sindresorhus/merge-streams@4.0.0':
      resolution: {integrity: sha512-tlqY9xq5ukxTUZBmoOp+m61cqwQD5pHJtFY3Mn8CA8ps6yghLH/Hw8UPdqg4OLmFW3IFlcXnQNmo/dh8HzXYIQ==}
      engines: {node: '>=18'}
-@@ -11108,6 +11325,10 @@ packages:
+@@ -11515,6 +11731,10 @@ packages:
      peerDependencies:
        eslint: ^9.0.0 || ^10.0.0
  
@@ -3016,7 +2879,7 @@ index 1490a0f9f7..3ace778b4b 100644
    '@tanstack/react-virtual@3.14.9':
      resolution: {integrity: sha512-qZyr0FZDP8rDC4WBhsryIZmAd9bveJvFGUJJtskWaew6/0dTRS6wZxnR6VQ5bY2KwL3LjerrHqQLk3a0GKcPXQ==}
      peerDependencies:
-@@ -11157,6 +11378,9 @@ packages:
+@@ -11564,6 +11784,9 @@ packages:
    '@types/babel__traverse@7.28.0':
      resolution: {integrity: sha512-8PvcXf70gTDZBgt9ptxJ8elBeBjcLOAcOtoO/mPJjtji1+CdGbHgm77om1GrsPxsiE+uXIpNSK64UYaIwQXd4Q==}
  
@@ -3026,7 +2889,7 @@ index 1490a0f9f7..3ace778b4b 100644
    '@types/chai@5.2.3':
      resolution: {integrity: sha512-Mw558oeA9fFbv65/y4mHtXDs9bPnFMZAL/jxdPFUpOHHIXX91mcgEHbS5Lahr+pwZFR8A7GQleRWeI6cGFC2UA==}
  
-@@ -11265,12 +11489,18 @@ packages:
+@@ -11672,12 +11895,18 @@ packages:
    '@types/estree@1.0.9':
      resolution: {integrity: sha512-GhdPgy1el4/ImP05X05Uw4cw2/M93BCUmnEvWZNStlCzEKME4Fkk+YpoA5OiHNQmoS7Cafb8Xa3Pya8m1Qrzeg==}
  
@@ -3045,7 +2908,7 @@ index 1490a0f9f7..3ace778b4b 100644
    '@types/js-yaml@4.0.9':
      resolution: {integrity: sha512-k4MGaQl5TGo/iipqb2UDG2UwjXziSWkh0uysQelTlJpX1qGlpUZYm8PnO4DxG1qBomtJUdYJ6qR6xdIah10JLg==}
  
-@@ -11286,6 +11516,9 @@ packages:
+@@ -11693,6 +11922,9 @@ packages:
    '@types/katex@0.16.8':
      resolution: {integrity: sha512-trgaNyfU+Xh2Tc+ABIb44a5AYUpicB3uwirOioeOkNPPbmgRNtcWyDeeFRzjPZENO9Vq8gvVqfhaaXWLlevVwg==}
  
@@ -3055,7 +2918,7 @@ index 1490a0f9f7..3ace778b4b 100644
    '@types/linkify-it@5.0.0':
      resolution: {integrity: sha512-sVDA58zAw4eWAffKOaQH5/5j3XeayukzDk+ewSsnv3p4yJEZHCCzMDiZM8e0OUrRvmpGZ85jf4yDHkHsgBNr9Q==}
  
-@@ -11324,6 +11557,9 @@ packages:
+@@ -11731,6 +11963,9 @@ packages:
    '@types/react@18.3.31':
      resolution: {integrity: sha512-vfEqpXTvwT91yhmwdfouStN2hSKwTvyRs8qpLfADyrq/kxDw0hZM7Wk9Ug1FELj8hIby+S/+kQCSRFF32nv2Qw==}
  
@@ -3065,7 +2928,7 @@ index 1490a0f9f7..3ace778b4b 100644
    '@types/retry@0.12.0':
      resolution: {integrity: sha512-wWKOClTTiizcZhXnPY4wikVAwmdYHp8q6DmC+EJUzAMsycb7HB32Kh9RN4+0gExjmPmZSAQjgURXIGATPegAvA==}
  
-@@ -11348,6 +11584,9 @@ packages:
+@@ -11755,6 +11990,9 @@ packages:
    '@types/ws@8.18.1':
      resolution: {integrity: sha512-ThVF6DCVhA8kUGy+aazFQ4kXQ7E1Ty7A3ypFOe0IcJV8O/M511G99AW24irKrW56Wt44yG9+ij8FaqoBGkuBXg==}
  
@@ -3075,12 +2938,12 @@ index 1490a0f9f7..3ace778b4b 100644
    '@typescript-eslint/types@8.61.0':
      resolution: {integrity: sha512-9QTQpZ5Iin4CdIodfbDQFSeiSJKidgYJYug1P9CC2xWgUTvlmixViqDZNciMjwLBZyJnG4tGmPl97rVAFb1AJg==}
      engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
-@@ -11560,11 +11799,19 @@ packages:
+@@ -11967,11 +12205,19 @@ packages:
    '@vueuse/shared@12.8.2':
      resolution: {integrity: sha512-dznP38YzxZoNloI0qpEfpkms8knDtaoQ6Y/sfS0L7Yki4zh40LFHEhur0odJC6xTHG5dxWVPiUWBXn+wCG2s5w==}
  
-+  '@xmldom/xmldom@0.8.14':
-+    resolution: {integrity: sha512-T4EDRUBVZYRldYApjEJiU0e1stYWaRAX7CuSnKzrpwdZKo53zGV8/pqfzV6FfwNl9YThD2OumQYvqtvjvgG7aQ==}
++  '@xmldom/xmldom@0.8.15':
++    resolution: {integrity: sha512-/5NV/vDALVFDXgLmfsy9TRCBlKwO2LNBFzpzvb9iIj+jR+eSc6DLYYvVOdivT/jm7MtU6TebYuRmzEOI7w40UA==}
 +    engines: {node: '>=10.0.0'}
 +
    '@yarnpkg/cli-dist@4.17.1':
@@ -3095,7 +2958,7 @@ index 1490a0f9f7..3ace778b4b 100644
    accepts@2.0.0:
      resolution: {integrity: sha512-5cvg6CtKwfgdmVqY1WIiXKc3Q1bkRqGLi+2W/6ao+6Y7gu/RCwRuAhGEzh5B4KlszSuTLgZYuqFqo5bImjNKng==}
      engines: {node: '>= 0.6'}
-@@ -11631,12 +11878,23 @@ packages:
+@@ -12038,12 +12284,23 @@ packages:
    anynum@1.0.0:
      resolution: {integrity: sha512-xjR9/zBVnUOP6ztMIIgShjsxui80nQUQH+5xJnvrYLs+90bF25/KJqaAi8mk+B4RDtX1Nspi6fmp4YTEts8SfA==}
  
@@ -3119,7 +2982,7 @@ index 1490a0f9f7..3ace778b4b 100644
    assertion-error@2.0.1:
      resolution: {integrity: sha512-Izi8RQcffqCeNVgFigKli1ssklIbpHnCYc6AknXGYoB6grJqyeby7jv12JUQgmTAnIDnbck1uxksT4dzN3PWBA==}
      engines: {node: '>=12'}
-@@ -11648,6 +11906,23 @@ packages:
+@@ -12055,6 +12312,23 @@ packages:
    ast-v8-to-istanbul@1.0.4:
      resolution: {integrity: sha512-0bC0/4bTSrnwdhU3IsZDwEdojvuPrSg59OYZfKsLRtJZ0u8VBx9DebfqqG8bRdCC0I7vjgxmPi41P0lpkhJHtA==}
  
@@ -3143,7 +3006,7 @@ index 1490a0f9f7..3ace778b4b 100644
    balanced-match@1.0.2:
      resolution: {integrity: sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw==}
  
-@@ -11675,13 +11950,23 @@ packages:
+@@ -12082,13 +12356,23 @@ packages:
    birpc@4.0.0:
      resolution: {integrity: sha512-LShSxJP0KTmd101b6DRyGBj57LZxSDYWKitQNW/mi8GRMvZb078Uf9+pveax1DrVL89vm7mWe+TovdI/UDOuPw==}
  
@@ -3167,7 +3030,7 @@ index 1490a0f9f7..3ace778b4b 100644
    brace-expansion@2.1.2:
      resolution: {integrity: sha512-w5JZcKgdhDOgOwm8H+KgbosopHMuGcl6qbulwjtz3SM7I7P3yW1eAjzMPLrIE+NQ9vjgANKHWeMHnrT0OXW1oA==}
  
-@@ -11694,9 +11979,23 @@ packages:
+@@ -12101,9 +12385,23 @@ packages:
      engines: {node: ^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7}
      hasBin: true
  
@@ -3191,7 +3054,7 @@ index 1490a0f9f7..3ace778b4b 100644
    builtin-modules@3.3.0:
      resolution: {integrity: sha512-zhaCDicdLuWN5UbN5IMnFqNMhNfo919sH85y2/ea+5Yg9TsTkeZxpL+JLbp6cgYFS4sRLp3YV4S6yDuqVWHYOw==}
      engines: {node: '>=6'}
-@@ -11705,10 +12004,22 @@ packages:
+@@ -12116,10 +12414,22 @@ packages:
      resolution: {integrity: sha512-/Nf7TyzTx6S3yRJObOAV7956r8cr2+Oj8AC5dt8wSP3BQAoeX58NoHyCU8P8zGkNXStjTSi6fzO6F0pBdcYbEg==}
      engines: {node: '>= 0.8'}
  
@@ -3214,7 +3077,7 @@ index 1490a0f9f7..3ace778b4b 100644
    call-bind-apply-helpers@1.0.2:
      resolution: {integrity: sha512-Sp1ablJ0ivDkSzjcaJdxEunN5/XvksFJ2sMBFfq6x0ryhQV/2b/KwFe21cMpmHtPOSij8K99/wSfoEuTObmuMQ==}
      engines: {node: '>= 0.4'}
-@@ -11727,6 +12038,10 @@ packages:
+@@ -12138,6 +12448,10 @@ packages:
      resolution: {integrity: sha512-NUPRluOfOiTKBKvWPtSD4PhFvWCqOi0BGStNWs57X9js7XGTprSmFoz5F0tWhR4WPjNeR9jXqdC7/UpSJTnlRg==}
      engines: {node: '>=18'}
  
@@ -3225,7 +3088,7 @@ index 1490a0f9f7..3ace778b4b 100644
    chalk@5.6.2:
      resolution: {integrity: sha512-7NzBL0rN6fMUW+f7A6Io4h40qQlG+xGmtMxfbnH/K7TAtt8JQWVQK+6g0UXKMeVJoyV5EkkNsErQ8pVD3bLHbA==}
      engines: {node: ^12.17.0 || ^14.13 || >=16.0.0}
-@@ -11752,6 +12067,24 @@ packages:
+@@ -12163,6 +12477,24 @@ packages:
      resolution: {integrity: sha512-+IxzY9BZOQd/XuYPRmrvEVjF/nqj5kgT4kEq7VofrDoM1MxoRjEWkrCC3EtLi59TVawxTAn+orJwFQcrqEN1+g==}
      engines: {node: '>=18'}
  
@@ -3250,7 +3113,7 @@ index 1490a0f9f7..3ace778b4b 100644
    clsx@2.1.1:
      resolution: {integrity: sha512-eYm0QWBtUrBWZWG0d386OGAw16Z995PiOVo2B7bjWSbHedGl5e0ZWaq65kOGgUSNesEIDkB9ISbTg/JK9dhCZA==}
      engines: {node: '>=6'}
-@@ -11763,6 +12096,10 @@ packages:
+@@ -12174,6 +12506,10 @@ packages:
    color-name@1.1.4:
      resolution: {integrity: sha512-dOy+3AuW3a2wNbZHIuMZpTcgjGuLU/uBL/ubcZF9OXbDo8ff4O8yVp5Bf0efS8uEoYo5q4Fx7dY9OgQGXgAsQA==}
  
@@ -3261,7 +3124,7 @@ index 1490a0f9f7..3ace778b4b 100644
    comma-separated-tokens@2.0.3:
      resolution: {integrity: sha512-Fu4hJdvzeylCfQPp9SGWidpzrMs7tTrlu6Vb8XGaRGck8QSNZJJp538Wrb60Lax4fPwR64ViY468OIUTbRlGZg==}
  
-@@ -11770,6 +12107,10 @@ packages:
+@@ -12181,6 +12517,10 @@ packages:
      resolution: {integrity: sha512-z67u4ZhzCL/Tydu1lJARtEZYWbWaN7oYLHbsuzocr6y4N6WZAagG3RQ4FW61V1/0+jImpj293XfrcYnd1qxtPg==}
      engines: {node: '>=22.12.0'}
  
@@ -3272,7 +3135,7 @@ index 1490a0f9f7..3ace778b4b 100644
    commander@7.2.0:
      resolution: {integrity: sha512-QrWXB+ZQSVPmIWIhtEO9H+gwHaMGYiF5ChvoJ+K9ZGHG/sVsa6yiesAD1GC/x46sET00Xlwo1u49RVVVzvcSkw==}
      engines: {node: '>= 10'}
-@@ -11778,9 +12119,20 @@ packages:
+@@ -12189,9 +12529,20 @@ packages:
      resolution: {integrity: sha512-OkTL9umf+He2DZkUq8f8J9of7yL6RJKI24dVITBmNfZBmri9zYZQrKkuXiKhyfPSu8tUhnVBB1iKXevvnlR4Ww==}
      engines: {node: '>= 12'}
  
@@ -3293,7 +3156,7 @@ index 1490a0f9f7..3ace778b4b 100644
    content-disposition@1.1.0:
      resolution: {integrity: sha512-5jRCH9Z/+DRP7rkvY83B+yGIGX96OYdJmzngqnw2SBSxqCFPd0w2km3s5iawpGX8krnwSGmF0FW5Nhr0Hfai3g==}
      engines: {node: '>=18'}
-@@ -11821,6 +12173,9 @@ packages:
+@@ -12232,6 +12583,9 @@ packages:
    cose-base@2.2.0:
      resolution: {integrity: sha512-AzlgcsCbUMymkADOJtQm3wO9S3ltPfYOFD5033keQn9NJzIbtnZj+UdBJe7DYml/8TdbtHJW3j58SOnKhWY/5g==}
  
@@ -3303,7 +3166,7 @@ index 1490a0f9f7..3ace778b4b 100644
    cross-spawn@7.0.6:
      resolution: {integrity: sha512-uV2QOWP2nWzsy2aMp8aRibhi9dlzF5Hgh5SHaB9OiTGEyDTiJJyx0uy51QXdyWbtAHNua4XJzUKca3OzKUd3vA==}
      engines: {node: '>= 8'}
-@@ -12014,15 +12369,35 @@ packages:
+@@ -12425,6 +12779,10 @@ packages:
    decode-named-character-reference@1.3.0:
      resolution: {integrity: sha512-GtpQYB283KrPp6nRw50q3U9/VfOutZOe103qlN7BPP6Ad27xYnOIWv4lPzo8HCAL+mMZofJ9KEy30fq6MfaK6Q==}
  
@@ -3314,6 +3177,10 @@ index 1490a0f9f7..3ace778b4b 100644
    deep-is@0.1.4:
      resolution: {integrity: sha512-oIPzksmTg4/MriiaYGO+okXDT7ztn/w3Eptv/+gSIdMdKsJo0u4CfYNFJPy+4SKMuCqGw2wxnA+URMg3t8a/bQ==}
  
+@@ -12436,16 +12794,32 @@ packages:
+     resolution: {integrity: sha512-H9LMLr5zwIbSxrmvikGuI/5KGhZ8E2zH3stkMgM5LpOWDutGM2JZaj460Udnf1a+946zc7YBgrqEWwbk7zHvGw==}
+     engines: {node: '>=18'}
+ 
 +  defer-to-connect@2.0.1:
 +    resolution: {integrity: sha512-4tvttepXG1VaYGrRibk5EwJd1t4udunSOVMdLSAL6mId1ix438oPwPZMALY41FCijukO1L0twNcGsdzS7dHgDg==}
 +    engines: {node: '>=10'}
@@ -3322,6 +3189,10 @@ index 1490a0f9f7..3ace778b4b 100644
 +    resolution: {integrity: sha512-rBMvIzlpA8v6E+SJZoo++HAYqsLrkg7MSfIinMPFhmkorw7X+dOXVJQs+QT69zGkzMyfDnIMN2Wid1+NbL3T+A==}
 +    engines: {node: '>= 0.4'}
 +
+   define-lazy-prop@3.0.0:
+     resolution: {integrity: sha512-N+MeXYoqr3pOgn8xfyRPREN7gHakLYjhsHhWGT3fWAiL4IkAt0iDw14QiiEm2bE30c5XX5q0FtAA3CK5f9/BUg==}
+     engines: {node: '>=12'}
+ 
 +  define-properties@1.2.1:
 +    resolution: {integrity: sha512-8QmQKqEASLd5nx0U1B1okLElbUuuttJ/AnYmRXbbbGDWh6uS208EjD4Xqq/I9wK7u0v6O08XhTWnt5XtEbR6Dg==}
 +    engines: {node: '>= 0.4'}
@@ -3339,7 +3210,7 @@ index 1490a0f9f7..3ace778b4b 100644
    depd@2.0.0:
      resolution: {integrity: sha512-g7nH6P6dyDioJogAAGprGpCtVImJhpPk/roCzdb3fIh61/s/nPsfR6onyMwkCAR/OlC3yBC0lESvUoQEAssIrw==}
      engines: {node: '>= 0.8'}
-@@ -12035,6 +12410,9 @@ packages:
+@@ -12458,6 +12832,9 @@ packages:
      resolution: {integrity: sha512-Btj2BOOO83o3WyH59e8MgXsxEQVcarkUOpEYrubB0urwnN10yQ364rsiByU11nZlqWYZm05i/of7io4mzihBtQ==}
      engines: {node: '>=8'}
  
@@ -3349,7 +3220,7 @@ index 1490a0f9f7..3ace778b4b 100644
    devlop@1.1.0:
      resolution: {integrity: sha512-RWmIqhcFf1lRYBvNmr7qTNuyCt/7/ns2jbpp1+PalgE/rDQcBT0fioSMUpJ93irlUhC5hrg4cYqe6U+0ImW0rA==}
  
-@@ -12046,6 +12424,12 @@ packages:
+@@ -12469,6 +12846,12 @@ packages:
      resolution: {integrity: sha512-svtcdpS8CgJyqAjEQIXdb3OjhFVVYjzGAPO8WGCmRbrml64SPw/jJD4GoE98aR7r25A0XcgrK3F02yw9R/vhQw==}
      engines: {node: '>=0.3.1'}
  
@@ -3362,7 +3233,7 @@ index 1490a0f9f7..3ace778b4b 100644
    dockerfile-ast@0.7.1:
      resolution: {integrity: sha512-oX/A4I0EhSkGqrFv0YuvPkBUSYp1XiY8O8zAKc8Djglx8ocz+JfOr8gP0ryRMC2myqvDLagmnZaU9ot1vG2ijw==}
  
-@@ -12055,6 +12439,14 @@ packages:
+@@ -12478,6 +12861,14 @@ packages:
    dompurify@3.4.11:
      resolution: {integrity: sha512-zhlUV12GsaRzMsf9q5M254YhA4+VuF0fG+QFqu6aYpoGlKtz+w8//jBcGVYBgQkR5GHjUomejY84AV+/uPbWdw==}
  
@@ -3377,7 +3248,7 @@ index 1490a0f9f7..3ace778b4b 100644
    dts-resolver@3.0.0:
      resolution: {integrity: sha512-1T1f+z+4tl9XD+m+0HBgWoL/nm0bOIffyWaUuUSBlFg/86IWvfx+wjNaO/ybU0AJzG9/Mi5hBUgGV6zCmWEN7Q==}
      engines: {node: ^22.18.0 || >=24.0.0}
-@@ -12068,6 +12460,9 @@ packages:
+@@ -12491,6 +12882,9 @@ packages:
      resolution: {integrity: sha512-KIN/nDJBQRcXw0MLVhZE9iQHmG68qAVIBg9CqmUYjmQIhgij9U5MFvrqkUL5FbtyyzZuOeOt0zdeRe4UY7ct+A==}
      engines: {node: '>= 0.4'}
  
@@ -3387,7 +3258,7 @@ index 1490a0f9f7..3ace778b4b 100644
    e2b@2.29.1:
      resolution: {integrity: sha512-n4aGNwRKTj2oct7BrOWfR4T+xGO834vbsrzfSlWUNJrhz615Lp+ad9hc8KtRaaHULKr/W/14Z6v4c7fqk3y0pg==}
      engines: {node: '>=20.18.1'}
-@@ -12081,9 +12476,34 @@ packages:
+@@ -12504,9 +12898,34 @@ packages:
    ee-first@1.1.1:
      resolution: {integrity: sha512-WMwm9LhRUo+WUaRN+vRuETqG89IgZphVSNkdFgeb6sS/E4OrDIN7t48CAewSHXc6C8lefD8KKfr5vY61brQlow==}
  
@@ -3422,7 +3293,7 @@ index 1490a0f9f7..3ace778b4b 100644
    emoji-regex-xs@1.0.0:
      resolution: {integrity: sha512-LRlerrMYoIDrT6jgpeZ2YYl/L8EulRTt5hQcYjy5AInh7HWXKimpqx68aknBFpGL2+/IcogTcaydJEgaTmOpDg==}
  
-@@ -12101,6 +12521,9 @@ packages:
+@@ -12524,6 +12943,9 @@ packages:
      resolution: {integrity: sha512-Q0n9HRi4m6JuGIV1eFlmvJB7ZEVxu93IrMyiMsGC0lrMJMWzRgx6WGquyfQgZVb31vhGgXnfmPNNXmxnOkRBrg==}
      engines: {node: '>= 0.8'}
  
@@ -3432,7 +3303,7 @@ index 1490a0f9f7..3ace778b4b 100644
    entities@7.0.1:
      resolution: {integrity: sha512-TWrgLOFUQTH994YUyl1yT4uyavY5nNB5muff+RtWaqNVCAK408b5ZnnbNAUEWLTCpum9w6arT70i1XdQ4UeOPA==}
      engines: {node: '>=0.12'}
-@@ -12109,6 +12532,13 @@ packages:
+@@ -12532,6 +12954,13 @@ packages:
      resolution: {integrity: sha512-zwfzJecQ/Uej6tusMqwAqU/6KL2XaB2VZ2Jg54Je6ahNBGNH6Ek6g3jjNCF0fG9EWQKGZNddNjU5F1ZQn/sBnA==}
      engines: {node: '>=20.19.0'}
  
@@ -3446,7 +3317,7 @@ index 1490a0f9f7..3ace778b4b 100644
    es-define-property@1.0.1:
      resolution: {integrity: sha512-e3nRfgfUZ4rNGL232gUgX06QNyyez04KdjFrF+LTRoOXmrOgFKDg4BCdsjW8EnT69eqdYGmRpJwiPVYNrCaW3g==}
      engines: {node: '>= 0.4'}
-@@ -12124,9 +12554,16 @@ packages:
+@@ -12547,9 +12976,16 @@ packages:
      resolution: {integrity: sha512-HWcBoN6NileqtSydK2FqHbS/LoDd2pqrnQHLyJzBj4kOp/ky2MWMN694xOfkK8/SnUsW2DH7EfyVlydKCsm1Zw==}
      engines: {node: '>= 0.4'}
  
@@ -3463,7 +3334,7 @@ index 1490a0f9f7..3ace778b4b 100644
    esbuild@0.21.5:
      resolution: {integrity: sha512-mg3OPMV4hXywwpoDxu3Qda5xCKQi+vCTZq8S9J/EpkhB2HzKXq4SNFZE3+NK93JYxc8VMSep+lOUSC/RVKaBqw==}
      engines: {node: '>=12'}
-@@ -12238,6 +12675,9 @@ packages:
+@@ -12661,6 +13097,9 @@ packages:
      resolution: {integrity: sha512-knvyeauYhqjOYvQ66MznSMs83wmHrCycNEN6Ao+2AeYEfxUIkuiVxdEa1qlGEPK+We3n0THiDciYSsCcgW/DoA==}
      engines: {node: '>=12.0.0'}
  
@@ -3473,7 +3344,7 @@ index 1490a0f9f7..3ace778b4b 100644
    express-rate-limit@8.5.2:
      resolution: {integrity: sha512-5Kb34ipNX694DH48vN9irak1Qx30nb0PLYHXfJgw4YEjiC3ZEmZJhwOp+VfiCYwFzvFTdB9QkArYS5kXa2cx2A==}
      engines: {node: '>= 16'}
-@@ -12251,6 +12691,11 @@ packages:
+@@ -12674,6 +13113,11 @@ packages:
    extend@3.0.2:
      resolution: {integrity: sha512-fjquC59cD7CyW6urNXK0FBufkZcoiGG80wTuPujX590cB5Ttln20E2UB4S/WARVqhXffZl2LNgS+gQdPIIim/g==}
  
@@ -3485,7 +3356,7 @@ index 1490a0f9f7..3ace778b4b 100644
    fast-check@4.8.0:
      resolution: {integrity: sha512-GOJ158CUMnN6cSahsv4+ExARvIDuzzinFjkp0E9WtiBa5zcVeLozVkWaE4IzFcc+Y48Wp1EDlUZsXRyAztQcSg==}
      engines: {node: '>=12.17.0'}
-@@ -12277,6 +12722,9 @@ packages:
+@@ -12700,6 +13144,9 @@ packages:
    fd-package-json@2.0.0:
      resolution: {integrity: sha512-jKmm9YtsNXN789RS/0mSzOC1NUq9mkVd65vbSSVsKdjGvYXBuE4oWe2QOEoFeRmJg+lPuZxpmrfFclNhoRMneQ==}
  
@@ -3495,7 +3366,7 @@ index 1490a0f9f7..3ace778b4b 100644
    fdir@6.5.0:
      resolution: {integrity: sha512-tIbYtZbucOs0BRGqPJkshJUYdL+SDH7dVM8gjy+ERp3WAUjLEFJE+02kanyHtwjWOnwrKYBiwAmM0p4kLJAnXg==}
      engines: {node: '>=12.0.0'}
-@@ -12301,6 +12749,9 @@ packages:
+@@ -12724,6 +13171,9 @@ packages:
      resolution: {integrity: sha512-XXTUwCvisa5oacNGRP9SfNtYBNAMi+RPwBFmblZEF7N7swHYQS6/Zfk7SRwx4D5j3CH211YNRco1DEMNVfZCnQ==}
      engines: {node: '>=16.0.0'}
  
@@ -3505,7 +3376,7 @@ index 1490a0f9f7..3ace778b4b 100644
    finalhandler@2.1.1:
      resolution: {integrity: sha512-S8KoZgRZN+a5rNwqTxlZZePjT/4cnm0ROV70LedRHZ0p8u9fRID0hJUZQpkKLzro8LfmC8sx23bY6tVNxv8pQA==}
      engines: {node: '>= 18.0.0'}
-@@ -12323,6 +12774,10 @@ packages:
+@@ -12746,6 +13196,10 @@ packages:
      resolution: {integrity: sha512-gIXjKqtFuWEgzFRJA9WCQeSJLZDjgJUOMCMzxtvFq/37KojM1BFGufqsCy0r4qSQmYLsZYMeyRqzIWOMup03sw==}
      engines: {node: '>=14'}
  
@@ -3516,7 +3387,7 @@ index 1490a0f9f7..3ace778b4b 100644
    formatly@0.3.0:
      resolution: {integrity: sha512-9XNj/o4wrRFyhSMJOvsuyMwy8aUfBaZ1VrqHVfohyXf0Sw0e+yfKG+xZaY3arGCOMdwFsqObtzVOc1gU9KiT9w==}
      engines: {node: '>=18.3.0'}
-@@ -12340,10 +12795,37 @@ packages:
+@@ -12763,10 +13217,37 @@ packages:
      resolution: {integrity: sha512-Rx/WycZ60HOaqLKAi6cHRKKI7zxWbJ31MhntmtwMoaTeF7XFH9hhBp8vITaMidfljRQ6eYWCKkaTK+ykVJHP2A==}
      engines: {node: '>= 0.8'}
  
@@ -3558,7 +3429,7 @@ index 1490a0f9f7..3ace778b4b 100644
  
    fsevents@2.3.3:
      resolution: {integrity: sha512-5xoDfX+fL7faATnagmWPpbFtwh/R77WmMMqqHGS65C3vvB0YHrgF+B1YmZ3441tMj5n63k0212XNoJwzlhffQw==}
-@@ -12368,6 +12850,10 @@ packages:
+@@ -12791,6 +13272,10 @@ packages:
      resolution: {integrity: sha512-3hN7NaskYvMDLQY55gnW3NQ+mesEAepTqlg+VEbj7zzqEMBVNhzcGYYeqFo/TlYz6eQiFcp1HcsCZO+nGgS8zg==}
      engines: {node: '>=6.9.0'}
  
@@ -3569,7 +3440,7 @@ index 1490a0f9f7..3ace778b4b 100644
    get-intrinsic@1.3.0:
      resolution: {integrity: sha512-9fSjSaos/fRIVIp+xSJlE6lfwhES7LNtKaCBIamHsjr2na1BiABJPo0mOjjz8GJDURarmCPGqaiVg5mfjb98CQ==}
      engines: {node: '>= 0.4'}
-@@ -12376,6 +12862,10 @@ packages:
+@@ -12799,6 +13284,10 @@ packages:
      resolution: {integrity: sha512-sTSfBjoXBp89JvIKIefqw7U2CCebsc74kiY6awiGogKtoSGbgjYE/G/+l9sF3MWFPNc9IcoOC4ODfKHfxFmp0g==}
      engines: {node: '>= 0.4'}
  
@@ -3580,7 +3451,7 @@ index 1490a0f9f7..3ace778b4b 100644
    get-stream@9.0.1:
      resolution: {integrity: sha512-kVCxPF3vQM/N0B1PmoqVUqgHP+EeVjmZSQn+1oCRPxd2P21P2F19lIgbR3HBosbB1PUhOAoctJnfEn2GbN2eZA==}
      engines: {node: '>=18'}
-@@ -12402,10 +12892,22 @@ packages:
+@@ -12825,10 +13314,22 @@ packages:
      deprecated: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
      hasBin: true
  
@@ -3603,7 +3474,7 @@ index 1490a0f9f7..3ace778b4b 100644
    globrex@0.1.2:
      resolution: {integrity: sha512-uHJgbwAMwNFf5mLst7IWLNg14x1CkeqglJb/K3doi4dw6q2IvAAmM/Y81kevy83wP+Sst+nutFTYOGg3d1lsxg==}
  
-@@ -12421,6 +12923,13 @@ packages:
+@@ -12844,6 +13345,13 @@ packages:
      resolution: {integrity: sha512-ZUKRh6/kUFoAiTAtTYPZJ3hw9wNxx+BIBOijnlG9PnrJsCcSjs1wyyD6vJpaYtgnzDrKYRSqf3OO6Rfa93xsRg==}
      engines: {node: '>= 0.4'}
  
@@ -3617,7 +3488,7 @@ index 1490a0f9f7..3ace778b4b 100644
    hachure-fill@0.5.2:
      resolution: {integrity: sha512-3GKBOn+m2LX9iq+JC1064cSFprJY4jL1jCXTcpnfER5HYE2l/4EfWSGzkPa/ZDBmYI0ZOEj5VHV/eKnPGkHuOg==}
  
-@@ -12428,10 +12937,17 @@ packages:
+@@ -12851,10 +13359,17 @@ packages:
      resolution: {integrity: sha512-EykJT/Q1KjTWctppgIAgfSO0tKVuZUjhgMr17kqTumMl6Afv3EISleU7qZUzoXDFTAHTDC4NOoG/ZxU3EvlMPQ==}
      engines: {node: '>=8'}
  
@@ -3635,7 +3506,7 @@ index 1490a0f9f7..3ace778b4b 100644
    hasown@2.0.4:
      resolution: {integrity: sha512-T2UbfbBEF32wiepXIsMlTW9+dDYC6wMh/t/vYA4tuOMKqWz/n3vr1NFSxQiyP+zk2mXsoMA/i/7qV6LKut1t1A==}
      engines: {node: '>= 0.4'}
-@@ -12452,6 +12968,10 @@ packages:
+@@ -12875,6 +13390,10 @@ packages:
    hookable@6.1.1:
      resolution: {integrity: sha512-U9LYDy1CwhMCnprUfeAZWZGByVbhd54hwepegYTK7Pi5NvqEj63ifz5z+xukznehT7i6NIZRu89Ay1AZmRsLEQ==}
  
@@ -3646,7 +3517,7 @@ index 1490a0f9f7..3ace778b4b 100644
    html-encoding-sniffer@6.0.0:
      resolution: {integrity: sha512-CV9TW3Y3f8/wT0BRFc1/KAVQ3TUHiXmaAb6VW9vtiMFf7SLoMd1PdAc4W3KFOFETBJUb90KatHqlsZMWV+R9Gg==}
      engines: {node: ^20.19.0 || ^22.12.0 || >=24.0.0}
-@@ -12462,6 +12982,9 @@ packages:
+@@ -12885,6 +13404,9 @@ packages:
    html-void-elements@3.0.0:
      resolution: {integrity: sha512-bEqo66MRXsUGxWHV5IP0PUiAWwoEjba4VCzg0LjFJBpchPaTfyfCKTG6bc5F8ucKec3q5y6qOdGyYTSBEvhCrg==}
  
@@ -3656,7 +3527,7 @@ index 1490a0f9f7..3ace778b4b 100644
    http-errors@2.0.1:
      resolution: {integrity: sha512-4FbRdAX+bSdmo4AUFuS0WNiPz8NgFt+r8ThgNWmlrjQjt1Q7ZR9+zTlce2859x4KSXrwIsaeTqDoKQmtP8pLmQ==}
      engines: {node: '>= 0.8'}
-@@ -12470,6 +12993,10 @@ packages:
+@@ -12893,6 +13415,10 @@ packages:
      resolution: {integrity: sha512-T1gkAiYYDWYx3V5Bmyu7HcfcvL7mUrTWiM6yOfa3PIphViJ/gFPbvidQ+veqSOHci/PxBcDabeUNCzpOODJZig==}
      engines: {node: '>= 14'}
  
@@ -3667,7 +3538,7 @@ index 1490a0f9f7..3ace778b4b 100644
    https-proxy-agent@7.0.6:
      resolution: {integrity: sha512-vK9P5/iUfdl95AI+JVyUuIcVtd4ofvtrOr3HNtM2yxC9bnMbEdp3x01OhQNnjb8IJYi38VlTE3mBXwcfvywuSw==}
      engines: {node: '>= 14'}
-@@ -12507,6 +13034,10 @@ packages:
+@@ -12930,6 +13456,10 @@ packages:
      resolution: {integrity: sha512-JmXMZ6wuvDmLiHEml9ykzqO6lwFbof0GG4IkcGaENdCRDDmMVnny7s5HsIgHCbaq0w2MyPhDqkhTUgS2LU2PHA==}
      engines: {node: '>=0.8.19'}
  
@@ -3678,7 +3549,7 @@ index 1490a0f9f7..3ace778b4b 100644
    inherits@2.0.4:
      resolution: {integrity: sha512-k/vGaX4/Yla3WzyMCvTQOXYeIHvqOKtnqBduzTHpzpQZzAskKMhZ2K+EnBiSM9zGSoIFeMpXKxa4dYeZIQqewQ==}
  
-@@ -12562,9 +13093,25 @@ packages:
+@@ -13003,9 +13533,25 @@ packages:
    isarray@1.0.0:
      resolution: {integrity: sha512-VLghIWNM6ELQzo7zwmcg0NmTVyWKYjvIeM83yjp0wRDTmUnrM678fQbcKBo6n2CJEF0szoG//ytg+TKla89ALQ==}
  
@@ -3704,7 +3575,7 @@ index 1490a0f9f7..3ace778b4b 100644
    istanbul-lib-coverage@3.2.2:
      resolution: {integrity: sha512-O8dpsF+r0WV/8MNRKfnmrtCWhuKjxrq2w+jpzBL5UZKTi2LeVWnWOmWRxFlesJONmc+wLAGvKQZEOanko0LFTg==}
      engines: {node: '>=8'}
-@@ -12584,6 +13131,11 @@ packages:
+@@ -13025,6 +13571,11 @@ packages:
      resolution: {integrity: sha512-ykkVRwrYvFm1nb2AJfKKYPr0emF6IiXDYUaFx4Zn9ZuIH7MrzEZ3sD5RlqGXNRpHtvUHJyOnCEFxOlNDtGo7wg==}
      engines: {node: 20 || >=22}
  
@@ -3716,7 +3587,7 @@ index 1490a0f9f7..3ace778b4b 100644
    jiti@2.7.0:
      resolution: {integrity: sha512-AC/7JofJvZGrrneWNaEnJeOLUx+JlGt7tNa0wZiRPT4MY1wmfKjt2+6O2p2uz2+skll8OZZmJMNqeke7kKbNgQ==}
      hasBin: true
-@@ -12675,11 +13227,20 @@ packages:
+@@ -13116,11 +13667,20 @@ packages:
    json-stable-stringify-without-jsonify@1.0.1:
      resolution: {integrity: sha512-Bdboy+l7tA3OGW6FjyFHWkP5LuByj1Tk33Ljyq0axyzdk9//JSi2u3fP1QSmd1KNwq6VOKYGlAu87CisVir6Pw==}
  
@@ -3737,7 +3608,7 @@ index 1490a0f9f7..3ace778b4b 100644
    jsx-ast-utils-x@0.1.0:
      resolution: {integrity: sha512-eQQBjBnsVtGacsG9uJNB8qOr3yA8rga4wAaGG1qRcBzSIvfhERLrWxMAM1hp5fcS6Abo8M4+bUBTekYR0qTPQw==}
      engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
-@@ -12717,6 +13278,9 @@ packages:
+@@ -13158,6 +13718,9 @@ packages:
    layout-base@2.0.1:
      resolution: {integrity: sha512-dp3s92+uNI1hWIpPGH3jK2kxE2lMjdXdr+DH8ynZHpd6PUlH6x6cbuXnoMmiNumznqaNO31xu9e79F0uuZ0JFg==}
  
@@ -3747,7 +3618,7 @@ index 1490a0f9f7..3ace778b4b 100644
    lefthook-darwin-arm64@2.1.9:
      resolution: {integrity: sha512-119HryNcvr4nqn0wUIrNPgpMEPn9yMQzEcW/lezRsnb56PCJriJB92+MCySPVcWDxJnZef7o0T3jdnPNiSH7Qg==}
      cpu: [arm64]
-@@ -12862,6 +13426,9 @@ packages:
+@@ -13303,6 +13866,9 @@ packages:
    lodash.merge@4.6.2:
      resolution: {integrity: sha512-0KpjqXRVvrYyCsX1swR/XTK0va6VQkQM6MNo7PqW77ByjAhoARA8EfrP1N4+KlKj8YS0ZUCtRT/YUuhyYDujIQ==}
  
@@ -3757,7 +3628,7 @@ index 1490a0f9f7..3ace778b4b 100644
    long@5.3.2:
      resolution: {integrity: sha512-mNAgZ1GmyNhD7AuqnTG3/VQ26o760+ZYBPKjPvugO8+nLbYfX6TVpJPseBvopbdY+qpZ/lKUnmEc1LeZYS3QAA==}
  
-@@ -12872,6 +13439,10 @@ packages:
+@@ -13313,6 +13879,10 @@ packages:
      resolution: {integrity: sha512-lyuxPGr/Wfhrlem2CL/UcnUc1zcqKAImBDzukY7Y5F/yQiNdko6+fRLevlw1HgMySw7f611UIY408EtxRSoK3Q==}
      hasBin: true
  
@@ -3768,7 +3639,7 @@ index 1490a0f9f7..3ace778b4b 100644
    lru-cache@10.4.3:
      resolution: {integrity: sha512-JNAzZcXrCt42VGLuYz0zfAzDfAvJWW6AfYlDBQyDV5DClI2m5sAmK+OIO7s59XfsRsWHp02jAJrRadPRGTt6SQ==}
  
-@@ -12882,6 +13453,10 @@ packages:
+@@ -13323,6 +13893,10 @@ packages:
    lru-cache@5.1.1:
      resolution: {integrity: sha512-KpNARQA3Iwv+jTA0utUVVbrh+Jlrr1Fv0e56GGzAFOXN7dk/FviaDW8LHmK52DlcH4WP2n6gI8vN1aesBFgo9w==}
  
@@ -3779,7 +3650,7 @@ index 1490a0f9f7..3ace778b4b 100644
    lz-string@1.5.0:
      resolution: {integrity: sha512-h5bgJWpxJNswbU7qCrV0tIKQCaS3blPDrqKWx+QxzuzL1zGUzij9XCWLrSLsJPu5t+eWA/ycetzYAO5IOMcWAQ==}
      hasBin: true
-@@ -12907,6 +13482,10 @@ packages:
+@@ -13348,6 +13922,10 @@ packages:
      engines: {node: '>= 20'}
      hasBin: true
  
@@ -3790,7 +3661,7 @@ index 1490a0f9f7..3ace778b4b 100644
    math-intrinsics@1.1.0:
      resolution: {integrity: sha512-/IXtbwEk5HTPyEwyKX6hGkYXxM9nbj64B+ilVJnC/R6B0pH5G4V3b0pVbL7DBj4tkhBAppbQUlf6F6Xl9LHu1g==}
      engines: {node: '>= 0.4'}
-@@ -13051,22 +13630,53 @@ packages:
+@@ -13492,22 +14070,53 @@ packages:
    micromark@4.0.2:
      resolution: {integrity: sha512-zpe98Q6kvavpCr1NPVSCMebCKfD7CA2NqZ+rykeNhONIJBpc1tFKt9hucLGwha3jNTNI8lHpctWJWoimVF4PfA==}
  
@@ -3844,7 +3715,7 @@ index 1490a0f9f7..3ace778b4b 100644
    minipass@7.1.3:
      resolution: {integrity: sha512-tEBHqDnIoM/1rXME1zgka9g6Q2lcoCkxHLuc7ODJ5BxbP5d4c2Z5cGgtXAku59200Cx7diuHTOYfSBD8n6mm8A==}
      engines: {node: '>=16 || 14 >=14.17'}
-@@ -13081,6 +13691,10 @@ packages:
+@@ -13522,6 +14131,10 @@ packages:
    mitt@3.0.1:
      resolution: {integrity: sha512-vKivATfr97l2/QBCYAkXYDbrIWPM2IIKEl7YPhjCvKlG3kE2gm+uBo6nEXK3M5/Ffh/FLpKExzOQ3JJoJGFKBw==}
  
@@ -3855,7 +3726,7 @@ index 1490a0f9f7..3ace778b4b 100644
    mri@1.2.0:
      resolution: {integrity: sha512-tzzskb3bG8LvYGFF/mDTpq3jpI6Q9wc3LEmBaghu+DdCssd1FakN7Bc0hVNmEyGq1bq3RgfkCb3cmQLpNPOroA==}
      engines: {node: '>=4'}
-@@ -13100,6 +13714,10 @@ packages:
+@@ -13541,6 +14154,10 @@ packages:
      resolution: {integrity: sha512-8Ofs/AUQh8MaEcrlq5xOX0CQ9ypTF5dl78mjlMNfOK08fzpgTHQRQPBxcPlEtIw0yRpws+Zo/3r+5WRby7u3Gg==}
      engines: {node: '>= 0.6'}
  
@@ -3866,7 +3737,7 @@ index 1490a0f9f7..3ace778b4b 100644
    node-addon-api@7.1.1:
      resolution: {integrity: sha512-5m3bsyrjFWE1xf7nz7YXdN4udnVtXK6/Yfgn5qnahL6bCkf2yKt4k3nuTKAtT4r3IG8JNR2ncsIMdZuAzJjHQQ==}
  
-@@ -13155,6 +13773,9 @@ packages:
+@@ -13596,6 +14213,9 @@ packages:
      resolution: {integrity: sha512-yuXz43GmtQyMrO75u2Z8KZAafMhnMH8RTOZBJWGDU9HoD2QxT6q4PF28iLNm/OS9BkS8MHwCKpgTk3d6qW584A==}
      engines: {node: '>=20'}
  
@@ -3876,7 +3747,7 @@ index 1490a0f9f7..3ace778b4b 100644
    node-domexception@1.0.0:
      resolution: {integrity: sha512-/jKZoMpw0F8GRwl4/eLROPA3cfcXtLApP0QzLmUT/HuPCZWyB7IY9ZrMeKw2O/nFIqPQB3PVM9aYm0F312AXDQ==}
      engines: {node: '>=10.5.0'}
-@@ -13164,6 +13785,14 @@ packages:
+@@ -13605,6 +14225,14 @@ packages:
      resolution: {integrity: sha512-dRB78srN/l6gqWulah9SrxeYnxeddIG30+GOqK/9OlLVyLg3HPnr6SqOWTWOXKRwC2eGYCkZ59NNuSgvSrpgOA==}
      engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
  
@@ -3888,10 +3759,10 @@ index 1490a0f9f7..3ace778b4b 100644
 +  node-int64@0.4.0:
 +    resolution: {integrity: sha512-O5lz91xSOeoXP6DulyHfllpq+Eg00MWitZIbtPfoSEvqIHdl5gfcY6hYzDWnj0qD5tz52PI08u9qUvSVeUBeHw==}
 +
-   node-pty@1.1.0:
-     resolution: {integrity: sha512-20JqtutY6JPXTUnL0ij1uad7Qe1baT46lyolh2sSENDd4sTzKZ4nmAFkeAARDKwmlLjPx6XKRlwRUxwjOy+lUg==}
+   node-pty@1.2.0-beta.15:
+     resolution: {integrity: sha512-vORSzHXi4Ofl7HemVWpuudLqCPdaQb4LfpRCUpE5HPxhp4JYscl8zZwxh11p26v2wvW24WMwnMfLjhRLixrfxA==}
  
-@@ -13174,6 +13803,15 @@ packages:
+@@ -13615,6 +14243,15 @@ packages:
    non-layered-tidy-tree-layout@2.0.2:
      resolution: {integrity: sha512-gkXMxRzUH+PB0ax9dUN0yYF0S25BqeAYqhgMaLUFmpXLEk7Fcu8f4emJuOAY0V8kjDICxROIKsTAKsV/v355xw==}
  
@@ -3907,7 +3778,7 @@ index 1490a0f9f7..3ace778b4b 100644
    npm-run-path@6.0.0:
      resolution: {integrity: sha512-9qny7Z9DsQU8Ou39ERsPU4OZQlSTP47ShQzuKZ6PRXpYLtIFgl/DEBYEXKlvcEa+9tHVcK8CF81Y2V72qaZhWA==}
      engines: {node: '>=18'}
-@@ -13186,6 +13824,10 @@ packages:
+@@ -13627,6 +14264,10 @@ packages:
      resolution: {integrity: sha512-W67iLl4J2EXEGTbfeHCffrjDfitvLANg0UlX3wFUUSTx92KXRFegMHUVgSqE+wvhAbi4WqjGg9czysTV2Epbew==}
      engines: {node: '>= 0.4'}
  
@@ -3918,7 +3789,7 @@ index 1490a0f9f7..3ace778b4b 100644
    obug@2.1.3:
      resolution: {integrity: sha512-9miFgM2OFba7hB+pRgvtV84pYTBaoTHohvmIgiRt6dRIzbwEOIaNaP+dIlGs2fNFoB0SeISs0Jz5WFVRid6Xyg==}
      engines: {node: '>=12.20.0'}
-@@ -13252,6 +13894,10 @@ packages:
+@@ -13697,6 +14338,10 @@ packages:
        vite-plus:
          optional: true
  
@@ -3929,7 +3800,7 @@ index 1490a0f9f7..3ace778b4b 100644
    p-limit@3.1.0:
      resolution: {integrity: sha512-TYOanM3wGwNGsZN2cVTYPArw454xnXj5qmWF1bEoAc4+cU/ol7GVh7odevjp1FNHduHc3KZMcFduxU5Xc6uJRQ==}
      engines: {node: '>=10'}
-@@ -13298,6 +13944,10 @@ packages:
+@@ -13743,6 +14388,10 @@ packages:
      resolution: {integrity: sha512-cbrerZV+6rvdQrrD+iGMcZFEiiSrbv9Tfdkvnusy6y0x0GKBXREFg/Y65GhIfm0tnLntThhzCnfKwp1WRjeCyQ==}
      engines: {node: '>=14.0.0'}
  
@@ -3940,7 +3811,7 @@ index 1490a0f9f7..3ace778b4b 100644
    path-key@3.1.1:
      resolution: {integrity: sha512-ojmeN0qd+y0jszEtoY48r0Peq5dwMEkIlCOu6Q5f41lfkswXuKtYrhgoTpLnyIcHm24Uhqx+5Tqm2InSwLhE6Q==}
      engines: {node: '>=8'}
-@@ -13320,6 +13970,13 @@ packages:
+@@ -13765,6 +14414,13 @@ packages:
    pathe@2.0.3:
      resolution: {integrity: sha512-WUjGcAqP1gQacoQe+OBJsFA7Ld4DyXuUIjZ5cc75cLHvJ7dtNsTugphxIADwspS+AraAUePCKrSVtPLFj/F88w==}
  
@@ -3954,7 +3825,7 @@ index 1490a0f9f7..3ace778b4b 100644
    perfect-debounce@1.0.0:
      resolution: {integrity: sha512-xCy9V055GLEqoFaHoC1SoLIaLmWctgCUaBaWxDZ7/Zx4CTyX7cJQLJOok/orfjZAh9kEYpjJa4d0KcJmCbctZA==}
  
-@@ -13334,6 +13991,10 @@ packages:
+@@ -13779,6 +14435,10 @@ packages:
      resolution: {integrity: sha512-wQ0b/W4Fr01qtpHlqSqspcj3EhBvimsdh0KlHhH8HRZnMsEa0ea2fTULOXOS9ccQr3om+GcGRk4e+isrZWV8qQ==}
      engines: {node: '>=16.20.0'}
  
@@ -3965,7 +3836,7 @@ index 1490a0f9f7..3ace778b4b 100644
    platform@1.3.6:
      resolution: {integrity: sha512-fnWVljUchTro6RiCFvCXBbNhJc2NijN7oIQxbwsyL0buWJPG85v81ehlHI9fXrJsMNgTofEoWIQeClKpgxFLrg==}
  
-@@ -13347,6 +14008,10 @@ packages:
+@@ -13792,6 +14452,10 @@ packages:
      engines: {node: '>=18'}
      hasBin: true
  
@@ -3976,7 +3847,7 @@ index 1490a0f9f7..3ace778b4b 100644
    points-on-curve@0.2.0:
      resolution: {integrity: sha512-0mYKnYYe9ZcqMCWhUjItv/oHjvgEsfKvnUTg8sAtnHr3GVy7rGkXCb6d5cSyqrWqL4k81b9CPg3urd+T7aop3A==}
  
-@@ -13357,6 +14022,11 @@ packages:
+@@ -13802,6 +14466,11 @@ packages:
      resolution: {integrity: sha512-FfR8sjd4em2T6fb3I2MwAJU7HWVMr9zba+enmQeeWFfCbm+UOC/0X4DS8XtpUTMwWMGbjKYP7xjfNekzyGmB3A==}
      engines: {node: ^10 || ^12 || >=14}
  
@@ -3985,10 +3856,10 @@ index 1490a0f9f7..3ace778b4b 100644
 +    engines: {node: '>=14.0.0'}
 +    hasBin: true
 +
-   preact@10.29.7:
-     resolution: {integrity: sha512-DCHYrK/B10yUD3ZjLfhZ3WIE/9Vf9VFUODcRE2dRomTYDpJk6z6L9wecSfhfE6M9ZTHUdyQkoC46arIDhEV84Q==}
-     peerDependencies:
-@@ -13377,9 +14047,24 @@ packages:
+   powershell-utils@0.1.0:
+     resolution: {integrity: sha512-dM0jVuXJPsDN6DvRpea484tCUaMiXWjuCn++HGTqUWzGDjv5tZkEZldAJ/UMlqRYGFrD/etByo4/xOuC/snX2A==}
+     engines: {node: '>=20'}
+@@ -13826,9 +14495,24 @@ packages:
      resolution: {integrity: sha512-gjVS5hOP+M3wMm5nmNOucbIrqudzs9v/57bWRHQWLYklXqoXKrVfYW2W9+glfGsqtPgpiz5WwyEEB+ksXIx3gQ==}
      engines: {node: '>=18'}
  
@@ -4013,7 +3884,7 @@ index 1490a0f9f7..3ace778b4b 100644
    property-information@7.2.0:
      resolution: {integrity: sha512-IAtzIB6sUiWaJYrX9smp3V46pBGbBeLFRGdh25kg1334VcBlD8HzhPeNIWQH9zhGmo2itIe25EHt9dQP7G5hmg==}
  
-@@ -13396,6 +14081,9 @@ packages:
+@@ -13845,6 +14529,9 @@ packages:
      engines: {node: '>=18'}
      hasBin: true
  
@@ -4023,7 +3894,7 @@ index 1490a0f9f7..3ace778b4b 100644
    punycode@2.3.1:
      resolution: {integrity: sha512-vYt7UD1U9Wg6138shLtLOvdAu+8DsC/ilFtEVHcH+wydcSpNE20AfSOduf6MkRFahL5FY7X1oU7nKVZFtfq8Fg==}
      engines: {node: '>=6'}
-@@ -13403,6 +14091,13 @@ packages:
+@@ -13852,6 +14539,13 @@ packages:
    pure-rand@8.4.0:
      resolution: {integrity: sha512-IoM8YF/jY0hiugFo/wOWqfmarlE6J0wc6fDK1PhftMk7MGhVZl88sZimmqBBFomLOCSmcCCpsfj7wXASCpvK9A==}
  
@@ -4037,7 +3908,7 @@ index 1490a0f9f7..3ace778b4b 100644
    qs@6.15.3:
      resolution: {integrity: sha512-O9gl3zCl5h5blw1KGUzQKhA5oUXSl8rwUIM5o0S3nCXMliSvy5Dzx7/DJcI+SwgICv+IneSZwhBh1oSyEHA71A==}
      engines: {node: '>=0.6'}
-@@ -13410,6 +14105,10 @@ packages:
+@@ -13859,6 +14553,10 @@ packages:
    quansync@1.0.0:
      resolution: {integrity: sha512-5xZacEEufv3HSTPQuchrvV6soaiACMFnq1H8wkVioctoH3TRha9Sz66lOxRwPK/qZj7HPiSveih9yAyh98gvqA==}
  
@@ -4048,7 +3919,7 @@ index 1490a0f9f7..3ace778b4b 100644
    range-parser@1.3.0:
      resolution: {integrity: sha512-hek2mFQpPuI4E1BBKrSto+BU3e3x4xuarsbiwr3+lf7p44juvFMV0XFWQAP3xUyqXA4RrXLIoaSUGbSt056ZMw==}
      engines: {node: '>= 0.6'}
-@@ -13434,6 +14133,10 @@ packages:
+@@ -13883,6 +14581,10 @@ packages:
      resolution: {integrity: sha512-wS+hAgJShR0KhEvPJArfuPVN1+Hz1t0Y6n5jLrGQbkb4urgPE/0Rve+1kMB1v/oWgHgm4WIcV+i7F2pTVj+2iQ==}
      engines: {node: '>=0.10.0'}
  
@@ -4059,7 +3930,7 @@ index 1490a0f9f7..3ace778b4b 100644
    readable-stream@2.3.8:
      resolution: {integrity: sha512-8p0AUk4XODgIewSi0l8Epjs+EVnWiK7NoDIEGU0HhE7+ZyY8D1IMY7odu5lRrFXGg71L15KG8QrPmum45RTtdA==}
  
-@@ -13462,13 +14165,31 @@ packages:
+@@ -13911,13 +14613,31 @@ packages:
      resolution: {integrity: sha512-sZuz1dYW/ZsfG17WSAG7eS85r5a0dDsvg+7BiiYR5o6lKCAtUrEwdmRmaGF6rwVj3LcmAeYkOWKEPlbPzN3Y3A==}
      engines: {node: ^12.0.0 || ^14.0.0 || >=16.0.0}
  
@@ -4091,7 +3962,7 @@ index 1490a0f9f7..3ace778b4b 100644
    retry@0.13.1:
      resolution: {integrity: sha512-XQBQ3I8W1Cge0Seh+6gjj03LbmRFWuoszgK9ooCpwYIrhhoO80pfq4cUkU5DkknwfOfFteRwlZ56PYOGYyFWdg==}
      engines: {node: '>= 4'}
-@@ -13476,6 +14197,15 @@ packages:
+@@ -13925,6 +14645,15 @@ packages:
    rfdc@1.4.1:
      resolution: {integrity: sha512-q1b3N5QkRUWUl7iyylaaj3kOpIT0N2i9MqIEQXP73GVsN9cw3fdx8X63cEmWhJGi2PPCF23Ijp7ktmd39rawIA==}
  
@@ -4107,7 +3978,7 @@ index 1490a0f9f7..3ace778b4b 100644
    robust-predicates@3.0.3:
      resolution: {integrity: sha512-NS3levdsRIUOmiJ8FZWCP7LG3QpJyrs/TE0Zpf1yvZu8cAJJ6QMW92H1c7kWpdIHo8RvmLxN/o2JXTKHp74lUA==}
  
-@@ -13536,6 +14266,13 @@ packages:
+@@ -13989,6 +14718,13 @@ packages:
    safer-buffer@2.1.2:
      resolution: {integrity: sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg==}
  
@@ -4121,7 +3992,7 @@ index 1490a0f9f7..3ace778b4b 100644
    saxes@6.0.0:
      resolution: {integrity: sha512-xAg7SOnEhrm5zI3puOOKyy1OMcMlIJZYNJY7xLBwSze0UjhPLnWfj2GF2EpT0jmzaJKIWKHLsaSSajf35bcYnA==}
      engines: {node: '>=v12.22.7'}
-@@ -13550,10 +14287,22 @@ packages:
+@@ -14003,10 +14739,22 @@ packages:
    search-insights@2.17.3:
      resolution: {integrity: sha512-RQPdCYTa8A68uM2jwxoY842xDhvx3E5LFL1LxvxCNMev4o5mLuokczhzjAgGwUZBAmOKZknArSxLKmXtIi2AxQ==}
  
@@ -4144,7 +4015,7 @@ index 1490a0f9f7..3ace778b4b 100644
    semver@7.8.4:
      resolution: {integrity: sha512-rUCObTnP32Q08R2uuIrt7r9PlEonuTmtuXYcW6s5kjdlj3xbnwe+21yXptAUYcMAABLkYYTtnmzb3w3EDZfueA==}
      engines: {node: '>=10'}
-@@ -13568,6 +14317,10 @@ packages:
+@@ -14021,6 +14769,10 @@ packages:
      resolution: {integrity: sha512-1gnZf7DFcoIcajTjTwjwuDjzuz4PPcY2StKPlsGAQ1+YH20IRVrBaXSWmdjowTJ6u8Rc01PoYOGHXfP1mYcZNQ==}
      engines: {node: '>= 18'}
  
@@ -4155,7 +4026,7 @@ index 1490a0f9f7..3ace778b4b 100644
    serve-static@2.2.1:
      resolution: {integrity: sha512-xRXBn0pPqQTVQiC8wyQrKs2MOlX24zQ0POGaj0kultvoOCstBQM5yvOhAVSUwOMjQtTvsPWoNCHfPGwaaQJhTw==}
      engines: {node: '>= 18'}
-@@ -13621,10 +14374,17 @@ packages:
+@@ -14074,10 +14826,17 @@ packages:
    siginfo@2.0.0:
      resolution: {integrity: sha512-ybx0WO1/8bSBLEWXZvEd7gMW3Sn3JFlW3TvX1nREbDLRNQNaeNN8WK0meBwPdAaOI7TtRRRJn/Es1zhrrCHu7g==}
  
@@ -4173,7 +4044,7 @@ index 1490a0f9f7..3ace778b4b 100644
    smol-toml@1.6.1:
      resolution: {integrity: sha512-dWUG8F5sIIARXih1DTaQAX4SsiTXhInKf1buxdY9DIg4ZYPZK5nGM1VRIYmEbDbsHt7USo99xSLFu5Q1IqTmsg==}
      engines: {node: '>= 18'}
-@@ -13637,6 +14397,13 @@ packages:
+@@ -14090,6 +14849,13 @@ packages:
      resolution: {integrity: sha512-UXWMKhLOwVKb728IUtQPXxfYU+usdybtUrK/8uGE8CQMvrhOpwvzDBwj0QhSL7MQc7vIsISBG8VQ8+IDQxpfQA==}
      engines: {node: '>=0.10.0'}
  
@@ -4187,7 +4058,7 @@ index 1490a0f9f7..3ace778b4b 100644
    space-separated-tokens@2.0.2:
      resolution: {integrity: sha512-PEGlAwrG8yXGXRjW32fGbg66JAlOAwbObuqVoJpv/mRgoWDQfgH1wDPvtzWyUSNAXBGSk8h755YDbbcEy3SH2Q==}
  
-@@ -13653,9 +14420,16 @@ packages:
+@@ -14106,9 +14872,16 @@ packages:
      resolution: {integrity: sha512-1POYv7uv2gXoyGFpBCmpDVSNV74IfsWlDW216UPjbWufNf+bSU6GdbDsxdcxtfwb4xlI3yxzOTKClUosxARYrQ==}
      engines: {node: '>=0.10.0'}
  
@@ -4204,7 +4075,7 @@ index 1490a0f9f7..3ace778b4b 100644
    statuses@2.0.2:
      resolution: {integrity: sha512-DvEy55V3DB7uknRo+4iOGT5fP1slR8wQohVdknigZPMpMstaKJQWhwiYBACJE3Ul2pTnATihhBYnRhZQHGBiRw==}
      engines: {node: '>= 0.8'}
-@@ -13699,6 +14473,10 @@ packages:
+@@ -14152,6 +14925,10 @@ packages:
    stylis@4.4.0:
      resolution: {integrity: sha512-5Z9ZpRzfuH6l/UAvCPAPUo3665Nk2wLaZU3x+TLHKVzIz33+sbJqbtrYoC3KD4/uVOr2Zp+L0LySezP9OHV9yA==}
  
@@ -4215,7 +4086,7 @@ index 1490a0f9f7..3ace778b4b 100644
    superjson@2.2.6:
      resolution: {integrity: sha512-H+ue8Zo4vJmV2nRjpx86P35lzwDT3nItnIsocgumgr0hHMQ+ZGq5vrERg9kJBo5AWGmxZDhzDo+WVIJqkB0cGA==}
      engines: {node: '>=16'}
-@@ -13721,6 +14499,16 @@ packages:
+@@ -14174,6 +14951,16 @@ packages:
      resolution: {integrity: sha512-MFO/QzvtAOmJbkhOaCTvbGcFN9L9b+JunIsDwaKljSOdcLMea3NJ1k9Usz/rjdfSXTq4dfzfeS7W4p4YOAAHeA==}
      engines: {node: '>=18'}
  
@@ -4232,7 +4103,7 @@ index 1490a0f9f7..3ace778b4b 100644
    tinybench@2.9.0:
      resolution: {integrity: sha512-0+DUvqWMValLmha6lr4kD8iAMK1HzV0/aKnCtWb9v9641TnP/MFb7Pc2bxoxQjTXAErryXVgUOfv2YqNllqGeg==}
  
-@@ -13743,6 +14531,13 @@ packages:
+@@ -14196,6 +14983,13 @@ packages:
      resolution: {integrity: sha512-RfEzKWcq5fHUOFq7J3rl3Oz6ylKGtcHqUznzj4EcXsxLSIjJcvpbXAQtWGeJQ0xKnimR5e0Cn+cn9TssfMzm+g==}
      hasBin: true
  
@@ -4246,7 +4117,7 @@ index 1490a0f9f7..3ace778b4b 100644
    toidentifier@1.0.1:
      resolution: {integrity: sha512-o5sSPKEkg/DIQNmH43V0/uerLrpzVedkUh8tGNvaeXpfpuwjKenlSox/2O/BTlZUtEe+JG7s5YhEz608PlAHRA==}
      engines: {node: '>=0.6'}
-@@ -13762,6 +14557,9 @@ packages:
+@@ -14215,6 +15009,9 @@ packages:
    trim-lines@3.0.1:
      resolution: {integrity: sha512-kRj8B+YHZCc9kQYdWfJB2/oUl9rA99qbowYYBtr4ui4mZyAQ2JpvVBd/6U2YloATfqBhBTSMhTpgBHtU0Mf3Rg==}
  
@@ -4256,7 +4127,7 @@ index 1490a0f9f7..3ace778b4b 100644
    ts-algebra@2.0.0:
      resolution: {integrity: sha512-FPAhNPFMrkwz76P7cdjdmiShwMynZYN6SgOujD1urY4oNm80Ou9oMdmbR45LotcKOXoy7wSmHkRFE6Mxbrhefw==}
  
-@@ -13836,6 +14634,10 @@ packages:
+@@ -14289,6 +15086,10 @@ packages:
      resolution: {integrity: sha512-XleUoc9uwGXqjWwXaUTZAmzMcFZ5858QA2vvx1Ur5xIcixXIP+8LnFDgRplU30us6teqdlskFfu+ae4K79Ooew==}
      engines: {node: '>= 0.8.0'}
  
@@ -4267,7 +4138,7 @@ index 1490a0f9f7..3ace778b4b 100644
    type-is@2.1.0:
      resolution: {integrity: sha512-faYHw0anBbc/kWF3zFTEnxSFOAGUX9GFbOBthvDdLsIlEoWOFOtS0zgCiQYwIskL9iGXZL3kAXD8OoZ4GmMATA==}
      engines: {node: '>= 18'}
-@@ -13869,6 +14671,10 @@ packages:
+@@ -14322,6 +15123,10 @@ packages:
    undici-types@8.3.0:
      resolution: {integrity: sha512-j375ScV60dom+YkPFIfTLcOiPxkN/buHz5GobjLhixFuANaNs3C9l4GmrWqejgXWJ7BbJcFYpTEUkS1Ge8bpZQ==}
  
@@ -4278,7 +4149,7 @@ index 1490a0f9f7..3ace778b4b 100644
    undici@7.28.0:
      resolution: {integrity: sha512-cRZYrTDwWznlnRiPjggAGxZXanty6M8RV1ff8Wm4LWXBp7/IG8v5DnOm74DtUBp9OONpK75YlPnIjQqX0dBDtA==}
      engines: {node: '>=20.18.1'}
-@@ -13895,10 +14701,21 @@ packages:
+@@ -14348,10 +15153,21 @@ packages:
    unist-util-visit@5.1.0:
      resolution: {integrity: sha512-m+vIdyeCOpdr/QeQCu2EzxX/ohgS8KbnPDgFni4dQsfSCtpz8UqDyY5GjRru8PDKuYn7Fq19j1CQ+nJSsGKOzg==}
  
@@ -4300,7 +4171,7 @@ index 1490a0f9f7..3ace778b4b 100644
    update-browserslist-db@1.2.3:
      resolution: {integrity: sha512-Js0m9cx+qOgDxo0eMiFGEueWztz+d4+M3rGlmKPT+T4IS/jP4ylw3Nwpu6cpTTP8R1MAC1kF4VbdLt3ARf209w==}
      hasBin: true
-@@ -13913,6 +14730,9 @@ packages:
+@@ -14366,6 +15182,9 @@ packages:
      peerDependencies:
        react: ^16.8.0 || ^17.0.0 || ^18.0.0
  
@@ -4310,7 +4181,7 @@ index 1490a0f9f7..3ace778b4b 100644
    util-deprecate@1.0.2:
      resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
  
-@@ -14145,6 +14965,9 @@ packages:
+@@ -14598,6 +15417,9 @@ packages:
      resolution: {integrity: sha512-d2JWLCivmZYTSIoge9MsgFCZrt571BikcWGYkjC1khllbTeDlGqZ2D8vD8E/lJa8WGWbb7Plm8/XJYV7IJHZZw==}
      engines: {node: '>= 8'}
  
@@ -4320,7 +4191,7 @@ index 1490a0f9f7..3ace778b4b 100644
    webidl-conversions@8.0.1:
      resolution: {integrity: sha512-BMhLD/Sw+GbJC21C/UgyaZX41nPt8bUTg+jWyDeg7e7YN4xOM05YPSIXceACnXVtqyEw/LMClUQMtMZ+PGGpqQ==}
      engines: {node: '>=20'}
-@@ -14167,6 +14990,16 @@ packages:
+@@ -14620,6 +15442,16 @@ packages:
      engines: {node: '>= 8'}
      hasBin: true
  
@@ -4337,7 +4208,7 @@ index 1490a0f9f7..3ace778b4b 100644
    why-is-node-running@2.3.0:
      resolution: {integrity: sha512-hUrmaWBdVDcxvYqnyh09zunKzROWjbZTiNy8dBEjkS7ehEDQibXJ7XvlmtbwuTclUiIyN+CyXQD4Vmko8fNm8w==}
      engines: {node: '>=8'}
-@@ -14207,12 +15040,23 @@ packages:
+@@ -14664,12 +15496,23 @@ packages:
      resolution: {integrity: sha512-k8KO9hrMyNk6tUWqUfkTEZbezRRpONVOzUTnc97VnCvyj6Tf9lyUR9EDAIeiVLv56jsMcoXEwjW8Kv5yPY52lw==}
      engines: {node: '>=16.0.0'}
  
@@ -4361,7 +4232,7 @@ index 1490a0f9f7..3ace778b4b 100644
    yallist@5.0.0:
      resolution: {integrity: sha512-YgvUTfwqyc7UXVMrB+SImsVYSmTS8X/tSrtdNZMImM+n7+QTriRXyXim0mBrTXNeqzVF0KWGgHPeiyViFFrNDw==}
      engines: {node: '>=18'}
-@@ -14222,6 +15066,17 @@ packages:
+@@ -14679,6 +15522,17 @@ packages:
      engines: {node: '>= 14.6'}
      hasBin: true
  
@@ -4379,7 +4250,7 @@ index 1490a0f9f7..3ace778b4b 100644
    yocto-queue@0.1.0:
      resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
      engines: {node: '>=10'}
-@@ -14906,6 +15761,99 @@ snapshots:
+@@ -15363,6 +16217,99 @@ snapshots:
        - ws
        - zod
  
@@ -4479,7 +4350,7 @@ index 1490a0f9f7..3ace778b4b 100644
    '@emnapi/core@1.10.0':
      dependencies:
        '@emnapi/wasi-threads': 1.2.1
-@@ -15198,7 +16146,9 @@ snapshots:
+@@ -15655,7 +16602,9 @@ snapshots:
        '@eslint/core': 1.2.1
        levn: 0.4.1
  
@@ -4490,7 +4361,7 @@ index 1490a0f9f7..3ace778b4b 100644
  
    '@google/genai@1.52.0(@modelcontextprotocol/sdk@1.29.0(zod@4.4.3))':
      dependencies:
-@@ -15432,6 +16382,19 @@ snapshots:
+@@ -15889,6 +16838,19 @@ snapshots:
    '@koromix/koffi-win32-x64@3.1.1':
      optional: true
  
@@ -4510,7 +4381,7 @@ index 1490a0f9f7..3ace778b4b 100644
    '@mermaid-js/mermaid-mindmap@9.3.0':
      dependencies:
        '@braintree/sanitize-url': 6.0.4
-@@ -15519,6 +16482,10 @@ snapshots:
+@@ -15976,6 +16938,10 @@ snapshots:
        '@tybys/wasm-util': 0.10.2
      optional: true
  
@@ -4521,11 +4392,11 @@ index 1490a0f9f7..3ace778b4b 100644
    '@nodable/entities@2.2.0': {}
  
    '@openai/codex@0.147.0':
-@@ -15830,6 +16797,28 @@ snapshots:
+@@ -16287,6 +17253,28 @@ snapshots:
    '@oxlint/binding-win32-x64-msvc@1.76.0':
      optional: true
  
-+  '@peculiar/asn1-schema@2.8.0':
++  '@peculiar/asn1-schema@2.9.4':
 +    dependencies:
 +      '@peculiar/utils': 2.0.3
 +      asn1js: 3.0.10
@@ -4541,7 +4412,7 @@ index 1490a0f9f7..3ace778b4b 100644
 +
 +  '@peculiar/webcrypto@1.7.1':
 +    dependencies:
-+      '@peculiar/asn1-schema': 2.8.0
++      '@peculiar/asn1-schema': 2.9.4
 +      '@peculiar/json-schema': 1.1.12
 +      '@peculiar/utils': 2.0.3
 +      tslib: 2.8.1
@@ -4550,7 +4421,7 @@ index 1490a0f9f7..3ace778b4b 100644
    '@pkgjs/parseargs@0.11.0':
      optional: true
  
-@@ -16116,6 +17105,8 @@ snapshots:
+@@ -16573,6 +17561,8 @@ snapshots:
  
    '@shikijs/vscode-textmate@10.0.2': {}
  
@@ -4559,7 +4430,7 @@ index 1490a0f9f7..3ace778b4b 100644
    '@sindresorhus/merge-streams@4.0.0': {}
  
    '@smithy/core@3.24.7':
-@@ -16184,6 +17175,10 @@ snapshots:
+@@ -16641,6 +17631,10 @@ snapshots:
        estraverse: 5.3.0
        picomatch: 4.0.4
  
@@ -4570,7 +4441,7 @@ index 1490a0f9f7..3ace778b4b 100644
    '@tanstack/react-virtual@3.14.9(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
      dependencies:
        '@tanstack/virtual-core': 3.17.7
-@@ -16243,6 +17238,13 @@ snapshots:
+@@ -16700,6 +17694,13 @@ snapshots:
      dependencies:
        '@babel/types': 7.29.7
  
@@ -4584,7 +4455,7 @@ index 1490a0f9f7..3ace778b4b 100644
    '@types/chai@5.2.3':
      dependencies:
        '@types/deep-eql': 4.0.2
-@@ -16375,12 +17377,18 @@ snapshots:
+@@ -16832,12 +17833,18 @@ snapshots:
  
    '@types/estree@1.0.9': {}
  
@@ -4603,7 +4474,7 @@ index 1490a0f9f7..3ace778b4b 100644
    '@types/js-yaml@4.0.9': {}
  
    '@types/jsdom@28.0.3':
-@@ -16396,6 +17404,10 @@ snapshots:
+@@ -16853,6 +17860,10 @@ snapshots:
  
    '@types/katex@0.16.8': {}
  
@@ -4614,7 +4485,7 @@ index 1490a0f9f7..3ace778b4b 100644
    '@types/linkify-it@5.0.0': {}
  
    '@types/markdown-it@14.1.2':
-@@ -16436,6 +17448,10 @@ snapshots:
+@@ -16893,6 +17904,10 @@ snapshots:
        '@types/prop-types': 15.7.15
        csstype: 3.2.3
  
@@ -4625,7 +4496,7 @@ index 1490a0f9f7..3ace778b4b 100644
    '@types/retry@0.12.0': {}
  
    '@types/spdx-expression-parse@4.0.0': {}
-@@ -16455,6 +17471,11 @@ snapshots:
+@@ -16912,6 +17927,11 @@ snapshots:
      dependencies:
        '@types/node': 22.20.0
  
@@ -4637,7 +4508,7 @@ index 1490a0f9f7..3ace778b4b 100644
    '@typescript-eslint/types@8.61.0': {}
  
    '@ungap/structured-clone@1.3.3': {}
-@@ -16493,7 +17514,7 @@ snapshots:
+@@ -16950,7 +17970,7 @@ snapshots:
        obug: 2.1.3
        std-env: 4.1.0
        tinyrainbow: 3.1.0
@@ -4646,11 +4517,11 @@ index 1490a0f9f7..3ace778b4b 100644
  
    '@vitest/expect@4.1.8':
      dependencies:
-@@ -16702,8 +17723,12 @@ snapshots:
+@@ -17159,8 +18179,12 @@ snapshots:
      transitivePeerDependencies:
        - typescript
  
-+  '@xmldom/xmldom@0.8.14': {}
++  '@xmldom/xmldom@0.8.15': {}
 +
    '@yarnpkg/cli-dist@4.17.1': {}
  
@@ -4659,14 +4530,13 @@ index 1490a0f9f7..3ace778b4b 100644
    accepts@2.0.0:
      dependencies:
        mime-types: 3.0.2
-@@ -16770,12 +17795,66 @@ snapshots:
+@@ -17227,12 +18251,66 @@ snapshots:
  
    anynum@1.0.0: {}
  
 -  argparse@2.0.1: {}
 -
 -  aria-query@5.3.0:
--    dependencies:
 +  app-builder-lib@26.15.3(dmg-builder@26.15.3)(electron-builder-squirrel-windows@26.15.3):
 +    dependencies:
 +      '@electron/asar': 3.4.1
@@ -4718,7 +4588,7 @@ index 1490a0f9f7..3ace778b4b 100644
 +  argparse@2.0.1: {}
 +
 +  aria-query@5.3.0:
-+    dependencies:
+     dependencies:
        dequal: 2.0.3
  
 +  asn1js@3.0.10:
@@ -4730,7 +4600,7 @@ index 1490a0f9f7..3ace778b4b 100644
    assertion-error@2.0.1: {}
  
    ast-kit@3.0.0-beta.1:
-@@ -16790,6 +17869,16 @@ snapshots:
+@@ -17247,6 +18325,16 @@ snapshots:
        estree-walker: 3.0.3
        js-tokens: 10.0.0
  
@@ -4747,7 +4617,7 @@ index 1490a0f9f7..3ace778b4b 100644
    balanced-match@1.0.2: {}
  
    balanced-match@4.0.4: {}
-@@ -16808,6 +17897,8 @@ snapshots:
+@@ -17265,6 +18353,8 @@ snapshots:
  
    birpc@4.0.0: {}
  
@@ -4756,7 +4626,7 @@ index 1490a0f9f7..3ace778b4b 100644
    body-parser@2.3.0:
      dependencies:
        bytes: 3.1.2
-@@ -16822,8 +17913,16 @@ snapshots:
+@@ -17279,8 +18369,16 @@ snapshots:
      transitivePeerDependencies:
        - supports-color
  
@@ -4773,7 +4643,7 @@ index 1490a0f9f7..3ace778b4b 100644
    brace-expansion@2.1.2:
      dependencies:
        balanced-match: 1.0.2
-@@ -16840,14 +17939,58 @@ snapshots:
+@@ -17297,8 +18395,38 @@ snapshots:
        node-releases: 2.0.51
        update-browserslist-db: 1.2.3(browserslist@4.28.6)
  
@@ -4811,6 +4681,9 @@ index 1490a0f9f7..3ace778b4b 100644
 +
    builtin-modules@3.3.0: {}
  
+   bundle-name@4.1.0:
+@@ -17307,8 +18435,22 @@ snapshots:
+ 
    bytes@3.1.2: {}
  
 +  bytestreamjs@2.0.1: {}
@@ -4832,7 +4705,7 @@ index 1490a0f9f7..3ace778b4b 100644
    call-bind-apply-helpers@1.0.2:
      dependencies:
        es-errors: 1.3.0
-@@ -16864,6 +18007,11 @@ snapshots:
+@@ -17325,6 +18467,11 @@ snapshots:
  
    chai@6.2.2: {}
  
@@ -4844,7 +4717,7 @@ index 1490a0f9f7..3ace778b4b 100644
    chalk@5.6.2: {}
  
    character-entities-html4@2.1.0: {}
-@@ -16882,6 +18030,22 @@ snapshots:
+@@ -17343,6 +18490,22 @@ snapshots:
  
    chownr@3.0.0: {}
  
@@ -4867,7 +4740,7 @@ index 1490a0f9f7..3ace778b4b 100644
    clsx@2.1.1: {}
  
    color-convert@2.0.1:
-@@ -16890,16 +18054,29 @@ snapshots:
+@@ -17351,16 +18514,29 @@ snapshots:
  
    color-name@1.1.4: {}
  
@@ -4897,7 +4770,7 @@ index 1490a0f9f7..3ace778b4b 100644
    content-disposition@1.1.0: {}
  
    content-type@1.0.5: {}
-@@ -16931,6 +18108,9 @@ snapshots:
+@@ -17392,6 +18568,9 @@ snapshots:
      dependencies:
        layout-base: 2.0.1
  
@@ -4907,7 +4780,7 @@ index 1490a0f9f7..3ace778b4b 100644
    cross-spawn@7.0.6:
      dependencies:
        path-key: 3.1.1
-@@ -17130,10 +18310,10 @@ snapshots:
+@@ -17591,10 +18770,10 @@ snapshots:
  
    data-uri-to-buffer@4.0.1: {}
  
@@ -4920,7 +4793,7 @@ index 1490a0f9f7..3ace778b4b 100644
      transitivePeerDependencies:
        - '@noble/hashes'
  
-@@ -17149,20 +18329,45 @@ snapshots:
+@@ -17610,6 +18789,10 @@ snapshots:
      dependencies:
        character-entities: 2.0.2
  
@@ -4929,6 +4802,11 @@ index 1490a0f9f7..3ace778b4b 100644
 +      mimic-response: 3.1.0
 +
    deep-is@0.1.4: {}
+ 
+   default-browser-id@5.0.1: {}
+@@ -17619,20 +18802,41 @@ snapshots:
+       bundle-name: 4.1.0
+       default-browser-id: 5.0.1
  
 +  defer-to-connect@2.0.1: {}
 +
@@ -4939,6 +4817,8 @@ index 1490a0f9f7..3ace778b4b 100644
 +      gopd: 1.2.0
 +    optional: true
 +
+   define-lazy-prop@3.0.0: {}
+ 
 +  define-properties@1.2.1:
 +    dependencies:
 +      define-data-property: 1.1.4
@@ -4966,7 +4846,7 @@ index 1490a0f9f7..3ace778b4b 100644
    devlop@1.1.0:
      dependencies:
        dequal: 2.0.3
-@@ -17171,6 +18376,21 @@ snapshots:
+@@ -17641,6 +18845,21 @@ snapshots:
  
    diff@9.0.0: {}
  
@@ -4988,7 +4868,7 @@ index 1490a0f9f7..3ace778b4b 100644
    dockerfile-ast@0.7.1:
      dependencies:
        vscode-languageserver-textdocument: 1.0.12
-@@ -17182,6 +18402,12 @@ snapshots:
+@@ -17652,6 +18871,12 @@ snapshots:
      optionalDependencies:
        '@types/trusted-types': 2.0.7
  
@@ -5001,7 +4881,7 @@ index 1490a0f9f7..3ace778b4b 100644
    dts-resolver@3.0.0(oxc-resolver@11.20.0):
      optionalDependencies:
        oxc-resolver: 11.20.0
-@@ -17192,6 +18418,10 @@ snapshots:
+@@ -17662,6 +18887,10 @@ snapshots:
        es-errors: 1.3.0
        gopd: 1.2.0
  
@@ -5012,7 +4892,7 @@ index 1490a0f9f7..3ace778b4b 100644
    e2b@2.29.1:
      dependencies:
        '@bufbuild/protobuf': 2.13.0
-@@ -17214,8 +18444,71 @@ snapshots:
+@@ -17684,8 +18913,71 @@ snapshots:
  
    ee-first@1.1.1: {}
  
@@ -5084,7 +4964,7 @@ index 1490a0f9f7..3ace778b4b 100644
    emoji-regex-xs@1.0.0: {}
  
    emoji-regex@8.0.0: {}
-@@ -17226,10 +18519,18 @@ snapshots:
+@@ -17696,10 +18988,18 @@ snapshots:
  
    encodeurl@2.0.0: {}
  
@@ -5103,7 +4983,7 @@ index 1490a0f9f7..3ace778b4b 100644
    es-define-property@1.0.1: {}
  
    es-errors@1.3.0: {}
-@@ -17240,8 +18541,18 @@ snapshots:
+@@ -17710,8 +19010,18 @@ snapshots:
      dependencies:
        es-errors: 1.3.0
  
@@ -5122,7 +5002,7 @@ index 1490a0f9f7..3ace778b4b 100644
    esbuild@0.21.5:
      optionalDependencies:
        '@esbuild/aix-ppc64': 0.21.5
-@@ -17457,6 +18768,8 @@ snapshots:
+@@ -17927,6 +19237,8 @@ snapshots:
  
    expect-type@1.3.0: {}
  
@@ -5131,7 +5011,7 @@ index 1490a0f9f7..3ace778b4b 100644
    express-rate-limit@8.5.2(express@5.2.1):
      dependencies:
        express: 5.2.1
-@@ -17497,6 +18810,16 @@ snapshots:
+@@ -17967,6 +19279,16 @@ snapshots:
  
    extend@3.0.2: {}
  
@@ -5148,7 +5028,7 @@ index 1490a0f9f7..3ace778b4b 100644
    fast-check@4.8.0:
      dependencies:
        pure-rand: 8.4.0
-@@ -17525,6 +18848,10 @@ snapshots:
+@@ -17995,6 +19317,10 @@ snapshots:
      dependencies:
        walk-up-path: 4.0.0
  
@@ -5159,7 +5039,7 @@ index 1490a0f9f7..3ace778b4b 100644
    fdir@6.5.0(picomatch@4.0.4):
      optionalDependencies:
        picomatch: 4.0.4
-@@ -17544,6 +18871,10 @@ snapshots:
+@@ -18014,6 +19340,10 @@ snapshots:
      dependencies:
        flat-cache: 4.0.1
  
@@ -5170,7 +5050,7 @@ index 1490a0f9f7..3ace778b4b 100644
    finalhandler@2.1.1:
      dependencies:
        debug: 4.4.3
-@@ -17576,6 +18907,14 @@ snapshots:
+@@ -18046,6 +19376,14 @@ snapshots:
        cross-spawn: 7.0.6
        signal-exit: 4.1.0
  
@@ -5185,7 +5065,7 @@ index 1490a0f9f7..3ace778b4b 100644
    formatly@0.3.0:
      dependencies:
        fd-package-json: 2.0.0
-@@ -17588,6 +18927,45 @@ snapshots:
+@@ -18058,6 +19396,45 @@ snapshots:
  
    fresh@2.0.0: {}
  
@@ -5231,7 +5111,7 @@ index 1490a0f9f7..3ace778b4b 100644
    fsevents@2.3.2:
      optional: true
  
-@@ -17616,6 +18994,8 @@ snapshots:
+@@ -18086,6 +19463,8 @@ snapshots:
  
    gensync@1.0.0-beta.2: {}
  
@@ -5240,7 +5120,7 @@ index 1490a0f9f7..3ace778b4b 100644
    get-intrinsic@1.3.0:
      dependencies:
        call-bind-apply-helpers: 1.0.2
-@@ -17634,6 +19014,10 @@ snapshots:
+@@ -18104,6 +19483,10 @@ snapshots:
        dunder-proto: 1.0.1
        es-object-atoms: 1.1.2
  
@@ -5251,7 +5131,7 @@ index 1490a0f9f7..3ace778b4b 100644
    get-stream@9.0.1:
      dependencies:
        '@sec-ant/readable-stream': 0.4.1
-@@ -17669,8 +19053,33 @@ snapshots:
+@@ -18139,8 +19522,33 @@ snapshots:
        package-json-from-dist: 1.0.1
        path-scurry: 2.0.2
  
@@ -5285,7 +5165,7 @@ index 1490a0f9f7..3ace778b4b 100644
    globrex@0.1.2: {}
  
    google-auth-library@10.7.0:
-@@ -17688,12 +19097,37 @@ snapshots:
+@@ -18158,12 +19566,37 @@ snapshots:
  
    gopd@1.2.0: {}
  
@@ -5323,7 +5203,7 @@ index 1490a0f9f7..3ace778b4b 100644
    hasown@2.0.4:
      dependencies:
        function-bind: 1.1.2
-@@ -17722,9 +19156,13 @@ snapshots:
+@@ -18192,9 +19625,13 @@ snapshots:
  
    hookable@6.1.1: {}
  
@@ -5339,7 +5219,7 @@ index 1490a0f9f7..3ace778b4b 100644
      transitivePeerDependencies:
        - '@noble/hashes'
  
-@@ -17732,6 +19170,8 @@ snapshots:
+@@ -18202,6 +19639,8 @@ snapshots:
  
    html-void-elements@3.0.0: {}
  
@@ -5348,7 +5228,7 @@ index 1490a0f9f7..3ace778b4b 100644
    http-errors@2.0.1:
      dependencies:
        depd: 2.0.0
-@@ -17747,6 +19187,11 @@ snapshots:
+@@ -18217,6 +19656,11 @@ snapshots:
      transitivePeerDependencies:
        - supports-color
  
@@ -5360,7 +5240,7 @@ index 1490a0f9f7..3ace778b4b 100644
    https-proxy-agent@7.0.6:
      dependencies:
        agent-base: 7.1.4
-@@ -17776,6 +19221,11 @@ snapshots:
+@@ -18246,6 +19690,11 @@ snapshots:
  
    imurmurhash@0.1.4: {}
  
@@ -5372,7 +5252,7 @@ index 1490a0f9f7..3ace778b4b 100644
    inherits@2.0.4: {}
  
    internmap@1.0.1: {}
-@@ -17808,8 +19258,16 @@ snapshots:
+@@ -18290,8 +19739,16 @@ snapshots:
  
    isarray@1.0.0: {}
  
@@ -5389,7 +5269,7 @@ index 1490a0f9f7..3ace778b4b 100644
    istanbul-lib-coverage@3.2.2: {}
  
    istanbul-lib-report@3.0.1:
-@@ -17833,6 +19291,12 @@ snapshots:
+@@ -18315,6 +19772,12 @@ snapshots:
      dependencies:
        '@isaacs/cliui': 9.0.0
  
@@ -5402,7 +5282,7 @@ index 1490a0f9f7..3ace778b4b 100644
    jiti@2.7.0: {}
  
    jose@6.2.3: {}
-@@ -17872,17 +19336,17 @@ snapshots:
+@@ -18354,17 +19817,17 @@ snapshots:
        jscpd-linux-x64-musl: 5.0.12
        jscpd-windows-x64-msvc: 5.0.12
  
@@ -5424,7 +5304,7 @@ index 1490a0f9f7..3ace778b4b 100644
        is-potential-custom-element-name: 1.0.1
        lru-cache: 11.5.1
        parse5: 8.0.1
-@@ -17893,7 +19357,7 @@ snapshots:
+@@ -18375,7 +19838,7 @@ snapshots:
        w3c-xmlserializer: 5.0.0
        webidl-conversions: 8.0.1
        whatwg-mimetype: 5.0.0
@@ -5433,7 +5313,7 @@ index 1490a0f9f7..3ace778b4b 100644
        xml-name-validator: 5.0.0
      transitivePeerDependencies:
        - '@noble/hashes'
-@@ -17919,8 +19383,21 @@ snapshots:
+@@ -18401,8 +19864,21 @@ snapshots:
  
    json-stable-stringify-without-jsonify@1.0.1: {}
  
@@ -5455,7 +5335,7 @@ index 1490a0f9f7..3ace778b4b 100644
    jsx-ast-utils-x@0.1.0: {}
  
    jszip@3.10.1:
-@@ -17989,6 +19466,8 @@ snapshots:
+@@ -18471,6 +19947,8 @@ snapshots:
  
    layout-base@2.0.1: {}
  
@@ -5464,7 +5344,7 @@ index 1490a0f9f7..3ace778b4b 100644
    lefthook-darwin-arm64@2.1.9:
      optional: true
  
-@@ -18098,6 +19577,8 @@ snapshots:
+@@ -18580,6 +20058,8 @@ snapshots:
  
    lodash.merge@4.6.2: {}
  
@@ -5473,7 +5353,7 @@ index 1490a0f9f7..3ace778b4b 100644
    long@5.3.2: {}
  
    longest-streak@3.1.0: {}
-@@ -18106,6 +19587,8 @@ snapshots:
+@@ -18588,6 +20068,8 @@ snapshots:
      dependencies:
        js-tokens: 4.0.0
  
@@ -5482,7 +5362,7 @@ index 1490a0f9f7..3ace778b4b 100644
    lru-cache@10.4.3: {}
  
    lru-cache@11.5.1: {}
-@@ -18114,6 +19597,10 @@ snapshots:
+@@ -18596,6 +20078,10 @@ snapshots:
      dependencies:
        yallist: 3.1.1
  
@@ -5493,7 +5373,7 @@ index 1490a0f9f7..3ace778b4b 100644
    lz-string@1.5.0: {}
  
    magic-string@0.30.21:
-@@ -18136,6 +19623,11 @@ snapshots:
+@@ -18618,6 +20104,11 @@ snapshots:
  
    marked@16.4.2: {}
  
@@ -5505,7 +5385,7 @@ index 1490a0f9f7..3ace778b4b 100644
    math-intrinsics@1.1.0: {}
  
    mdast-util-find-and-replace@3.0.2:
-@@ -18495,20 +19987,42 @@ snapshots:
+@@ -18977,20 +20468,42 @@ snapshots:
      transitivePeerDependencies:
        - supports-color
  
@@ -5548,7 +5428,7 @@ index 1490a0f9f7..3ace778b4b 100644
    minipass@7.1.3: {}
  
    minisearch@7.2.0: {}
-@@ -18519,6 +20033,10 @@ snapshots:
+@@ -19001,6 +20514,10 @@ snapshots:
  
    mitt@3.0.1: {}
  
@@ -5559,7 +5439,7 @@ index 1490a0f9f7..3ace778b4b 100644
    mri@1.2.0: {}
  
    ms@2.1.3: {}
-@@ -18529,6 +20047,10 @@ snapshots:
+@@ -19011,6 +20528,10 @@ snapshots:
  
    negotiator@1.0.0: {}
  
@@ -5570,7 +5450,7 @@ index 1490a0f9f7..3ace778b4b 100644
    node-addon-api@7.1.1: {}
  
    node-addon-native-custom-loader@0.1.4: {}
-@@ -18580,6 +20102,10 @@ snapshots:
+@@ -19062,6 +20583,10 @@ snapshots:
        node-addon-require-builtin-win32-ia32-msvc: 0.1.4
        node-addon-require-builtin-win32-x64-msvc: 0.1.4
  
@@ -5581,7 +5461,7 @@ index 1490a0f9f7..3ace778b4b 100644
    node-domexception@1.0.0: {}
  
    node-fetch@3.3.2:
-@@ -18588,6 +20114,21 @@ snapshots:
+@@ -19070,6 +20595,21 @@ snapshots:
        fetch-blob: 3.2.0
        formdata-polyfill: 4.0.10
  
@@ -5600,10 +5480,10 @@ index 1490a0f9f7..3ace778b4b 100644
 +
 +  node-int64@0.4.0: {}
 +
-   node-pty@1.1.0(patch_hash=7a0c04f1f49d798a9ffe2f7f414c01064a44ca2489772d0c3e1235ab336755e6):
+   node-pty@1.2.0-beta.15(patch_hash=b40ae545608897914bd25fb009c97eeac478c34e8a910298ddcb01b746534bb0):
      dependencies:
        node-addon-api: 7.1.1
-@@ -18597,6 +20138,12 @@ snapshots:
+@@ -19079,6 +20619,12 @@ snapshots:
    non-layered-tidy-tree-layout@2.0.2:
      optional: true
  
@@ -5616,7 +5496,7 @@ index 1490a0f9f7..3ace778b4b 100644
    npm-run-path@6.0.0:
      dependencies:
        path-key: 4.0.0
-@@ -18606,6 +20153,9 @@ snapshots:
+@@ -19088,6 +20634,9 @@ snapshots:
  
    object-inspect@1.13.4: {}
  
@@ -5626,7 +5506,7 @@ index 1490a0f9f7..3ace778b4b 100644
    obug@2.1.3: {}
  
    on-finished@2.4.1:
-@@ -18729,6 +20279,8 @@ snapshots:
+@@ -19220,6 +20769,8 @@ snapshots:
        '@oxlint/binding-win32-x64-msvc': 1.76.0
        oxlint-tsgolint: 7.0.2001
  
@@ -5635,7 +5515,7 @@ index 1490a0f9f7..3ace778b4b 100644
    p-limit@3.1.0:
      dependencies:
        yocto-queue: 0.1.0
-@@ -18764,6 +20316,8 @@ snapshots:
+@@ -19255,6 +20806,8 @@ snapshots:
  
    path-expression-matcher@1.5.0: {}
  
@@ -5644,7 +5524,7 @@ index 1490a0f9f7..3ace778b4b 100644
    path-key@3.1.1: {}
  
    path-key@4.0.0: {}
-@@ -18782,6 +20336,10 @@ snapshots:
+@@ -19273,6 +20826,10 @@ snapshots:
  
    pathe@2.0.3: {}
  
@@ -5655,7 +5535,7 @@ index 1490a0f9f7..3ace778b4b 100644
    perfect-debounce@1.0.0: {}
  
    picocolors@1.1.1: {}
-@@ -18790,6 +20348,15 @@ snapshots:
+@@ -19281,6 +20838,15 @@ snapshots:
  
    pkce-challenge@5.0.1: {}
  
@@ -5671,20 +5551,20 @@ index 1490a0f9f7..3ace778b4b 100644
    platform@1.3.6: {}
  
    playwright-core@1.61.1: {}
-@@ -18800,6 +20367,12 @@ snapshots:
+@@ -19291,6 +20857,12 @@ snapshots:
      optionalDependencies:
        fsevents: 2.3.2
  
 +  plist@3.1.0:
 +    dependencies:
-+      '@xmldom/xmldom': 0.8.14
++      '@xmldom/xmldom': 0.8.15
 +      base64-js: 1.5.1
 +      xmlbuilder: 15.1.1
 +
    points-on-curve@0.2.0: {}
  
    points-on-path@0.2.1:
-@@ -18813,6 +20386,11 @@ snapshots:
+@@ -19304,6 +20876,11 @@ snapshots:
        picocolors: 1.1.1
        source-map-js: 1.2.1
  
@@ -5693,10 +5573,10 @@ index 1490a0f9f7..3ace778b4b 100644
 +      commander: 9.5.0
 +    optional: true
 +
-   preact@10.29.7: {}
+   powershell-utils@0.1.0: {}
  
-   prelude-ls@1.2.1: {}
-@@ -18827,8 +20405,23 @@ snapshots:
+   preact@10.29.7: {}
+@@ -19320,8 +20897,23 @@ snapshots:
      dependencies:
        parse-ms: 4.0.0
  
@@ -5720,7 +5600,7 @@ index 1490a0f9f7..3ace778b4b 100644
    property-information@7.2.0: {}
  
    protobufjs@7.6.4:
-@@ -18857,10 +20450,21 @@ snapshots:
+@@ -19350,10 +20942,21 @@ snapshots:
        picocolors: 1.1.1
        sade: 1.8.1
  
@@ -5742,7 +5622,7 @@ index 1490a0f9f7..3ace778b4b 100644
    qs@6.15.3:
      dependencies:
        es-define-property: 1.0.1
-@@ -18868,6 +20472,8 @@ snapshots:
+@@ -19361,6 +20964,8 @@ snapshots:
  
    quansync@1.0.0: {}
  
@@ -5751,7 +5631,7 @@ index 1490a0f9f7..3ace778b4b 100644
    range-parser@1.3.0: {}
  
    raw-body@3.0.2:
-@@ -18891,6 +20497,12 @@ snapshots:
+@@ -19384,6 +20989,12 @@ snapshots:
      dependencies:
        loose-envify: 1.4.0
  
@@ -5764,7 +5644,7 @@ index 1490a0f9f7..3ace778b4b 100644
    readable-stream@2.3.8:
      dependencies:
        core-util-is: 1.0.3
-@@ -18924,14 +20536,42 @@ snapshots:
+@@ -19417,14 +21028,42 @@ snapshots:
        '@eslint-community/regexpp': 4.12.2
        refa: 0.12.1
  
@@ -5807,7 +5687,7 @@ index 1490a0f9f7..3ace778b4b 100644
    robust-predicates@3.0.3: {}
  
    rolldown-plugin-dts@0.25.2(oxc-resolver@11.20.0)(rolldown@1.1.1)(typescript@6.0.3):
-@@ -19052,6 +20692,12 @@ snapshots:
+@@ -19547,6 +21186,12 @@ snapshots:
  
    safer-buffer@2.1.2: {}
  
@@ -5820,7 +5700,7 @@ index 1490a0f9f7..3ace778b4b 100644
    saxes@6.0.0:
      dependencies:
        xmlchars: 2.2.0
-@@ -19068,8 +20714,15 @@ snapshots:
+@@ -19563,8 +21208,15 @@ snapshots:
  
    search-insights@2.17.3: {}
  
@@ -5836,7 +5716,7 @@ index 1490a0f9f7..3ace778b4b 100644
    semver@7.8.4: {}
  
    semver@7.8.5: {}
-@@ -19090,6 +20743,11 @@ snapshots:
+@@ -19585,6 +21237,11 @@ snapshots:
      transitivePeerDependencies:
        - supports-color
  
@@ -5848,7 +5728,7 @@ index 1490a0f9f7..3ace778b4b 100644
    serve-static@2.2.1:
      dependencies:
        encodeurl: 2.0.0
-@@ -19194,14 +20852,27 @@ snapshots:
+@@ -19689,14 +21346,27 @@ snapshots:
  
    siginfo@2.0.0: {}
  
@@ -5876,7 +5756,7 @@ index 1490a0f9f7..3ace778b4b 100644
    space-separated-tokens@2.0.2: {}
  
    spdx-exceptions@2.5.0: {}
-@@ -19215,8 +20886,13 @@ snapshots:
+@@ -19710,8 +21380,13 @@ snapshots:
  
    speakingurl@14.0.1: {}
  
@@ -5890,7 +5770,7 @@ index 1490a0f9f7..3ace778b4b 100644
    statuses@2.0.2: {}
  
    std-env@4.1.0: {}
-@@ -19260,6 +20936,12 @@ snapshots:
+@@ -19755,6 +21430,12 @@ snapshots:
  
    stylis@4.4.0: {}
  
@@ -5903,7 +5783,7 @@ index 1490a0f9f7..3ace778b4b 100644
    superjson@2.2.6:
      dependencies:
        copy-anything: 4.0.5
-@@ -19282,6 +20964,20 @@ snapshots:
+@@ -19777,6 +21458,20 @@ snapshots:
        minizlib: 3.1.0
        yallist: 5.0.0
  
@@ -5924,7 +5804,7 @@ index 1490a0f9f7..3ace778b4b 100644
    tinybench@2.9.0: {}
  
    tinyexec@1.2.4: {}
-@@ -19299,6 +20995,12 @@ snapshots:
+@@ -19794,6 +21489,12 @@ snapshots:
      dependencies:
        tldts-core: 7.4.5
  
@@ -5937,7 +5817,7 @@ index 1490a0f9f7..3ace778b4b 100644
    toidentifier@1.0.1: {}
  
    tough-cookie@6.0.1:
-@@ -19313,6 +21015,10 @@ snapshots:
+@@ -19808,6 +21509,10 @@ snapshots:
  
    trim-lines@3.0.1: {}
  
@@ -5948,7 +5828,7 @@ index 1490a0f9f7..3ace778b4b 100644
    ts-algebra@2.0.0: {}
  
    ts-api-utils@2.5.0(typescript@6.0.3):
-@@ -19368,6 +21074,9 @@ snapshots:
+@@ -19863,6 +21568,9 @@ snapshots:
      dependencies:
        prelude-ls: 1.2.1
  
@@ -5958,7 +5838,7 @@ index 1490a0f9f7..3ace778b4b 100644
    type-is@2.1.0:
      dependencies:
        content-type: 2.0.0
-@@ -19396,6 +21105,8 @@ snapshots:
+@@ -19891,6 +21599,8 @@ snapshots:
  
    undici-types@8.3.0: {}
  
@@ -5967,7 +5847,7 @@ index 1490a0f9f7..3ace778b4b 100644
    undici@7.28.0: {}
  
    unicorn-magic@0.3.0: {}
-@@ -19428,8 +21139,20 @@ snapshots:
+@@ -19923,8 +21633,20 @@ snapshots:
        unist-util-is: 6.0.1
        unist-util-visit-parents: 6.0.2
  
@@ -5988,7 +5868,7 @@ index 1490a0f9f7..3ace778b4b 100644
    update-browserslist-db@1.2.3(browserslist@4.28.6):
      dependencies:
        browserslist: 4.28.6
-@@ -19444,6 +21167,8 @@ snapshots:
+@@ -19939,6 +21661,8 @@ snapshots:
      dependencies:
        react: 18.3.1
  
@@ -5997,7 +5877,7 @@ index 1490a0f9f7..3ace778b4b 100644
    util-deprecate@1.0.2: {}
  
    uuid@14.0.1: {}
-@@ -19583,7 +21308,7 @@ snapshots:
+@@ -20078,7 +21802,7 @@ snapshots:
        - typescript
        - universal-cookie
  
@@ -6006,7 +5886,7 @@ index 1490a0f9f7..3ace778b4b 100644
      dependencies:
        '@vitest/expect': 4.1.8
        '@vitest/mocker': 4.1.8(vite@6.4.3(@types/node@22.20.0)(jiti@2.7.0)(lightningcss@1.32.0)(tsx@4.22.4)(yaml@2.9.0))
-@@ -19609,11 +21334,11 @@ snapshots:
+@@ -20104,11 +21828,11 @@ snapshots:
        '@opentelemetry/api': 1.9.0
        '@types/node': 22.20.0
        '@vitest/coverage-v8': 4.1.8(vitest@4.1.8)
@@ -6020,7 +5900,7 @@ index 1490a0f9f7..3ace778b4b 100644
      dependencies:
        '@vitest/expect': 4.1.8
        '@vitest/mocker': 4.1.8(vite@8.0.16(@types/node@26.1.2)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.22.4)(yaml@2.9.0))
-@@ -19639,11 +21364,11 @@ snapshots:
+@@ -20134,11 +21858,11 @@ snapshots:
        '@opentelemetry/api': 1.9.0
        '@types/node': 25.9.3
        '@vitest/coverage-v8': 4.1.8(vitest@4.1.8)
@@ -6034,7 +5914,7 @@ index 1490a0f9f7..3ace778b4b 100644
      dependencies:
        '@vitest/expect': 4.1.8
        '@vitest/mocker': 4.1.8(vite@8.0.16(@types/node@22.20.0)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.22.4)(yaml@2.9.0))
-@@ -19669,11 +21394,11 @@ snapshots:
+@@ -20164,11 +21888,11 @@ snapshots:
        '@opentelemetry/api': 1.9.1
        '@types/node': 22.20.0
        '@vitest/coverage-v8': 4.1.8(vitest@4.1.8)
@@ -6048,7 +5928,7 @@ index 1490a0f9f7..3ace778b4b 100644
      dependencies:
        '@vitest/expect': 4.1.8
        '@vitest/mocker': 4.1.8(vite@8.0.16(@types/node@26.1.2)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.22.4)(yaml@2.9.0))
-@@ -19699,7 +21424,7 @@ snapshots:
+@@ -20194,7 +21918,7 @@ snapshots:
        '@opentelemetry/api': 1.9.1
        '@types/node': 25.9.3
        '@vitest/coverage-v8': 4.1.8(vitest@4.1.8)
@@ -6057,13 +5937,13 @@ index 1490a0f9f7..3ace778b4b 100644
      transitivePeerDependencies:
        - msw
  
-@@ -19734,13 +21459,21 @@ snapshots:
+@@ -20229,13 +21953,21 @@ snapshots:
  
    web-streams-polyfill@3.3.3: {}
  
 +  webcrypto-core@1.9.2:
 +    dependencies:
-+      '@peculiar/asn1-schema': 2.8.0
++      '@peculiar/asn1-schema': 2.9.4
 +      '@peculiar/json-schema': 1.1.12
 +      '@peculiar/utils': 2.0.3
 +      asn1js: 3.0.10
@@ -6081,7 +5961,7 @@ index 1490a0f9f7..3ace778b4b 100644
        tr46: 6.0.0
        webidl-conversions: 8.0.1
      transitivePeerDependencies:
-@@ -19752,6 +21485,14 @@ snapshots:
+@@ -20247,6 +21979,14 @@ snapshots:
      dependencies:
        isexe: 2.0.0
  
@@ -6096,7 +5976,7 @@ index 1490a0f9f7..3ace778b4b 100644
    why-is-node-running@2.3.0:
      dependencies:
        siginfo: 2.0.0
-@@ -19779,14 +21520,37 @@ snapshots:
+@@ -20279,14 +22019,37 @@ snapshots:
  
    xml-naming@0.1.0: {}
  
@@ -6135,7 +6015,7 @@ index 1490a0f9f7..3ace778b4b 100644
  
    yoctocolors@2.1.2: {}
 diff --git a/pnpm-workspace.yaml b/pnpm-workspace.yaml
-index e8d8ee5bec..bb1408ff6a 100644
+index ec6cfd3af9..ab1ca88610 100644
 --- a/pnpm-workspace.yaml
 +++ b/pnpm-workspace.yaml
 @@ -53,6 +53,12 @@ allowBuilds:
@@ -6152,10 +6032,10 @@ index e8d8ee5bec..bb1408ff6a 100644
  minimumReleaseAgeExclude:
    # Fresh pi-ai releases carry the model catalog updates that are the whole
 diff --git a/scripts/check-workspace-constraints.ts b/scripts/check-workspace-constraints.ts
-index 29742995ee..f8f1e190c4 100644
+index e87106ed14..721ac17086 100644
 --- a/scripts/check-workspace-constraints.ts
 +++ b/scripts/check-workspace-constraints.ts
-@@ -56,6 +56,9 @@ const appPackageFiles: Readonly<Record<string, readonly string[]>> = {
+@@ -61,6 +61,9 @@ const appPackageFiles: Readonly<Record<string, readonly string[]>> = {
    // The Web build emits sourcemaps for browser debugging; publishing them is
    // what the payload policy forbids, so the bundle ships without them.
    '@deepseek-ai/dsh-web-frontend': ['dist', '!dist/**/*.map'],
@@ -6166,10 +6046,10 @@ index 29742995ee..f8f1e190c4 100644
  
  /** The subset of package.json fields this constraint check cares about. */
 diff --git a/tsconfig.base.json b/tsconfig.base.json
-index 16d69db6db..02ce687785 100644
+index 8d8d5e1433..8020de8dc8 100644
 --- a/tsconfig.base.json
 +++ b/tsconfig.base.json
-@@ -165,6 +165,8 @@
+@@ -173,6 +173,8 @@
        "@deepseek-ai/dsh-host-directory-picker-native/*": ["./packages/host/directory-picker-native/src/*"],
        "@deepseek-ai/dsh-host-directory-picker-auto": ["./packages/host/directory-picker-auto/src"],
        "@deepseek-ai/dsh-host-directory-picker-auto/*": ["./packages/host/directory-picker-auto/src/*"],
@@ -6178,7 +6058,7 @@ index 16d69db6db..02ce687785 100644
        "@deepseek-ai/dsh-host-apiproxy/client": ["./packages/host/apiproxy/src/fetch/client.ts"],
        "@deepseek-ai/dsh-host-apiproxy/*": ["./packages/host/apiproxy/src/*"],
        "@deepseek-ai/dsh-host-webserver": ["./packages/host/webserver/src"],
-@@ -213,6 +215,7 @@
+@@ -223,6 +225,7 @@
        "@deepseek-ai/dsh-client-ui-user-questions": ["./packages/client/ui-user-questions/src"],
        "@deepseek-ai/dsh-client-ui-trajectory": ["./packages/client/ui-trajectory/src"],
        "@deepseek-ai/dsh-client-ui-workspace": ["./packages/client/ui-workspace/src"],
@@ -6187,10 +6067,10 @@ index 16d69db6db..02ce687785 100644
        "@deepseek-ai/dsh-client-ui-settings": ["./packages/client/ui-settings/src"],
        "@deepseek-ai/dsh-client-ui-settings-general": ["./packages/client/ui-settings-general/src"],
 diff --git a/tsconfig.client.json b/tsconfig.client.json
-index e599f76f1b..a2bd065d23 100644
+index b5874b6fde..e4aaa29e22 100644
 --- a/tsconfig.client.json
 +++ b/tsconfig.client.json
-@@ -76,6 +76,7 @@
+@@ -78,6 +78,7 @@
      { "path": "./packages/client/ui-jobs" },
      { "path": "./packages/client/ui-directory-picker-browse" },
      { "path": "./packages/client/ui-directory-picker-native" },
@@ -6199,10 +6079,10 @@ index e599f76f1b..a2bd065d23 100644
      { "path": "./packages/client/ui-message-feedback" },
      { "path": "./packages/client/ui-model-selection" },
 diff --git a/tsconfig.host.json b/tsconfig.host.json
-index 459036247a..a39cd1c0a7 100644
+index f37b98ea57..5d9e4fb1b0 100644
 --- a/tsconfig.host.json
 +++ b/tsconfig.host.json
-@@ -83,6 +83,7 @@
+@@ -89,6 +89,7 @@
      "apps/web/tests/workflow-run.e2e.ts",
      "apps/web/stress-tests/reasoning-chunks.stress.ts",
      "apps/cli/tests/**/*.ts",
@@ -6210,7 +6090,7 @@ index 459036247a..a39cd1c0a7 100644
      "examples/*/src/**/*.ts",
      "examples/*/start.ts",
      "examples/*/tests/**/*.ts",
-@@ -285,6 +286,7 @@
+@@ -299,6 +300,7 @@
      { "path": "./packages/host/directory-picker-auto" },
      { "path": "./packages/host/directory-picker-browse" },
      { "path": "./packages/host/directory-picker-native" },
@@ -6218,7 +6098,7 @@ index 459036247a..a39cd1c0a7 100644
      { "path": "./packages/host/frontend-static" },
      { "path": "./packages/host/plugin-inventory" },
      { "path": "./packages/host/webserver" },
-@@ -293,6 +295,7 @@
+@@ -307,6 +309,7 @@
      { "path": "./packages/lsp/lsp" },
      { "path": "./packages/lsp/lsp-stdio" },
      { "path": "./packages/lsp/tool-lsp" },
